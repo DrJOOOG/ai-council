@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>AI Council</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Sohne:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #0a0a0f;
+  --bg-2: #13131b;
+  --bg-3: #1c1c28;
+  --border: #2a2a3a;
+  --border-hi: #3a3a4e;
+  --text: #e8e8f0;
+  --text-dim: #8a8aa0;
+  --text-mute: #5a5a70;
+  --accent: #d4ff3a;
+
+  --claude: #da7756;
+  --openai: #10a37f;
+  --gemini: #4285f4;
+  --perplexity: #20b8cd;
+  --council: #d4ff3a;
+
+  --danger: #ff5570;
+  --ok: #4ade80;
+
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ===== Grain overlay ===== */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ===== Header ===== */
+header {
+  padding: calc(var(--safe-top) + 14px) 18px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.brand-mark {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.brand-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.brand-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 6px;
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.header-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.header-btn:active { transform: scale(0.95); }
+.header-btn:hover { border-color: var(--border-hi); color: var(--text); }
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text-dim);
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.tab-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--tab-color, var(--text-mute));
+}
+.tab.active {
+  background: var(--bg-3);
+  color: var(--text);
+  border-color: var(--border-hi);
+}
+.tab.active .tab-dot { box-shadow: 0 0 6px var(--tab-color); }
+.tab.council {
+  background: linear-gradient(90deg, rgba(212,255,58,0.08), transparent);
+}
+.tab.council.active {
+  background: linear-gradient(90deg, rgba(212,255,58,0.15), rgba(212,255,58,0.03));
+  border-color: rgba(212,255,58,0.4);
+  color: var(--accent);
+}
+
+/* ===== Main / messages ===== */
+main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.messages {
+  padding: 20px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-mute);
+}
+.empty-state h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+.empty-state p {
+  font-size: 14px;
+  max-width: 280px;
+  line-height: 1.6;
+}
+.empty-state .hint {
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  border: 1px dashed var(--border);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+/* Message bubble */
+.msg {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.msg-head .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--msg-color, var(--text-mute));
+  box-shadow: 0 0 6px var(--msg-color, transparent);
+}
+.msg-head .author { color: var(--msg-color, var(--text-dim)); font-weight: 600; }
+.msg-head .time { color: var(--text-mute); margin-left: auto; }
+
+.msg-body {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.msg.user .msg-body {
+  background: var(--bg-3);
+  border-color: var(--border-hi);
+}
+.msg.council-synth .msg-body {
+  background: linear-gradient(135deg, rgba(212,255,58,0.06), rgba(212,255,58,0.01));
+  border-color: rgba(212,255,58,0.3);
+}
+
+.msg-body p { margin-bottom: 10px; }
+.msg-body p:last-child { margin-bottom: 0; }
+.msg-body pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.msg-body code {
+  background: var(--bg);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.msg-body pre code { background: transparent; padding: 0; }
+.msg-body strong { color: var(--text); font-weight: 600; }
+.msg-body em { color: var(--text-dim); }
+.msg-body ul, .msg-body ol { margin: 8px 0 8px 20px; }
+.msg-body li { margin-bottom: 4px; }
+.msg-body h1, .msg-body h2, .msg-body h3 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  margin: 14px 0 8px;
+  color: var(--text);
+}
+.msg-body h1 { font-size: 22px; }
+.msg-body h2 { font-size: 19px; }
+.msg-body h3 { font-size: 17px; }
+
+/* Loading */
+.thinking {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+.thinking span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--msg-color, var(--text-dim));
+  animation: bounce 1.4s ease-in-out infinite;
+}
+.thinking span:nth-child(2) { animation-delay: 0.2s; }
+.thinking span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.error-msg {
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px 12px;
+  background: rgba(255,85,112,0.06);
+  border: 1px solid rgba(255,85,112,0.3);
+  border-radius: 6px;
+}
+
+/* ===== Council mode selector ===== */
+.council-mode-bar {
+  padding: 10px 14px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.council-mode-bar::-webkit-scrollbar { display: none; }
+.mode-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-btn.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ===== Composer ===== */
+.composer {
+  padding: 12px 14px calc(12px + var(--safe-bot));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.input-wrap {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: border-color 0.15s;
+}
+.input-wrap:focus-within {
+  border-color: var(--border-hi);
+}
+.input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.4;
+  resize: none;
+  outline: none;
+  max-height: 140px;
+  min-height: 22px;
+}
+.input::placeholder { color: var(--text-mute); }
+
+.send-btn {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent);
+  border: none;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.send-btn:disabled {
+  background: var(--bg-3);
+  color: var(--text-mute);
+  cursor: not-allowed;
+}
+.send-btn:not(:disabled):active { transform: scale(0.94); }
+
+/* ===== Settings panel ===== */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease;
+}
+.settings-overlay.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.settings-panel {
+  width: 100%;
+  max-height: 92dvh;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  padding-bottom: calc(20px + var(--safe-bot));
+  overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-header h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 400;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+.settings-section h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-mute);
+  margin-bottom: 12px;
+}
+
+.api-row {
+  margin-bottom: 14px;
+}
+.api-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.api-label .status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-mute);
+}
+.api-label .status-dot.active { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.api-label .name { font-weight: 600; }
+.api-label .color-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  background: var(--color);
+}
+
+.api-input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+}
+.api-input:focus { border-color: var(--border-hi); }
+
+.api-hint {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+  font-family: var(--mono);
+}
+
+.settings-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.settings-btn:hover { border-color: var(--border-hi); }
+.settings-btn.danger { color: var(--danger); border-color: rgba(255,85,112,0.3); }
+.settings-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+.settings-btn + .settings-btn { margin-top: 8px; }
+
+.info-text {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  background: var(--bg-2);
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 2px solid var(--accent);
+}
+
+/* Model select */
+.model-select {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  outline: none;
+  margin-top: 6px;
+}
+
+/* Install prompt */
+.install-banner {
+  display: none;
+  position: fixed;
+  bottom: calc(80px + var(--safe-bot));
+  left: 14px; right: 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  z-index: 50;
+  animation: slideIn 0.3s ease;
+}
+.install-banner.show { display: block; }
+.install-banner .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.install-banner button {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.install-banner .close {
+  background: transparent;
+  color: var(--text-dim);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <span class="brand-mark">AI Council</span>
+    <span class="brand-sub" id="activeLabel">Claude</span>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="header-btn" id="clearBtn" title="Очистити чат">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+    </button>
+    <button class="header-btn" id="settingsBtn" title="Налаштування">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<div class="council-mode-bar" id="councilModeBar" style="display:none;">
+  <button class="mode-btn active" data-mode="parallel">Паралельно</button>
+  <button class="mode-btn" data-mode="synthesis">Синтез Claude</button>
+  <button class="mode-btn" data-mode="debate">Дебат</button>
+  <button class="mode-btn" data-mode="vote">Голосування</button>
+</div>
+
+<main>
+  <div class="messages" id="messages"></div>
+</main>
+
+<div class="composer">
+  <div class="input-wrap">
+    <textarea class="input" id="input" rows="1" placeholder="Напиши повідомлення..."></textarea>
+  </div>
+  <button class="send-btn" id="sendBtn" aria-label="Надіслати">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+</div>
+
+<!-- Install banner -->
+<div class="install-banner" id="installBanner">
+  <div class="row">
+    <span>Встановити AI Council на екран?</span>
+    <div style="display:flex;gap:6px;">
+      <button id="installBtn">Додати</button>
+      <button class="close" id="installClose">×</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <h2>Налаштування</h2>
+      <button class="header-btn" id="closeSettings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="settings-section">
+      <h3>API ключі</h3>
+      <div class="info-text">
+        Ключі зберігаються локально на твоєму пристрої (localStorage). Вони не надсилаються нікуди крім відповідного API провайдера.
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="api-row">
+        <div class="api-label">
+          <span class="color-dot" style="--color: var(--claude);"></span>
+          <span class="status-dot" id="status-claude"></span>
+          <span class="name">Anthropic Claude</span>
+        </div>
+        <input type="password" class="api-input" id="key-claude" placeholder="sk-ant-...">
+        <div class="api-hint">console.anthropic.com → API Keys</div>
+        <select class="model-select" id="model-claude">
+          <option value="claude-opus-4-5">claude-opus-4-5 (найкращий)</option>
+          <option value="claude-sonnet-4-5" selected>claude-sonnet-4-5</option>
+          <option value="claude-haiku-4-5">claude-haiku-4-5 (швидкий)</option>
+        </select>
+      </div>
+
+      <div class="api-row">
+        <div class="api-label">
+          <span class="color-dot" style="--color: var(--openai);"></span>
+          <span class="status-dot" id="status-openai"></span>
+          <span class="name">OpenAI ChatGPT</span>
+        </div>
+        <input type="password" class="api-input" id="key-openai" placeholder="sk-...">
+        <div class="api-hint">platform.openai.com → API Keys</div>
+        <select class="model-select" id="model-openai">
+          <option value="gpt-4o" selected>gpt-4o</option>
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+          <option value="gpt-4-turbo">gpt-4-turbo</option>
+          <option value="o1-preview">o1-preview</option>
+          <option value="o1-mini">o1-mini</option>
+        </select>
+      </div>
+
+      <div class="api-row">
+        <div class="api-label">
+          <span class="color-dot" style="--color: var(--gemini);"></span>
+          <span class="status-dot" id="status-gemini"></span>
+          <span class="name">Google Gemini</span>
+        </div>
+        <input type="password" class="api-input" id="key-gemini" placeholder="AIza...">
+        <div class="api-hint">aistudio.google.com → Get API Key</div>
+        <select class="model-select" id="model-gemini">
+          <option value="gemini-2.0-flash-exp" selected>gemini-2.0-flash-exp</option>
+          <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        </select>
+      </div>
+
+      <div class="api-row">
+        <div class="api-label">
+          <span class="color-dot" style="--color: var(--perplexity);"></span>
+          <span class="status-dot" id="status-perplexity"></span>
+          <span class="name">Perplexity</span>
+        </div>
+        <input type="password" class="api-input" id="key-perplexity" placeholder="pplx-...">
+        <div class="api-hint">perplexity.ai/settings/api</div>
+        <select class="model-select" id="model-perplexity">
+          <option value="sonar-pro" selected>sonar-pro</option>
+          <option value="sonar">sonar</option>
+          <option value="sonar-reasoning">sonar-reasoning</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <button class="settings-btn primary" id="saveSettings">Зберегти</button>
+      <button class="settings-btn danger" id="clearAllData">Очистити всі дані та історію</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Про</h3>
+      <div class="info-text">
+        AI Council — локальна PWA для паралельної роботи з кількома AI. Зроблено для тебе, Тарасе. Всі виклики йдуть напряму з браузера до API провайдерів без посередників.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
