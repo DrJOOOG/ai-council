@@ -1,10 +1,115 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0a0a0f"/>
-  <circle cx="256" cy="256" r="140" fill="none" stroke="#2a2a3a" stroke-width="2"/>
-  <circle cx="256" cy="116" r="28" fill="#da7756"/>
-  <circle cx="396" cy="256" r="28" fill="#10a37f"/>
-  <circle cx="256" cy="396" r="28" fill="#4285f4"/>
-  <circle cx="116" cy="256" r="28" fill="#20b8cd"/>
-  <circle cx="256" cy="256" r="44" fill="#d4ff3a"/>
-  <circle cx="256" cy="256" r="44" fill="none" stroke="#0a0a0f" stroke-width="4"/>
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="70%" stop-color="#0a0a0f"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4ff3a" stop-opacity="0.15"/>
+      <stop offset="50%" stop-color="#d4ff3a" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#d4ff3a" stop-opacity="0.15"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bgGrad)"/>
+  <circle cx="256" cy="256" r="180" fill="#d4ff3a" opacity="0.06" filter="url(#softGlow)"/>
+  <g stroke="#d4ff3a" stroke-width="2.5" fill="url(#brainGrad)" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M 180 140 C 140 140, 110 170, 115 210 C 95 220, 85 245, 100 270 C 85 285, 90 315, 115 330 C 110 365, 135 390, 170 385 C 180 405, 210 410, 235 395 C 245 405, 250 405, 256 400 L 256 130 C 250 125, 245 125, 235 135 C 215 120, 190 125, 180 140 Z"/>
+    <path d="M 332 140 C 372 140, 402 170, 397 210 C 417 220, 427 245, 412 270 C 427 285, 422 315, 397 330 C 402 365, 377 390, 342 385 C 332 405, 302 410, 277 395 C 267 405, 262 405, 256 400 L 256 130 C 262 125, 267 125, 277 135 C 297 120, 322 125, 332 140 Z"/>
+  </g>
+  <g stroke="#d4ff3a" stroke-width="1.2" fill="none" opacity="0.35" stroke-linecap="round">
+    <path d="M 160 180 Q 175 195, 190 180 Q 205 165, 220 180"/>
+    <path d="M 145 230 Q 165 245, 185 230 Q 205 215, 225 230"/>
+    <path d="M 155 285 Q 175 300, 195 285 Q 215 270, 235 285"/>
+    <path d="M 175 335 Q 195 345, 215 335"/>
+    <path d="M 352 180 Q 337 195, 322 180 Q 307 165, 292 180"/>
+    <path d="M 367 230 Q 347 245, 327 230 Q 307 215, 287 230"/>
+    <path d="M 357 285 Q 337 300, 317 285 Q 297 270, 277 285"/>
+    <path d="M 337 335 Q 317 345, 297 335"/>
+  </g>
+  <g stroke="#d4ff3a" stroke-width="1.5" opacity="0.55" fill="none" filter="url(#glow)">
+    <path d="M 256 180 Q 300 190, 330 230" stroke-dasharray="2 3"/>
+    <path d="M 330 256 Q 320 300, 280 330" stroke-dasharray="2 3"/>
+    <path d="M 232 330 Q 192 320, 182 280" stroke-dasharray="2 3"/>
+    <path d="M 182 232 Q 195 192, 235 180" stroke-dasharray="2 3"/>
+    <path d="M 256 180 L 256 332" opacity="0.3"/>
+    <path d="M 182 256 L 330 256" opacity="0.3"/>
+  </g>
+  <circle cx="293" cy="205" r="2.5" fill="#d4ff3a" opacity="0.8"/>
+  <circle cx="305" cy="293" r="2.5" fill="#d4ff3a" opacity="0.8"/>
+  <circle cx="207" cy="305" r="2.5" fill="#d4ff3a" opacity="0.8"/>
+  <circle cx="205" cy="215" r="2.5" fill="#d4ff3a" opacity="0.8"/>
+
+  <!-- CLAUDE (верх) -->
+  <g transform="translate(256, 180)" filter="url(#glow)">
+    <circle r="28" fill="#0a0a0f" stroke="#da7756" stroke-width="2"/>
+    <circle r="26" fill="none" stroke="#da7756" stroke-width="0.8" opacity="0.4"/>
+    <path d="M 0 -12 L -8 10 L -5 10 L -3.5 6 L 3.5 6 L 5 10 L 8 10 L 0 -12 Z M -2.5 3 L 0 -4 L 2.5 3 L -2.5 3 Z" fill="#da7756"/>
+  </g>
+
+  <!-- OPENAI (право) -->
+  <g transform="translate(332, 256)" filter="url(#glow)">
+    <circle r="28" fill="#0a0a0f" stroke="#10a37f" stroke-width="2"/>
+    <circle r="26" fill="none" stroke="#10a37f" stroke-width="0.8" opacity="0.4"/>
+    <g fill="#10a37f" stroke="#10a37f" stroke-width="1">
+      <circle cx="0" cy="-10" r="2.5" fill="#10a37f"/>
+      <circle cx="8.7" cy="-5" r="2.5"/>
+      <circle cx="8.7" cy="5" r="2.5"/>
+      <circle cx="0" cy="10" r="2.5"/>
+      <circle cx="-8.7" cy="5" r="2.5"/>
+      <circle cx="-8.7" cy="-5" r="2.5"/>
+      <circle cx="0" cy="0" r="3.5"/>
+    </g>
+    <g stroke="#10a37f" stroke-width="0.8" opacity="0.6">
+      <line x1="0" y1="-10" x2="0" y2="10"/>
+      <line x1="-8.7" y1="-5" x2="8.7" y2="5"/>
+      <line x1="-8.7" y1="5" x2="8.7" y2="-5"/>
+    </g>
+  </g>
+
+  <!-- GEMINI (низ) -->
+  <g transform="translate(256, 332)" filter="url(#glow)">
+    <circle r="28" fill="#0a0a0f" stroke="#4285f4" stroke-width="2"/>
+    <circle r="26" fill="none" stroke="#4285f4" stroke-width="0.8" opacity="0.4"/>
+    <path d="M 0 -14 C 1 -4, 4 -1, 14 0 C 4 1, 1 4, 0 14 C -1 4, -4 1, -14 0 C -4 -1, -1 -4, 0 -14 Z" fill="#4285f4"/>
+  </g>
+
+  <!-- PERPLEXITY (ліво) -->
+  <g transform="translate(180, 256)" filter="url(#glow)">
+    <circle r="28" fill="#0a0a0f" stroke="#20b8cd" stroke-width="2"/>
+    <circle r="26" fill="none" stroke="#20b8cd" stroke-width="0.8" opacity="0.4"/>
+    <g stroke="#20b8cd" fill="none" stroke-linecap="round">
+      <circle r="9" stroke-width="1.6" opacity="0.7"/>
+      <line x1="0" y1="-14" x2="0" y2="14" stroke-width="1.4"/>
+      <line x1="-14" y1="0" x2="14" y2="0" stroke-width="1.4"/>
+    </g>
+    <circle r="4" fill="#20b8cd"/>
+  </g>
+
+  <!-- ЦЕНТРАЛЬНИЙ ВУЗОЛ -->
+  <g transform="translate(256, 256)" filter="url(#softGlow)">
+    <circle r="20" fill="#d4ff3a" opacity="0.15"/>
+    <circle r="14" fill="#d4ff3a" opacity="0.25"/>
+    <circle r="8" fill="#d4ff3a"/>
+    <circle r="4" fill="#ffffff"/>
+  </g>
+
+  <g fill="#d4ff3a" opacity="0.6">
+    <circle cx="220" cy="160" r="1.5"/>
+    <circle cx="292" cy="160" r="1.5"/>
+    <circle cx="370" cy="220" r="1.5"/>
+    <circle cx="370" cy="292" r="1.5"/>
+    <circle cx="292" cy="352" r="1.5"/>
+    <circle cx="220" cy="352" r="1.5"/>
+    <circle cx="142" cy="292" r="1.5"/>
+    <circle cx="142" cy="220" r="1.5"/>
+  </g>
 </svg>

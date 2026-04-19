@@ -1,10 +1,14 @@
-const CACHE = 'ai-council-v1';
+const CACHE = 'ai-council-v3';
 const ASSETS = [
   './',
   './index.html',
   './app.js',
+  './style.css',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './icon-96.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -30,7 +34,6 @@ self.addEventListener('fetch', (e) => {
       url.hostname.includes('perplexity.ai')) {
     return;
   }
-  // Cache-first for our own assets
   if (url.origin === self.location.origin) {
     e.respondWith(
       caches.match(e.request).then(hit => hit || fetch(e.request).then(resp => {
