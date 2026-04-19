@@ -63,7 +63,7 @@ const AI_CONFIG = {
     name: 'Gemini', color: '#4285f4', fullName: 'Google Gemini', logo: LOGOS.gemini,
     keyPlaceholder: 'AIza...',
     keyUrl: 'https://aistudio.google.com/app/apikey',
-    billingUrl: 'https://aistudio.google.com/app/plan_information'
+    billingUrl: 'https://aistudio.google.com/usage'
   },
   perplexity: {
     name: 'Perplexity', color: '#20b8cd', fullName: 'Perplexity', logo: LOGOS.perplexity,
@@ -937,6 +937,9 @@ async function handleCouncil(c, text, attachments) {
 }
 
 async function runParallel(c, text, attachments, active, mode) {
+  // If synthesis/vote mode has only 1 active AI → promote that AI's answer to primary
+  const canSynthesize = (mode === 'synthesis' || mode === 'vote') && active.length >= 2;
+
   // Step 1: every AI answers in parallel
   const loadings = {};
   for (const p of active) {
@@ -945,14 +948,17 @@ async function runParallel(c, text, attachments, active, mode) {
     loadings[p.ai] = id;
     c.messages.push({
       id, role: 'assistant', source: p.ai,
-      loading: true, isPrimary: mode === 'parallel',
+      loading: true,
+      // In parallel mode → all are primary
+      // In synthesis/vote → individual answers are only shown in full log (unless we can't synthesize, then they become primary)
+      isPrimary: mode === 'parallel' || !canSynthesize,
       modelShort: model.short, levelColor: LEVEL_COLORS[p.level],
       time: Date.now()
     });
   }
   renderMessages();
 
-  const history = []; // no history for parallel (each gets fresh question)
+  const history = [];
   const results = await Promise.all(active.map(async p => {
     const model = MODELS[p.ai][p.level];
     const msgs = buildMessagesForAI(p.ai, history, text, attachments);
@@ -966,7 +972,8 @@ async function runParallel(c, text, attachments, active, mode) {
       const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
       c.messages[idx] = {
         id: loadings[p.ai], role: 'assistant', source: p.ai,
-        content: reply, isPrimary: mode === 'parallel',
+        content: reply,
+        isPrimary: mode === 'parallel' || !canSynthesize,
         modelShort: model.short, levelColor: LEVEL_COLORS[p.level],
         time: Date.now()
       };
@@ -976,7 +983,10 @@ async function runParallel(c, text, attachments, active, mode) {
       const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
       c.messages[idx] = {
         id: loadings[p.ai], role: 'assistant', source: p.ai,
-        error: true, content: err.message, time: Date.now()
+        error: true, content: err.message,
+        isPrimary: true, // errors are ALWAYS primary so user sees what went wrong
+        modelShort: model.short, levelColor: LEVEL_COLORS[p.level],
+        time: Date.now()
       };
       renderMessages();
       return { ai: p.ai, text: err.message, ok: false };
@@ -985,7 +995,7 @@ async function runParallel(c, text, attachments, active, mode) {
 
   const good = results.filter(r => r.ok);
 
-  // Synthesis/Vote
+  // Synthesis/Vote — only if we have at least 2 successful answers
   if ((mode === 'synthesis' || mode === 'vote') && good.length >= 2) {
     const synthId = uid();
     c.messages.push({
@@ -997,7 +1007,7 @@ async function runParallel(c, text, attachments, active, mode) {
 
     const synthPrompt = mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good);
     const synthesizerAI = state.keys.claude ? 'claude' : good[0].ai;
-    const synthModel = MODELS[synthesizerAI][3]; // highest level
+    const synthModel = MODELS[synthesizerAI][3];
 
     try {
       const { text: reply } = await CALLERS[synthesizerAI]([{role:'user', content: synthPrompt}], { model: synthModel.id });
@@ -1010,12 +1020,30 @@ async function runParallel(c, text, attachments, active, mode) {
         time: Date.now()
       };
     } catch (err) {
+      // Synthesis failed — promote individual answers to primary
       const idx = c.messages.findIndex(m => m.id === synthId);
       c.messages[idx] = {
         id: synthId, role: 'assistant', source: 'council-synth',
-        error: true, content: 'Синтез: ' + err.message, isPrimary: true, time: Date.now()
+        error: true, content: 'Синтез не вдався: ' + err.message, isPrimary: true, time: Date.now()
       };
+      // Upgrade successful answers to primary since synthesis died
+      c.messages.forEach(m => {
+        if (m.source && good.some(g => g.ai === m.source) && !m.error) {
+          m.isPrimary = true;
+        }
+      });
     }
+    renderMessages();
+  } else if ((mode === 'synthesis' || mode === 'vote') && good.length === 1) {
+    // Only 1 succeeded — make it primary, add a note
+    c.messages.forEach(m => {
+      if (m.source === good[0].ai && !m.error) m.isPrimary = true;
+    });
+    c.messages.push({
+      id: uid(), role: 'assistant', source: 'council-synth',
+      content: `⚠️ Синтез не виконано — тільки ${AI_CONFIG[good[0].ai].fullName} відповів успішно. Інші AI повернули помилку.`,
+      isPrimary: true, time: Date.now()
+    });
     renderMessages();
   }
 }
