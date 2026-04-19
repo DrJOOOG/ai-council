@@ -2,6 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://api.perplexity.ai; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -174,10 +175,40 @@
       <div class="info-text">Ключі зберігаються тільки в твоєму браузері. Надсилаються напряму до API провайдера без посередників.</div>
     </div>
     <div class="settings-section" id="apiKeysContainer"></div>
+
+    <div class="settings-section">
+      <h3>🧠 Пам'ять AI</h3>
+      <div class="info-text">AI пам'ятатиме цю інформацію у всіх чатах.</div>
+      <label class="memory-label">Про мене (профіль)</label>
+      <textarea id="memoryProfile" class="memory-textarea" placeholder="Наприклад: Я Тарас, дантист-імплантолог з Остравy. Спілкуйся українською. Ціную стислі відповіді."></textarea>
+      <button class="settings-btn" id="openMemoryFactsBtn">
+        <span>📌 Збережені факти</span>
+        <span id="memoryFactsCount" class="memory-count">0</span>
+      </button>
+    </div>
+
     <div class="settings-section">
       <button class="settings-btn primary" id="saveSettingsBtn">Зберегти</button>
       <button class="settings-btn danger" id="wipeDataBtn">Очистити всі дані та ключі</button>
     </div>
+  </div>
+</div>
+
+<!-- OVERLAY: memory facts -->
+<div class="overlay" id="memoryFactsOverlay">
+  <div class="sheet">
+    <div class="sheet-header">
+      <h2>📌 Збережені факти</h2>
+      <button class="header-btn" onclick="closeOverlay('memoryFactsOverlay')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="settings-section">
+      <div class="info-text">Факти зберігаються постійно і передаються до кожного AI у всіх чатах.</div>
+      <textarea id="newFactText" class="memory-textarea" placeholder="Наприклад: Я купую CBCT Planmeca Viso G5"></textarea>
+      <button class="settings-btn primary" id="addFactBtn">Додати факт</button>
+    </div>
+    <div class="settings-section" id="memoryFactsList"></div>
   </div>
 </div>
 

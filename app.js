@@ -87,7 +87,8 @@ const STORAGE = {
   keys: 'aic3_keys',
   chats: 'aic3_chats',
   settings: 'aic3_settings',
-  draft: 'aic3_new_draft'
+  draft: 'aic3_new_draft',
+  memory: 'aic3_memory'
 };
 
 let state = {
@@ -98,7 +99,12 @@ let state = {
   currentScreen: 'list',
   newChatDraft: null,
   pendingAttachments: [],
-  showFullLog: false
+  showFullLog: false,
+  sendInProgress: false,
+  memory: {
+    profile: '',    // "About me" — persistent profile
+    facts: []       // [{id, text, createdAt, source}]
+  }
 };
 
 // ==================== STORAGE ====================
@@ -108,13 +114,29 @@ function load() {
     const saved = JSON.parse(localStorage.getItem(STORAGE.chats) || '{}');
     state.chats = saved.chats || {};
     state.chatOrder = saved.order || [];
+    const mem = JSON.parse(localStorage.getItem(STORAGE.memory) || '{}');
+    state.memory.profile = mem.profile || '';
+    state.memory.facts = mem.facts || [];
   } catch (e) {
     console.error('Load error:', e);
     state.chats = {};
     state.chatOrder = [];
   }
 }
-function saveKeys() { localStorage.setItem(STORAGE.keys, JSON.stringify(state.keys)); }
+function saveKeys() {
+  try {
+    localStorage.setItem(STORAGE.keys, JSON.stringify(state.keys));
+  } catch (e) {
+    flash('Не вдалось зберегти ключі: сховище переповнене', true);
+  }
+}
+function saveMemory() {
+  try {
+    localStorage.setItem(STORAGE.memory, JSON.stringify(state.memory));
+  } catch (e) {
+    flash('Не вдалось зберегти пам\'ять', true);
+  }
+}
 function saveChats() {
   // Do not save pending/loading messages
   const cleaned = {};
@@ -123,7 +145,33 @@ function saveChats() {
     c.messages = (c.messages || []).filter(m => !m.loading);
     cleaned[id] = c;
   }
-  localStorage.setItem(STORAGE.chats, JSON.stringify({ chats: cleaned, order: state.chatOrder }));
+  try {
+    const data = JSON.stringify({ chats: cleaned, order: state.chatOrder });
+    // Warn if approaching localStorage limit (typically 5-10MB)
+    if (data.length > 4 * 1024 * 1024) {
+      console.warn('Chat storage is getting large:', Math.round(data.length / 1024), 'KB');
+    }
+    localStorage.setItem(STORAGE.chats, data);
+  } catch (e) {
+    // Usually QuotaExceededError — remove attachments from old chats to free space
+    try {
+      const slim = {};
+      for (const id in cleaned) {
+        const c = {...cleaned[id]};
+        c.messages = (c.messages || []).map(m => {
+          if (m.attachments) {
+            return {...m, attachments: m.attachments.map(a => ({...a, data: undefined, kind: a.kind, name: a.name}))};
+          }
+          return m;
+        });
+        slim[id] = c;
+      }
+      localStorage.setItem(STORAGE.chats, JSON.stringify({ chats: slim, order: state.chatOrder }));
+      flash('Сховище переповнене — великі вкладення видалено з історії', true);
+    } catch (e2) {
+      flash('Сховище переповнене. Видали старі чати.', true);
+    }
+  }
 }
 
 // ==================== UTILS ====================
@@ -148,6 +196,12 @@ function renderMd(text) {
   s = s.replace(/^# (.+)$/gm, '<h1>$1</h1>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+  // [text](url) markdown links — only https/http, only if url doesn't contain dangerous chars
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s<>"')]+)\)/g, (_, t, u) =>
+    `<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`);
+  // Raw autolinks (http(s)://...)
+  s = s.replace(/(^|[\s(])(https?:\/\/[^\s<>"')]+)/g, (_, pre, u) =>
+    `${pre}<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
   s = s.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
   s = s.replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
   s = s.split(/\n\n+/).map(p => {
@@ -547,6 +601,19 @@ function renderMessages() {
     return sep + renderMessage(m);
   }).join('');
 
+  // Attach handlers to action buttons (copy, memory)
+  wrap.querySelectorAll('.msg-action-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const msgId = btn.dataset.msgId;
+      const action = btn.dataset.action;
+      const msg = (state.chats[state.activeChatId]?.messages || []).find(m => m.id === msgId);
+      if (!msg || !msg.content) return;
+      if (action === 'copy') copyMessageText(msg.content);
+      else if (action === 'memory') saveFactFromMessage(msg.content);
+    });
+  });
+
   requestAnimationFrame(() => {
     const main = document.querySelector('#screenChat main');
     if (main) main.scrollTop = main.scrollHeight;
@@ -554,31 +621,50 @@ function renderMessages() {
 }
 
 function renderMessage(m) {
+  if (!m) return '';
   const isUser = m.role === 'user';
   const isCouncilSynth = m.source === 'council-synth';
   let ai;
-  if (isUser) ai = { name: 'ТИ', color: '#e8e8f0', logo: LOGOS.user };
-  else if (isCouncilSynth) ai = { name: 'РАДА', color: AI_CONFIG.council.color, logo: LOGOS.council };
-  else ai = AI_CONFIG[m.source] || { name: '?', color: '#888', logo: '' };
+  if (isUser) {
+    ai = { name: 'ТИ', color: '#e8e8f0', logo: LOGOS.user };
+  } else if (isCouncilSynth) {
+    ai = { name: 'РАДА', color: (AI_CONFIG.council && AI_CONFIG.council.color) || '#d4ff3a', logo: LOGOS.council };
+  } else if (m.source && AI_CONFIG[m.source]) {
+    ai = AI_CONFIG[m.source];
+  } else {
+    ai = { name: '?', color: '#888888', logo: LOGOS.user };
+  }
+  // Safety: ensure ai has all fields
+  if (!ai.color) ai.color = '#888888';
+  if (!ai.logo) ai.logo = '';
+  if (!ai.name) ai.name = '?';
 
   let bodyContent;
   if (m.loading) {
     bodyContent = `<div class="thinking"><span></span><span></span><span></span>${m.loadingLabel ? `<span class="thinking-label">${escapeHtml(m.loadingLabel)}</span>` : ''}</div>`;
   } else if (m.error) {
-    bodyContent = `<div class="error-msg">✕ ${escapeHtml(m.content)}</div>`;
+    bodyContent = `<div class="error-msg">✕ ${escapeHtml(m.content || 'Невідома помилка')}</div>`;
   } else {
-    bodyContent = renderMd(m.content);
+    bodyContent = renderMd(m.content || '');
     if (m.attachments && m.attachments.length > 0) {
       bodyContent += `<div class="msg-attachments">${m.attachments.map(a => renderAttachment(a)).join('')}</div>`;
     }
   }
 
-  const modelTag = m.modelShort ? `<span class="model-tag" style="--level-color: ${m.levelColor || 'var(--text-mute)'};">${m.modelShort}</span>` : '';
+  const modelTag = m.modelShort ? `<span class="model-tag" style="--level-color: ${m.levelColor || 'var(--text-mute)'};">${escapeHtml(m.modelShort)}</span>` : '';
   const roundTag = m.round ? `<span class="round-tag">R${m.round}</span>` : '';
   const compactClass = (state.showFullLog && !m.isPrimary && !isUser) ? 'compact' : '';
 
+  // Action buttons — only for non-user, non-loading, non-error AI responses with content
+  const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
+    ? `<div class="msg-actions">
+         <button class="msg-action-btn" data-action="copy" data-msg-id="${m.id}">📋 Копіювати</button>
+         <button class="msg-action-btn" data-action="memory" data-msg-id="${m.id}">🧠 В пам'ять</button>
+       </div>`
+    : '';
+
   return `
-    <div class="msg ${isUser ? 'user' : ''} ${isCouncilSynth ? 'council-synth' : ''} ${compactClass}" style="--msg-color: ${ai.color};">
+    <div class="msg ${isUser ? 'user' : ''} ${isCouncilSynth ? 'council-synth' : ''} ${compactClass}" style="--msg-color: ${ai.color};" data-msg-id="${m.id}">
       <div class="msg-head">
         <span class="msg-logo">${ai.logo}</span>
         <span class="author">${escapeHtml(ai.name)}</span>
@@ -587,6 +673,7 @@ function renderMessage(m) {
         <span class="time">${fmtTime(m.time)}</span>
       </div>
       <div class="msg-body">${bodyContent}</div>
+      ${actionsHtml}
     </div>`;
 }
 
@@ -653,6 +740,27 @@ function updateAttachmentsUI() {
 // ==================== API CALLS ====================
 // All support images for AI that handle them. PDFs for Claude/Gemini.
 
+// ==================== API ERROR SANITIZER ====================
+// Filters out any accidental key exposure and limits error details
+function sanitizeApiError(status, rawText) {
+  // Extract only safe parts of the error
+  let message = '';
+  try {
+    const parsed = JSON.parse(rawText);
+    message = parsed.error?.message || parsed.message || parsed.error || '';
+  } catch {
+    message = rawText;
+  }
+  // Remove any patterns that look like API keys
+  message = String(message)
+    .replace(/sk-ant-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
+    .replace(/sk-[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
+    .replace(/AIza[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
+    .replace(/pplx-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
+    .slice(0, 200);
+  return `${status}: ${message}`;
+}
+
 async function callClaude(messages, opts = {}) {
   const key = state.keys.claude;
   if (!key) throw new Error('Немає Claude ключа');
@@ -678,9 +786,8 @@ async function callClaude(messages, opts = {}) {
     },
     body: JSON.stringify(body)
   });
-  if (!resp.ok) throw new Error(`Claude: ${resp.status} ${(await resp.text()).slice(0, 200)}`);
+  if (!resp.ok) throw new Error('Claude ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
-  // Extract text blocks (skip tool_use and tool_result)
   const texts = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
   return { text: texts.join('\n\n'), model };
 }
@@ -696,7 +803,7 @@ async function callOpenAI(messages, opts = {}) {
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify({ model, messages: msgs, max_tokens: 4096 })
   });
-  if (!resp.ok) throw new Error(`OpenAI: ${resp.status} ${(await resp.text()).slice(0, 200)}`);
+  if (!resp.ok) throw new Error('OpenAI ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
   return { text: data.choices[0].message.content, model };
 }
@@ -726,7 +833,7 @@ async function callGemini(messages, opts = {}) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body)
   });
-  if (!resp.ok) throw new Error(`Gemini: ${resp.status} ${(await resp.text()).slice(0, 200)}`);
+  if (!resp.ok) throw new Error('Gemini ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
   const text = data.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join('\n') || '';
   return { text, model };
@@ -743,7 +850,7 @@ async function callPerplexity(messages, opts = {}) {
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify({ model, messages: msgs })
   });
-  if (!resp.ok) throw new Error(`Perplexity: ${resp.status} ${(await resp.text()).slice(0, 200)}`);
+  if (!resp.ok) throw new Error('Perplexity ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
   return { text: data.choices[0].message.content, model };
 }
@@ -751,6 +858,21 @@ async function callPerplexity(messages, opts = {}) {
 const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity };
 
 // ==================== BUILD MESSAGE WITH ATTACHMENTS ====================
+// ==================== MEMORY PROMPT ====================
+// Builds the system prompt that carries the user's profile + saved facts to every AI call
+function buildMemoryPrompt() {
+  const parts = [];
+  if (state.memory.profile && state.memory.profile.trim()) {
+    parts.push('ПРО КОРИСТУВАЧА:\n' + state.memory.profile.trim());
+  }
+  if (state.memory.facts && state.memory.facts.length > 0) {
+    const factsText = state.memory.facts.map((f, i) => `${i + 1}. ${f.text}`).join('\n');
+    parts.push('ЗБЕРЕЖЕНІ ФАКТИ (пам\'ять користувача):\n' + factsText);
+  }
+  if (parts.length === 0) return '';
+  return parts.join('\n\n') + '\n\nВикористовуй цю інформацію якщо вона доречна. Не згадуй її явно якщо про це не запитують.';
+}
+
 function buildMessagesForAI(aiName, history, userText, attachments) {
   // Different AIs format attachments differently
   const supportsPdf = aiName === 'claude' || aiName === 'gemini';
@@ -819,12 +941,19 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
 
 // ==================== SEND ====================
 async function handleSend() {
+  // Prevent double-send race condition
+  if (state.sendInProgress) return;
+
   const input = document.getElementById('input');
   const text = input.value.trim();
   if (!text && state.pendingAttachments.length === 0) return;
 
   const c = state.chats[state.activeChatId];
   if (!c) return;
+
+  state.sendInProgress = true;
+  const sendBtn = document.getElementById('sendBtn');
+  if (sendBtn) sendBtn.disabled = true;
 
   const attachments = [...state.pendingAttachments];
   state.pendingAttachments = [];
@@ -857,10 +986,12 @@ async function handleSend() {
   } catch (e) {
     console.error(e);
     flash(e.message || 'Помилка', true);
+  } finally {
+    state.sendInProgress = false;
+    if (sendBtn) sendBtn.disabled = false;
   }
   saveChats();
   renderMessages();
-  // Move chat to top
   state.chatOrder = [c.id, ...state.chatOrder.filter(id => id !== c.id)];
 }
 
@@ -885,10 +1016,12 @@ async function handleSingleAI(c, text, attachments) {
     .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : '' }));
 
   const msgs = buildMessagesForAI(p.ai, history, text, attachments);
+  const memorySystem = buildMemoryPrompt();
   const opts = {
     model: model.id,
     webSearch: c.webSearch && p.ai === 'claude',
-    research: c.research
+    research: c.research,
+    system: memorySystem || undefined
   };
 
   try {
@@ -959,13 +1092,15 @@ async function runParallel(c, text, attachments, active, mode) {
   renderMessages();
 
   const history = [];
+  const memorySystem = buildMemoryPrompt();
   const results = await Promise.all(active.map(async p => {
     const model = MODELS[p.ai][p.level];
     const msgs = buildMessagesForAI(p.ai, history, text, attachments);
     const opts = {
       model: model.id,
       webSearch: c.webSearch && p.ai === 'claude',
-      research: false
+      research: false,
+      system: memorySystem || undefined
     };
     try {
       const { text: reply } = await CALLERS[p.ai](msgs, opts);
@@ -1084,7 +1219,8 @@ async function runDebate(c, text, attachments, active) {
       }
 
       const msgs = buildMessagesForAI(p.ai, [], prompt, r === 1 ? attachments : []);
-      const opts = { model: model.id, webSearch: c.webSearch && p.ai === 'claude' };
+      const memorySystem = buildMemoryPrompt();
+      const opts = { model: model.id, webSearch: c.webSearch && p.ai === 'claude', system: memorySystem || undefined };
 
       try {
         const { text: reply } = await CALLERS[p.ai](msgs, opts);
@@ -1243,6 +1379,11 @@ function openSettings() {
         </div>
       </div>`;
   }).join('');
+
+  // Load memory into UI
+  document.getElementById('memoryProfile').value = state.memory.profile || '';
+  document.getElementById('memoryFactsCount').textContent = (state.memory.facts || []).length;
+
   openOverlay('settingsOverlay');
 }
 
@@ -1253,8 +1394,107 @@ function saveSettings() {
     else delete state.keys[ai];
   });
   saveKeys();
+  // Save memory profile
+  const profileEl = document.getElementById('memoryProfile');
+  if (profileEl) {
+    state.memory.profile = profileEl.value.trim();
+    saveMemory();
+  }
   closeOverlay('settingsOverlay');
   flash('Налаштування збережено');
+}
+
+// ==================== MEMORY FACTS ====================
+function openMemoryFacts() {
+  document.getElementById('newFactText').value = '';
+  renderFactsList();
+  openOverlay('memoryFactsOverlay');
+}
+
+function renderFactsList() {
+  const wrap = document.getElementById('memoryFactsList');
+  const facts = state.memory.facts || [];
+  if (facts.length === 0) {
+    wrap.innerHTML = '<div class="fact-empty">Ще немає збережених фактів</div>';
+    return;
+  }
+  wrap.innerHTML = facts.map(f => `
+    <div class="fact-item">
+      <div class="fact-text">${escapeHtml(f.text)}</div>
+      <button class="fact-delete" data-fact-id="${f.id}" title="Видалити">✕</button>
+    </div>
+  `).join('');
+  // Attach delete handlers
+  wrap.querySelectorAll('.fact-delete').forEach(btn => {
+    btn.addEventListener('click', () => deleteFact(btn.dataset.factId));
+  });
+}
+
+function addFact() {
+  const el = document.getElementById('newFactText');
+  const text = el.value.trim();
+  if (!text) {
+    flash('Напиши факт який треба запам\'ятати', true);
+    return;
+  }
+  if (text.length > 500) {
+    flash('Факт занадто довгий (макс 500 символів)', true);
+    return;
+  }
+  state.memory.facts.push({
+    id: uid(),
+    text,
+    createdAt: Date.now(),
+    source: 'manual'
+  });
+  saveMemory();
+  el.value = '';
+  renderFactsList();
+  // Update counter in settings
+  const counter = document.getElementById('memoryFactsCount');
+  if (counter) counter.textContent = state.memory.facts.length;
+  flash('Факт збережено в пам\'ять');
+}
+
+function deleteFact(id) {
+  state.memory.facts = state.memory.facts.filter(f => f.id !== id);
+  saveMemory();
+  renderFactsList();
+  const counter = document.getElementById('memoryFactsCount');
+  if (counter) counter.textContent = state.memory.facts.length;
+}
+
+function saveFactFromMessage(messageText) {
+  if (!messageText) return;
+  // Truncate if too long
+  const text = messageText.length > 500 ? messageText.slice(0, 497) + '...' : messageText;
+  state.memory.facts.push({
+    id: uid(),
+    text,
+    createdAt: Date.now(),
+    source: 'message'
+  });
+  saveMemory();
+  flash('Збережено в пам\'ять');
+}
+
+function copyMessageText(text) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(
+      () => flash('Скопійовано'),
+      () => flash('Не вдалось скопіювати', true)
+    );
+  } else {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); flash('Скопійовано'); }
+    catch { flash('Не вдалось скопіювати', true); }
+    document.body.removeChild(ta);
+  }
 }
 
 // ==================== CHAT INFO ====================
@@ -1403,11 +1643,15 @@ function init() {
   // Settings save
   document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
   document.getElementById('wipeDataBtn').addEventListener('click', () => {
-    if (confirm('Видалити ВСЕ: ключі, чати, історію?')) {
+    if (confirm('Видалити ВСЕ: ключі, чати, історію, пам\'ять?')) {
       localStorage.clear();
       location.reload();
     }
   });
+
+  // Memory facts
+  document.getElementById('openMemoryFactsBtn').addEventListener('click', openMemoryFacts);
+  document.getElementById('addFactBtn').addEventListener('click', addFact);
 
   // Install banner
   document.getElementById('installBtn')?.addEventListener('click', async () => {

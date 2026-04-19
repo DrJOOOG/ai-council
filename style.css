@@ -280,3 +280,79 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
 
 .flash { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 10px 18px; border-radius: 8px; font-family: var(--mono); font-size: 12px; font-weight: 700; z-index: 999; animation: slideIn 0.25s ease; }
 .flash.err { background: var(--danger); color: #fff; }
+
+/* Memory UI */
+.memory-label { display: block; font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 10px; margin-bottom: 6px; }
+.memory-textarea {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  min-height: 80px;
+  resize: vertical;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+.memory-textarea:focus { outline: none; border-color: var(--accent); }
+.memory-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 11px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: auto;
+}
+.settings-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.fact-item {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.fact-text { flex: 1; font-size: 13px; line-height: 1.4; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.fact-delete {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-mute);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.fact-delete:active { background: var(--bg-3); color: var(--danger); }
+.fact-empty { text-align: center; color: var(--text-mute); font-style: italic; padding: 20px 0; }
+
+/* Message action button (save to memory, copy) */
+.msg-actions { display: flex; gap: 6px; margin-top: 8px; }
+.msg-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.msg-action-btn:active { background: var(--bg-3); color: var(--text); }
