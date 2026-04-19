@@ -24,16 +24,16 @@ const MODELS = {
     { id: 'claude-opus-4-7',    name: 'Opus 4.7',    short: 'OPUS',   inPrice: 15.00, outPrice: 75.00 }
   ],
   openai: [
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', short: 'MINI', inPrice: 0.15,  outPrice: 0.60 },
-    { id: 'gpt-4o',      name: 'GPT-4o',      short: '4O',   inPrice: 2.50,  outPrice: 10.00 },
-    { id: 'o1-mini',     name: 'o1-mini',     short: 'O1M',  inPrice: 3.00,  outPrice: 12.00 },
-    { id: 'o1-preview',  name: 'o1-preview',  short: 'O1P',  inPrice: 15.00, outPrice: 60.00 }
+    { id: 'gpt-5.4-nano',  name: 'GPT-5.4 Nano',  short: 'NANO', inPrice: 0.10, outPrice: 0.40 },
+    { id: 'gpt-5.4-mini',  name: 'GPT-5.4 Mini',  short: 'MINI', inPrice: 0.25, outPrice: 2.00 },
+    { id: 'gpt-5.4',       name: 'GPT-5.4',       short: '5.4',  inPrice: 1.25, outPrice: 10.00 },
+    { id: 'gpt-5.4-pro',   name: 'GPT-5.4 Pro',   short: 'PRO',  inPrice: 15.00, outPrice: 120.00 }
   ],
   gemini: [
-    { id: 'gemini-1.5-flash-8b',  name: 'Flash 8B',  short: '8B',    inPrice: 0.04,  outPrice: 0.15 },
-    { id: 'gemini-1.5-flash',     name: 'Flash 1.5', short: 'FLASH', inPrice: 0.075, outPrice: 0.30 },
-    { id: 'gemini-2.0-flash-exp', name: 'Flash 2.0', short: 'FLASH2',inPrice: 0.15,  outPrice: 0.60 },
-    { id: 'gemini-1.5-pro',       name: 'Pro 1.5',   short: 'PRO',   inPrice: 1.25,  outPrice: 5.00 }
+    { id: 'gemini-2.5-flash-lite', name: 'Flash Lite 2.5', short: 'LITE',  inPrice: 0.10, outPrice: 0.40 },
+    { id: 'gemini-2.5-flash',      name: 'Flash 2.5',      short: 'FLASH', inPrice: 0.30, outPrice: 2.50 },
+    { id: 'gemini-2.5-pro',        name: 'Pro 2.5',        short: 'PRO',   inPrice: 1.25, outPrice: 10.00 },
+    { id: 'gemini-3-pro-preview',  name: 'Pro 3 Preview',  short: 'PRO3',  inPrice: 2.00, outPrice: 10.00 }
   ],
   perplexity: [
     { id: 'sonar',           name: 'Sonar',          short: 'SONAR',  inPrice: 1.00, outPrice: 1.00 },
@@ -47,10 +47,30 @@ const LEVEL_COLORS = ['#6a6a80', '#d4d600', '#ff9500', '#ff3030'];
 const LEVEL_NAMES = ['ШВИДКИЙ', 'СЕРЕДНІЙ', 'РОЗУМНИЙ', 'МАКСИМУМ'];
 
 const AI_CONFIG = {
-  claude: { name: 'Claude', color: '#da7756', fullName: 'Anthropic Claude', logo: LOGOS.claude, keyHint: 'console.anthropic.com → API Keys', keyPlaceholder: 'sk-ant-...' },
-  openai: { name: 'ChatGPT', color: '#10a37f', fullName: 'OpenAI GPT', logo: LOGOS.openai, keyHint: 'platform.openai.com → API Keys', keyPlaceholder: 'sk-...' },
-  gemini: { name: 'Gemini', color: '#4285f4', fullName: 'Google Gemini', logo: LOGOS.gemini, keyHint: 'aistudio.google.com → Get API Key', keyPlaceholder: 'AIza...' },
-  perplexity: { name: 'Perplexity', color: '#20b8cd', fullName: 'Perplexity', logo: LOGOS.perplexity, keyHint: 'perplexity.ai/settings/api', keyPlaceholder: 'pplx-...' }
+  claude: {
+    name: 'Claude', color: '#da7756', fullName: 'Anthropic Claude', logo: LOGOS.claude,
+    keyPlaceholder: 'sk-ant-...',
+    keyUrl: 'https://console.anthropic.com/settings/keys',
+    billingUrl: 'https://console.anthropic.com/settings/billing'
+  },
+  openai: {
+    name: 'ChatGPT', color: '#10a37f', fullName: 'OpenAI GPT', logo: LOGOS.openai,
+    keyPlaceholder: 'sk-...',
+    keyUrl: 'https://platform.openai.com/api-keys',
+    billingUrl: 'https://platform.openai.com/settings/organization/billing/overview'
+  },
+  gemini: {
+    name: 'Gemini', color: '#4285f4', fullName: 'Google Gemini', logo: LOGOS.gemini,
+    keyPlaceholder: 'AIza...',
+    keyUrl: 'https://aistudio.google.com/app/apikey',
+    billingUrl: 'https://aistudio.google.com/app/plan_information'
+  },
+  perplexity: {
+    name: 'Perplexity', color: '#20b8cd', fullName: 'Perplexity', logo: LOGOS.perplexity,
+    keyPlaceholder: 'pplx-...',
+    keyUrl: 'https://www.perplexity.ai/settings/api',
+    billingUrl: 'https://www.perplexity.ai/settings/api'
+  }
 };
 
 const AI_ORDER = ['claude', 'openai', 'gemini', 'perplexity'];
@@ -636,7 +656,7 @@ function updateAttachmentsUI() {
 async function callClaude(messages, opts = {}) {
   const key = state.keys.claude;
   if (!key) throw new Error('Немає Claude ключа');
-  const model = opts.model || 'claude-sonnet-4-5';
+  const model = opts.model || 'claude-sonnet-4-6';
 
   const body = {
     model,
@@ -668,7 +688,7 @@ async function callClaude(messages, opts = {}) {
 async function callOpenAI(messages, opts = {}) {
   const key = state.keys.openai;
   if (!key) throw new Error('Немає OpenAI ключа');
-  const model = opts.model || 'gpt-4o';
+  const model = opts.model || 'gpt-5.4-mini';
   const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
 
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -684,7 +704,7 @@ async function callOpenAI(messages, opts = {}) {
 async function callGemini(messages, opts = {}) {
   const key = state.keys.gemini;
   if (!key) throw new Error('Немає Gemini ключа');
-  const model = opts.model || 'gemini-1.5-flash';
+  const model = opts.model || 'gemini-2.5-flash';
 
   const contents = messages.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
@@ -1183,7 +1203,16 @@ function openSettings() {
           <span class="name">${cfg.fullName}</span>
         </div>
         <input type="password" class="api-input" id="key-${ai}" placeholder="${cfg.keyPlaceholder}" value="${state.keys[ai] || ''}">
-        <div class="api-hint">${cfg.keyHint}</div>
+        <div class="api-links">
+          <a href="${cfg.keyUrl}" target="_blank" rel="noopener" class="api-link" style="--link-color: ${cfg.color};">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            Отримати ключ
+          </a>
+          <a href="${cfg.billingUrl}" target="_blank" rel="noopener" class="api-link" style="--link-color: ${cfg.color};">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Баланс
+          </a>
+        </div>
       </div>`;
   }).join('');
   openOverlay('settingsOverlay');
