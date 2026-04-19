@@ -70,6 +70,10 @@ const AI_CONFIG = {
     keyPlaceholder: 'pplx-...',
     keyUrl: 'https://www.perplexity.ai/settings/api',
     billingUrl: 'https://www.perplexity.ai/settings/api'
+  },
+  // Virtual entry for Council UI (not a real AI, just for multi-AI chat styling)
+  council: {
+    name: 'РАДА', color: '#d4ff3a', fullName: 'Рада AI', logo: LOGOS.council
   }
 };
 
@@ -798,10 +802,22 @@ async function callOpenAI(messages, opts = {}) {
   const model = opts.model || 'gpt-5.4-mini';
   const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
 
+  // GPT-5.x models require max_completion_tokens, older models use max_tokens
+  const isGPT5 = model.startsWith('gpt-5');
+  const body = {
+    model,
+    messages: msgs
+  };
+  if (isGPT5) {
+    body.max_completion_tokens = 4096;
+  } else {
+    body.max_tokens = 4096;
+  }
+
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
-    body: JSON.stringify({ model, messages: msgs, max_tokens: 4096 })
+    body: JSON.stringify(body)
   });
   if (!resp.ok) throw new Error('OpenAI ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
