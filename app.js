@@ -1669,6 +1669,15 @@ function init() {
   document.getElementById('openMemoryFactsBtn').addEventListener('click', openMemoryFacts);
   document.getElementById('addFactBtn').addEventListener('click', addFact);
 
+  // Global close-button handler for all overlays (replaces inline onclick which CSP blocks)
+  document.addEventListener('click', (e) => {
+    const closeBtn = e.target.closest('[data-close]');
+    if (closeBtn) {
+      const id = closeBtn.dataset.close;
+      closeOverlay(id);
+    }
+  });
+
   // Install banner
   document.getElementById('installBtn')?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
