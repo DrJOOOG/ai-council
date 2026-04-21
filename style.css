@@ -745,3 +745,30 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
 .stats-ai-row:last-child { border-bottom: none; }
 .stats-ai-name { flex: 1; font-weight: 600; font-size: 13px; }
 .stats-ai-value { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+
+/* Version indicator */
+.version-pill {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.version-footer {
+  text-align: center;
+  padding: 16px 12px 8px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--border);
+  opacity: 0.6;
+}

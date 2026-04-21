@@ -1,6 +1,9 @@
 // ================================================================
-// AI Council v3 — Multi-chat, thinking levels, attachments, research
+// AI Council v4.0-beta — Multi-chat, thinking levels, attachments, research
 // ================================================================
+
+const APP_VERSION = '4.0-beta';
+const APP_VERSION_DATE = '2026-04-21';
 
 // ==================== LOGOS ====================
 const LOGOS = {
@@ -27,7 +30,7 @@ const MODELS = {
     { id: 'gpt-5.4-nano',  name: 'GPT-5.4 Nano',  short: 'NANO', inPrice: 0.10, outPrice: 0.40 },
     { id: 'gpt-5.4-mini',  name: 'GPT-5.4 Mini',  short: 'MINI', inPrice: 0.25, outPrice: 2.00 },
     { id: 'gpt-5.4',       name: 'GPT-5.4',       short: '5.4',  inPrice: 1.25, outPrice: 10.00 },
-    { id: 'gpt-5.4-pro',   name: 'GPT-5.4 Pro',   short: 'PRO',  inPrice: 15.00, outPrice: 120.00 }
+    { id: 'gpt-5.4',       name: 'GPT-5.4 (max)', short: '5.4+', inPrice: 1.25, outPrice: 10.00 }
   ],
   gemini: [
     { id: 'gemini-2.5-flash-lite', name: 'Flash Lite 2.5', short: 'LITE',  inPrice: 0.10, outPrice: 0.40 },
@@ -92,22 +95,114 @@ const STORAGE = {
   chats: 'aic3_chats',
   settings: 'aic3_settings',
   draft: 'aic3_new_draft',
-  memory: 'aic3_memory'
+  memory: 'aic3_memory',
+  templates: 'aic4_templates',    // v4.0
+  cases: 'aic4_cases',            // v4.0
+  stats: 'aic4_stats'             // v4.0
+};
+
+// Default templates for dental context
+const DEFAULT_TEMPLATES = [
+  {
+    id: 'endo',
+    icon: '🦷',
+    name: 'Ендодонтія',
+    description: 'Лікування кореневих каналів, діагностика пульпіту',
+    systemAddition: 'Користувач потребує консультацію з ендодонтії. Давай структуровану відповідь: діагностика → план лікування → матеріали → прогноз. Згадуй сучасні протоколи (ESE guidelines).',
+    suggestedAI: ['claude', 'perplexity'],
+    suggestedLevel: 2
+  },
+  {
+    id: 'implants',
+    icon: '🔩',
+    name: 'Імплантологія',
+    description: 'Планування імплантації, вибір системи, ускладнення',
+    systemAddition: 'Користувач потребує консультацію з імплантології. Структура: клінічна ситуація → варіанти імплант-системи → хірургічний протокол → протезування → ризики. Враховуй ITI та EAO guidelines.',
+    suggestedAI: ['claude', 'gemini', 'perplexity'],
+    suggestedLevel: 3
+  },
+  {
+    id: 'perio',
+    icon: '🩸',
+    name: 'Пародонтологія',
+    description: 'Лікування пародонтиту, підтримуюча терапія',
+    systemAddition: 'Консультація з пародонтології. Структура: оцінка стадії/ступеня → план лікування → підтримуюча терапія. Посилайся на EFP 2018 classification.',
+    suggestedAI: ['claude', 'perplexity'],
+    suggestedLevel: 2
+  },
+  {
+    id: 'urgent',
+    icon: '🚨',
+    name: 'Ургентний випадок',
+    description: 'Швидке рішення для гострого болю/травми',
+    systemAddition: 'УРГЕНТНИЙ ВИПАДОК. Дай КОРОТКУ відповідь у 3 пункти: що робити зараз, що дати з медикаментів (з дозуванням), коли призначити повторний візит. Без зайвих деталей.',
+    suggestedAI: ['claude'],
+    suggestedLevel: 1
+  },
+  {
+    id: 'diff-pain',
+    icon: '🔍',
+    name: 'Диф. діагностика болю',
+    description: 'Визначення джерела зубного болю',
+    systemAddition: 'Диференційна діагностика болю у щелепно-лицевій ділянці. Структура: можливі джерела (пульпа/періодонт/TMJ/невралгія/синусит) → які тести підтвердити → що виключити першочергово.',
+    suggestedAI: ['claude', 'gemini', 'perplexity'],
+    suggestedLevel: 3
+  }
+];
+
+// Czech practice context blocks (toggleable)
+const CZECH_CONTEXT_BLOCKS = {
+  sukl: {
+    name: 'SÚKL — довідник препаратів',
+    description: 'Дозволені в Чехії препарати та їх дозування',
+    text: 'Використовуй для рекомендацій препаратів тільки ті що зареєстровані в SÚKL (Státní ústav pro kontrolu léčiv). При згадці антибіотиків/анестетиків вказуй чеські торгові назви (Amoxiclav, Augmentin, Supracillin) разом з МНН. Для анестетиків — Ubistesin, Mepivastesin, Septanest. Дозування — згідно SPC SÚKL.'
+  },
+  vzp: {
+    name: 'VZP — страхові коди',
+    description: 'Коди для здоровотньої страховки',
+    text: 'Якщо доречно — згадуй VZP коди процедур (4-значні, формат K-коди або інші). Приклади: 00900 (prohlídka), 00911 (konzultace), 01701-01765 (záchovná stom.), 02101-02115 (endodoncie). Враховуй що деякі процедури є плноі (плними за страхування), деякі nadstandard (пацієнт доплачує).'
+  },
+  consent: {
+    name: 'Шаблони інформованої згоди',
+    description: 'Чеські формулювання для письмової згоди',
+    text: 'При обговоренні інвазивних процедур (імплантація, хірургічне видалення, ендо з ускладненнями) — пропонуй структуру informovaného souhlasu чеською: popis výkonu, možné komplikace, alternativy léčby, rizika odmítnutí, následná péče.'
+  },
+  local: {
+    name: 'Локальна практика',
+    description: 'Особливості роботи у ProfiDentist s.r.o.',
+    text: 'Практика: ProfiDentist s.r.o. в Остраві, Чехія. Non-VAT payer (neplátce DPH) — враховуй при калькуляціях витрат. Обладнання: Acteon X-Mind Trium для OPG, планується Planmeca CBCT Viso G3/G5. Для імплант-планування використовується зовнішнє ПО.'
+  }
 };
 
 let state = {
   keys: {},
   chats: {},
   chatOrder: [],
+  archivedChatIds: [],
   activeChatId: null,
   currentScreen: 'list',
   newChatDraft: null,
   pendingAttachments: [],
   showFullLog: false,
   sendInProgress: false,
+  chatSearchQuery: '',
+  selectionMode: false,
+  selectedChatIds: new Set(),
   memory: {
-    profile: '',    // "About me" — persistent profile
-    facts: []       // [{id, text, createdAt, source}]
+    profile: '',
+    facts: [],
+    czechContextEnabled: {} // {sukl: true, vzp: true, ...}
+  },
+  templates: [],  // loaded from storage, fallback to DEFAULT_TEMPLATES
+  cases: [],      // [{id, title, tags, description, createdAt, updatedAt}]
+  stats: {
+    // Per-AI cumulative usage since reset
+    // { claude: {requests: 0, inputTokens: 0, outputTokens: 0, estCost: 0}, ... }
+    byAI: {},
+    // Historical contribution tracking from Council syntheses
+    // [{chatId, timestamp, participants: [{ai, uniqueInsights, supportedBy, level}]}]
+    contributions: [],
+    resetAt: null
   }
 };
 
@@ -118,9 +213,18 @@ function load() {
     const saved = JSON.parse(localStorage.getItem(STORAGE.chats) || '{}');
     state.chats = saved.chats || {};
     state.chatOrder = saved.order || [];
+    state.archivedChatIds = saved.archived || [];
     const mem = JSON.parse(localStorage.getItem(STORAGE.memory) || '{}');
     state.memory.profile = mem.profile || '';
     state.memory.facts = mem.facts || [];
+    state.memory.czechContextEnabled = mem.czechContextEnabled || {};
+    const templates = JSON.parse(localStorage.getItem(STORAGE.templates) || 'null');
+    state.templates = templates || [...DEFAULT_TEMPLATES];
+    state.cases = JSON.parse(localStorage.getItem(STORAGE.cases) || '[]');
+    const stats = JSON.parse(localStorage.getItem(STORAGE.stats) || '{}');
+    state.stats.byAI = stats.byAI || {};
+    state.stats.contributions = stats.contributions || [];
+    state.stats.resetAt = stats.resetAt || Date.now();
   } catch (e) {
     console.error('Load error:', e);
     state.chats = {};
@@ -141,8 +245,26 @@ function saveMemory() {
     flash('Не вдалось зберегти пам\'ять', true);
   }
 }
+function saveTemplates() {
+  try { localStorage.setItem(STORAGE.templates, JSON.stringify(state.templates)); }
+  catch (e) { flash('Не вдалось зберегти шаблони', true); }
+}
+function saveCases() {
+  try { localStorage.setItem(STORAGE.cases, JSON.stringify(state.cases)); }
+  catch (e) { flash('Не вдалось зберегти випадки', true); }
+}
+function saveStats() {
+  try { localStorage.setItem(STORAGE.stats, JSON.stringify(state.stats)); }
+  catch (e) { /* silent */ }
+}
+function saveMemory() {
+  try {
+    localStorage.setItem(STORAGE.memory, JSON.stringify(state.memory));
+  } catch (e) {
+    flash('Не вдалось зберегти пам\'ять', true);
+  }
+}
 function saveChats() {
-  // Do not save pending/loading messages
   const cleaned = {};
   for (const id in state.chats) {
     const c = {...state.chats[id]};
@@ -150,14 +272,16 @@ function saveChats() {
     cleaned[id] = c;
   }
   try {
-    const data = JSON.stringify({ chats: cleaned, order: state.chatOrder });
-    // Warn if approaching localStorage limit (typically 5-10MB)
+    const data = JSON.stringify({
+      chats: cleaned,
+      order: state.chatOrder,
+      archived: state.archivedChatIds
+    });
     if (data.length > 4 * 1024 * 1024) {
       console.warn('Chat storage is getting large:', Math.round(data.length / 1024), 'KB');
     }
     localStorage.setItem(STORAGE.chats, data);
   } catch (e) {
-    // Usually QuotaExceededError — remove attachments from old chats to free space
     try {
       const slim = {};
       for (const id in cleaned) {
@@ -170,7 +294,9 @@ function saveChats() {
         });
         slim[id] = c;
       }
-      localStorage.setItem(STORAGE.chats, JSON.stringify({ chats: slim, order: state.chatOrder }));
+      localStorage.setItem(STORAGE.chats, JSON.stringify({
+        chats: slim, order: state.chatOrder, archived: state.archivedChatIds
+      }));
       flash('Сховище переповнене — великі вкладення видалено з історії', true);
     } catch (e2) {
       flash('Сховище переповнене. Видали старі чати.', true);
@@ -238,26 +364,245 @@ function closeOverlay(id) { document.getElementById(id).classList.remove('open')
 // ==================== CHAT LIST ====================
 function renderChatList() {
   const el = document.getElementById('chatList');
-  if (state.chatOrder.length === 0) {
+
+  // Search filter + archive split
+  const query = (state.chatSearchQuery || '').toLowerCase().trim();
+  const activeIds = state.chatOrder.filter(id => !state.archivedChatIds.includes(id));
+  const archivedIds = state.archivedChatIds.filter(id => state.chats[id]);
+
+  const matchesQuery = (c) => {
+    if (!query) return true;
+    if ((c.name || '').toLowerCase().includes(query)) return true;
+    return (c.messages || []).some(m => typeof m.content === 'string' && m.content.toLowerCase().includes(query));
+  };
+
+  const filteredActive = activeIds.map(id => state.chats[id]).filter(c => c && matchesQuery(c));
+  const filteredArchived = archivedIds.map(id => state.chats[id]).filter(c => c && matchesQuery(c));
+
+  if (activeIds.length === 0 && archivedIds.length === 0) {
     el.innerHTML = `
       <div class="chat-list-empty">
         <div class="icon-wrap">${LOGOS.emptyChat}</div>
         <h2>Ще немає чатів</h2>
-        <p>Натисни <strong>+</strong> внизу щоб створити свій перший чат. Обери AI, їх рівень мислення та режим роботи.</p>
+        <p>Натисни <strong>+</strong> внизу щоб створити свій перший чат.</p>
       </div>`;
     return;
   }
-  el.innerHTML = state.chatOrder.map(id => {
-    const c = state.chats[id];
-    if (!c) return '';
-    return renderChatItem(c);
-  }).join('');
+
+  let html = '';
+
+  // Search bar
+  html += `<div class="chat-search-wrap">
+    <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="🔍 Пошук по чатах..." value="${escapeHtml(state.chatSearchQuery || '')}">
+    ${state.chatSearchQuery ? '<button class="chat-search-clear" id="chatSearchClear">✕</button>' : ''}
+  </div>`;
+
+  // Selection mode bar
+  if (state.selectionMode) {
+    const count = state.selectedChatIds.size;
+    html += `<div class="selection-bar">
+      <span class="selection-count">${count} обрано</span>
+      <div class="selection-actions">
+        <button class="selection-btn" id="selectionCancel">Скасувати</button>
+        <button class="selection-btn danger" id="selectionDelete" ${count === 0 ? 'disabled' : ''}>Видалити</button>
+        <button class="selection-btn" id="selectionArchive" ${count === 0 ? 'disabled' : ''}>Архів</button>
+      </div>
+    </div>`;
+  }
+
+  // Active chats
+  if (filteredActive.length > 0) {
+    html += filteredActive.map(c => renderChatItem(c, false)).join('');
+  } else if (query) {
+    html += `<div class="chat-list-empty" style="padding:30px 20px;"><p>Нічого не знайдено за запитом "${escapeHtml(query)}"</p></div>`;
+  }
+
+  // Archived section
+  if (filteredArchived.length > 0) {
+    html += `<div class="archive-section">
+      <div class="archive-header">📦 Архів (${filteredArchived.length})</div>
+      ${filteredArchived.map(c => renderChatItem(c, true)).join('')}
+    </div>`;
+  }
+
+  el.innerHTML = html;
+
+  // Attach handlers
   el.querySelectorAll('[data-chat-id]').forEach(item => {
-    item.addEventListener('click', () => openChat(item.dataset.chatId));
+    const chatId = item.dataset.chatId;
+    let longPressTimer = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isSwiping = false;
+
+    // Click → open chat (or toggle selection in selection mode)
+    item.addEventListener('click', (e) => {
+      // Don't open if clicking on swipe action
+      if (e.target.closest('.swipe-action')) return;
+      if (state.selectionMode) {
+        toggleChatSelection(chatId);
+      } else {
+        openChat(chatId);
+      }
+    });
+
+    // Long press → enter selection mode
+    item.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.chat-search-wrap') || e.target.closest('.selection-bar')) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isSwiping = false;
+      longPressTimer = setTimeout(() => {
+        if (!state.selectionMode) {
+          state.selectionMode = true;
+          state.selectedChatIds = new Set([chatId]);
+          if (navigator.vibrate) navigator.vibrate(40);
+          renderChatList();
+        }
+      }, 500);
+    }, { passive: true });
+
+    item.addEventListener('touchmove', (e) => {
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        clearTimeout(longPressTimer);
+      }
+      // Swipe left detection (only if not in selection mode)
+      if (!state.selectionMode && dx < -20 && Math.abs(dx) > Math.abs(dy) * 2) {
+        isSwiping = true;
+        const inner = item.querySelector('.chat-item-inner');
+        if (inner) {
+          const offset = Math.max(dx, -140);
+          inner.style.transform = `translateX(${offset}px)`;
+        }
+      }
+    }, { passive: true });
+
+    item.addEventListener('touchend', (e) => {
+      clearTimeout(longPressTimer);
+      if (isSwiping) {
+        const dx = (e.changedTouches[0]?.clientX || 0) - touchStartX;
+        const inner = item.querySelector('.chat-item-inner');
+        if (inner) {
+          if (dx < -80) {
+            inner.style.transform = 'translateX(-140px)';
+            inner.dataset.swiped = '1';
+          } else {
+            inner.style.transform = '';
+            delete inner.dataset.swiped;
+          }
+        }
+      }
+    }, { passive: true });
+  });
+
+  // Swipe action buttons
+  el.querySelectorAll('.swipe-action').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const chatId = btn.dataset.chatId;
+      const action = btn.dataset.action;
+      if (action === 'delete') {
+        if (confirm('Видалити цей чат?')) {
+          deleteChat(chatId);
+        } else {
+          // Reset swipe
+          const inner = btn.closest('.chat-item')?.querySelector('.chat-item-inner');
+          if (inner) { inner.style.transform = ''; delete inner.dataset.swiped; }
+        }
+      } else if (action === 'archive') {
+        archiveChat(chatId);
+      } else if (action === 'unarchive') {
+        unarchiveChat(chatId);
+      }
+    });
+  });
+
+  // Search input
+  const searchEl = document.getElementById('chatSearchInput');
+  if (searchEl) {
+    searchEl.addEventListener('input', (e) => {
+      state.chatSearchQuery = e.target.value;
+      renderChatList();
+      // Restore focus
+      setTimeout(() => {
+        const newSearch = document.getElementById('chatSearchInput');
+        if (newSearch) {
+          newSearch.focus();
+          newSearch.setSelectionRange(newSearch.value.length, newSearch.value.length);
+        }
+      }, 0);
+    });
+  }
+  const clearEl = document.getElementById('chatSearchClear');
+  if (clearEl) {
+    clearEl.addEventListener('click', () => {
+      state.chatSearchQuery = '';
+      renderChatList();
+    });
+  }
+
+  // Selection actions
+  document.getElementById('selectionCancel')?.addEventListener('click', () => {
+    state.selectionMode = false;
+    state.selectedChatIds.clear();
+    renderChatList();
+  });
+  document.getElementById('selectionDelete')?.addEventListener('click', () => {
+    const count = state.selectedChatIds.size;
+    if (!count) return;
+    if (confirm(`Видалити ${count} ${count === 1 ? 'чат' : 'чатів'}?`)) {
+      for (const id of state.selectedChatIds) deleteChat(id, false);
+      state.selectionMode = false;
+      state.selectedChatIds.clear();
+      saveChats();
+      renderChatList();
+    }
+  });
+  document.getElementById('selectionArchive')?.addEventListener('click', () => {
+    for (const id of state.selectedChatIds) {
+      if (!state.archivedChatIds.includes(id)) state.archivedChatIds.push(id);
+    }
+    state.selectionMode = false;
+    state.selectedChatIds.clear();
+    saveChats();
+    renderChatList();
+    flash('Перенесено в архів');
   });
 }
 
-function renderChatItem(c) {
+function toggleChatSelection(chatId) {
+  if (state.selectedChatIds.has(chatId)) {
+    state.selectedChatIds.delete(chatId);
+  } else {
+    state.selectedChatIds.add(chatId);
+  }
+  renderChatList();
+}
+
+function deleteChat(chatId, rerender = true) {
+  delete state.chats[chatId];
+  state.chatOrder = state.chatOrder.filter(id => id !== chatId);
+  state.archivedChatIds = state.archivedChatIds.filter(id => id !== chatId);
+  if (rerender) { saveChats(); renderChatList(); }
+}
+
+function archiveChat(chatId) {
+  if (!state.archivedChatIds.includes(chatId)) state.archivedChatIds.push(chatId);
+  saveChats();
+  renderChatList();
+  flash('Перенесено в архів');
+}
+
+function unarchiveChat(chatId) {
+  state.archivedChatIds = state.archivedChatIds.filter(id => id !== chatId);
+  saveChats();
+  renderChatList();
+  flash('Повернуто зі архіву');
+}
+
+function renderChatItem(c, isArchived = false) {
   const participants = c.participants || [];
   const lastMsg = [...(c.messages || [])].reverse().find(m => !m.loading && !m.hidden);
   const preview = lastMsg ? (lastMsg.role === 'user' ? 'Ти: ' : '') + (lastMsg.content || '').slice(0, 50) : 'Новий чат';
@@ -281,17 +626,34 @@ function renderChatItem(c) {
   const modeLabel = isMulti ? (c.mode ? MODES[c.mode].name.toUpperCase() : 'РАДА') : AI_CONFIG[participants[0]?.ai]?.name.toUpperCase() || '';
   const badgeClass = isMulti ? 'council' : '';
 
+  const isSelected = state.selectedChatIds.has(c.id);
+  const checkbox = state.selectionMode
+    ? `<div class="selection-checkbox ${isSelected ? 'checked' : ''}"></div>`
+    : '';
+
+  const swipeActions = isArchived
+    ? `<button class="swipe-action swipe-unarchive" data-action="unarchive" data-chat-id="${c.id}">↩</button>
+       <button class="swipe-action swipe-delete" data-action="delete" data-chat-id="${c.id}">✕</button>`
+    : `<button class="swipe-action swipe-archive" data-action="archive" data-chat-id="${c.id}">📦</button>
+       <button class="swipe-action swipe-delete" data-action="delete" data-chat-id="${c.id}">✕</button>`;
+
   return `
-    <div class="chat-item" data-chat-id="${c.id}">
-      ${avatars}
-      <div class="chat-meta">
-        <div class="chat-title">${escapeHtml(c.name || 'Без назви')}</div>
-        <div class="chat-preview">
-          <span class="chat-mode-badge ${badgeClass}">${modeLabel}</span>
-          ${escapeHtml(preview)}
+    <div class="chat-item ${isSelected ? 'selected' : ''} ${isArchived ? 'archived' : ''}" data-chat-id="${c.id}">
+      <div class="chat-item-inner">
+        ${checkbox}
+        ${avatars}
+        <div class="chat-meta">
+          <div class="chat-title">${escapeHtml(c.name || 'Без назви')}</div>
+          <div class="chat-preview">
+            <span class="chat-mode-badge ${badgeClass}">${modeLabel}</span>
+            ${escapeHtml(preview)}
+          </div>
         </div>
+        <div class="chat-time">${fmtDate(c.updatedAt || c.createdAt)}</div>
       </div>
-      <div class="chat-time">${fmtDate(c.updatedAt || c.createdAt)}</div>
+      <div class="swipe-actions-wrap">
+        ${swipeActions}
+      </div>
     </div>`;
 }
 
@@ -524,15 +886,26 @@ function renderChatScreen() {
   // Header
   document.getElementById('chatHeaderTitle').textContent = c.name;
   const participants = c.participants || [];
+  const subEl = document.getElementById('chatHeaderSub');
   let sub;
   if (participants.length === 1) {
     const m = MODELS[participants[0].ai][participants[0].level];
     sub = m.name.toUpperCase();
   } else {
     const modeName = c.mode ? MODES[c.mode].name.toUpperCase() : 'РАДА';
-    sub = `${participants.length} AI · ${modeName}${c.research ? ' · RESEARCH' : ''}`;
+    sub = `${participants.length} AI · ${modeName}${c.research && participants.length === 1 ? ' · RESEARCH' : ''}`;
   }
-  document.getElementById('chatHeaderSub').textContent = sub;
+
+  // Session cost pill (Пункт 7)
+  const cost = getSessionCost(c.id);
+  const costHtml = cost > 0 ? ` <span class="session-cost-pill">💰 ${formatCost(cost)}</span>` : '';
+
+  // Make subtitle clickable for level change (Пункт 2)
+  subEl.innerHTML = `<span class="chat-sub-level" style="cursor:pointer;text-decoration:underline dotted;">${sub}</span>${costHtml}`;
+  const levelSpan = subEl.querySelector('.chat-sub-level');
+  if (levelSpan) {
+    levelSpan.addEventListener('click', () => openLevelMenu(c));
+  }
 
   // Update menu label
   document.getElementById('menuToggleLogLabel').textContent = state.showFullLog ? 'Згорнути до головних' : 'Повний лог розмови';
@@ -542,6 +915,60 @@ function renderChatScreen() {
 
   // Messages
   renderMessages();
+}
+
+// Open level menu for this chat (Пункт 2)
+function openLevelMenu(c) {
+  const existing = document.getElementById('levelMenuOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'levelMenuOverlay';
+  overlay.className = 'level-menu-overlay open';
+
+  const participants = c.participants || [];
+  let html = `<div class="level-menu-sheet">
+    <div class="level-menu-title">Змінити рівень AI для цього чату</div>`;
+
+  participants.forEach(p => {
+    const ai = AI_CONFIG[p.ai];
+    html += `<div style="margin-bottom:14px;">
+      <div style="font-weight:600;font-size:13px;margin-bottom:6px;color:${ai.color};">${ai.name}</div>`;
+    for (let lvl = 0; lvl < 4; lvl++) {
+      const m = MODELS[p.ai][lvl];
+      const isCurrent = p.level === lvl;
+      html += `<div class="level-option ${isCurrent ? 'current' : ''}" data-ai="${p.ai}" data-level="${lvl}">
+        <div class="level-option-dot" style="background:${LEVEL_COLORS[lvl]};"></div>
+        <div class="level-option-info">
+          <div class="level-option-name">${LEVEL_NAMES[lvl]}</div>
+          <div class="level-option-model">${m.name}</div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  });
+  html += `<button class="settings-btn" id="levelMenuClose" style="width:100%;margin-top:8px;">Готово</button></div>`;
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.id === 'levelMenuClose') {
+      overlay.remove();
+      return;
+    }
+    const opt = e.target.closest('.level-option');
+    if (opt) {
+      const ai = opt.dataset.ai;
+      const level = parseInt(opt.dataset.level);
+      const p = c.participants.find(x => x.ai === ai);
+      if (p) {
+        p.level = level;
+        saveChats();
+        flash(`${AI_CONFIG[ai].name}: ${LEVEL_NAMES[level]}`);
+        renderChatScreen();
+      }
+    }
+  });
 }
 
 function renderChatBackground(c) {
@@ -618,6 +1045,44 @@ function renderMessages() {
     });
   });
 
+  // TL;DR button handler (Пункт 5)
+  wrap.querySelectorAll('.tldr-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const msgId = btn.dataset.msgId;
+      const msg = (state.chats[state.activeChatId]?.messages || []).find(m => m.id === msgId);
+      if (!msg || !msg.content) return;
+
+      btn.textContent = '⏳ Стискаю...';
+      btn.disabled = true;
+
+      // Use cheapest available AI
+      let aiToUse = null;
+      if (state.keys.claude) aiToUse = 'claude';
+      else if (state.keys.gemini) aiToUse = 'gemini';
+      else if (state.keys.openai) aiToUse = 'openai';
+      if (!aiToUse) {
+        flash('Немає ключа для TL;DR', true);
+        btn.textContent = '⚡ TL;DR';
+        btn.disabled = false;
+        return;
+      }
+
+      const model = MODELS[aiToUse][0];
+      const prompt = `Стисни цей текст до 1-2 речень українською, збережи головну суть без води:\n\n${msg.content}`;
+      try {
+        const { text } = await CALLERS[aiToUse]([{role:'user', content: prompt}], { model: model.id });
+        msg.tldr = (text || '').trim();
+        saveChats();
+        renderMessages();
+      } catch (err) {
+        flash('TL;DR не вдався: ' + err.message, true);
+        btn.textContent = '⚡ TL;DR';
+        btn.disabled = false;
+      }
+    });
+  });
+
   requestAnimationFrame(() => {
     const main = document.querySelector('#screenChat main');
     if (main) main.scrollTop = main.scrollHeight;
@@ -659,6 +1124,20 @@ function renderMessage(m) {
   const roundTag = m.round ? `<span class="round-tag">R${m.round}</span>` : '';
   const compactClass = (state.showFullLog && !m.isPrimary && !isUser) ? 'compact' : '';
 
+  // Confidence badge (Пункт 4) — only for synthesis messages with meta
+  const confidenceHtml = (isCouncilSynth && m.synthMeta) ? renderConfidenceBadge(m.synthMeta) : '';
+
+  // Contribution block (Пункт 12) — only for synthesis messages with meta
+  const contributionHtml = (isCouncilSynth && m.synthMeta) ? renderContributionBlock(m.synthMeta) : '';
+
+  // TL;DR section (Пункт 5)
+  const hasLongContent = !isUser && !m.loading && !m.error && m.content && m.content.length > 400;
+  const tldrBtnHtml = hasLongContent
+    ? (m.tldr
+        ? `<div class="tldr-content">${renderMd(m.tldr)}</div>`
+        : `<button class="tldr-btn" data-action="tldr" data-msg-id="${m.id}">⚡ TL;DR</button>`)
+    : '';
+
   // Action buttons — only for non-user, non-loading, non-error AI responses with content
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
@@ -674,9 +1153,12 @@ function renderMessage(m) {
         <span class="author">${escapeHtml(ai.name)}</span>
         ${modelTag}
         ${roundTag}
+        ${confidenceHtml}
         <span class="time">${fmtTime(m.time)}</span>
       </div>
       <div class="msg-body">${bodyContent}</div>
+      ${tldrBtnHtml}
+      ${contributionHtml}
       ${actionsHtml}
     </div>`;
 }
@@ -868,10 +1350,135 @@ async function callPerplexity(messages, opts = {}) {
   });
   if (!resp.ok) throw new Error('Perplexity ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
-  return { text: data.choices[0].message.content, model };
+  let text = data.choices[0].message.content || '';
+  // Reasoning models (sonar-reasoning, sonar-reasoning-pro) include <think>...</think> blocks with internal CoT
+  // First try closed blocks, then fallback to unclosed (truncated by token limit)
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  // If there's still an orphan opening <think> without closing tag — strip from it to end
+  const orphanStart = text.search(/<think>/i);
+  if (orphanStart !== -1) {
+    text = text.slice(0, orphanStart);
+  }
+  text = text.trim();
+  return { text, model };
 }
 
 const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity };
+
+// ==================== STATS TRACKING ====================
+// Rough token estimation: 1 token ≈ 4 chars for English/Ukrainian
+function estimateTokens(text) {
+  if (!text) return 0;
+  return Math.ceil(String(text).length / 4);
+}
+
+function findModelPricing(ai, modelId) {
+  const models = MODELS[ai] || [];
+  return models.find(m => m.id === modelId) || null;
+}
+
+function computeCost(ai, modelId, inputTokens, outputTokens) {
+  const model = findModelPricing(ai, modelId);
+  if (!model) return 0;
+  return (inputTokens / 1_000_000) * model.inPrice + (outputTokens / 1_000_000) * model.outPrice;
+}
+
+function trackUsage(ai, modelId, inputText, outputText, chatId) {
+  const inputTokens = typeof inputText === 'number' ? inputText : estimateTokens(
+    Array.isArray(inputText) ? inputText.map(m => typeof m.content === 'string' ? m.content : JSON.stringify(m.content)).join('\n') : inputText
+  );
+  const outputTokens = typeof outputText === 'number' ? outputText : estimateTokens(outputText);
+  const cost = computeCost(ai, modelId, inputTokens, outputTokens);
+
+  // Update global stats
+  if (!state.stats.byAI[ai]) {
+    state.stats.byAI[ai] = { requests: 0, inputTokens: 0, outputTokens: 0, estCost: 0 };
+  }
+  state.stats.byAI[ai].requests += 1;
+  state.stats.byAI[ai].inputTokens += inputTokens;
+  state.stats.byAI[ai].outputTokens += outputTokens;
+  state.stats.byAI[ai].estCost += cost;
+
+  // Update chat-level stats
+  if (chatId && state.chats[chatId]) {
+    const c = state.chats[chatId];
+    if (!c.sessionStats) c.sessionStats = { totalCost: 0, byAI: {} };
+    if (!c.sessionStats.byAI[ai]) c.sessionStats.byAI[ai] = { requests: 0, cost: 0 };
+    c.sessionStats.byAI[ai].requests += 1;
+    c.sessionStats.byAI[ai].cost += cost;
+    c.sessionStats.totalCost += cost;
+  }
+  saveStats();
+  return { inputTokens, outputTokens, cost };
+}
+
+function getSessionCost(chatId) {
+  const c = state.chats[chatId];
+  if (!c || !c.sessionStats) return 0;
+  return c.sessionStats.totalCost || 0;
+}
+
+function formatCost(cost) {
+  if (cost < 0.001) return '< $0.001';
+  if (cost < 0.01) return '$' + cost.toFixed(4);
+  if (cost < 1) return '$' + cost.toFixed(3);
+  return '$' + cost.toFixed(2);
+}
+
+// Parse meta JSON from synthesis response (confidence + contributions)
+function parseSynthMeta(text) {
+  if (!text) return { cleanedText: text, meta: null };
+  // Look for ```json ... ``` block at the end
+  const jsonBlockRegex = /```json\s*\n?([\s\S]*?)\n?```\s*$/i;
+  const match = text.match(jsonBlockRegex);
+  if (!match) return { cleanedText: text, meta: null };
+  try {
+    const meta = JSON.parse(match[1].trim());
+    const cleanedText = text.replace(jsonBlockRegex, '').trim();
+    return { cleanedText, meta };
+  } catch (e) {
+    return { cleanedText: text, meta: null };
+  }
+}
+
+// Render confidence badge (Пункт 4)
+function renderConfidenceBadge(meta) {
+  if (!meta || !meta.confidence) return '';
+  const levels = {
+    high: { icon: '✅', label: 'Висока впевненість', cls: 'confidence-high' },
+    medium: { icon: '⚠️', label: 'Середня впевненість', cls: 'confidence-medium' },
+    low: { icon: '❌', label: 'Низька впевненість', cls: 'confidence-low' }
+  };
+  const cfg = levels[meta.confidence] || levels.medium;
+  const reason = meta.confidence_reason ? ` — ${escapeHtml(meta.confidence_reason)}` : '';
+  return `<span class="confidence-badge ${cfg.cls}" title="${escapeHtml(reason)}">${cfg.icon} ${cfg.label}</span>`;
+}
+
+// Render contribution block (Пункт 12)
+function renderContributionBlock(meta) {
+  if (!meta || !Array.isArray(meta.contributions) || meta.contributions.length === 0) return '';
+  const maxInsights = Math.max(1, ...meta.contributions.map(c => c.unique_insights || 0));
+  const rows = meta.contributions.map(c => {
+    const ai = AI_CONFIG[c.ai];
+    if (!ai) return '';
+    const count = c.unique_insights || 0;
+    const pct = Math.round((count / maxInsights) * 100);
+    const supportedBy = (c.supported_by || []).map(a => AI_CONFIG[a]?.name || a).join(', ');
+    const supportHtml = supportedBy ? `<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Підтримали: ${escapeHtml(supportedBy)}</div>` : '';
+    return `<div class="contribution-row">
+      <div class="contribution-ai" style="color:${ai.color};">${escapeHtml(ai.name)}</div>
+      <div style="flex:1;">
+        <div class="contribution-bar"><div class="contribution-bar-fill" style="width:${pct}%;"></div></div>
+        ${supportHtml}
+      </div>
+      <div class="contribution-count">${count}</div>
+    </div>`;
+  }).join('');
+  return `<div class="contribution-block">
+    <div class="contribution-header">📊 Внесок у фінал (унікальні інсайти)</div>
+    ${rows}
+  </div>`;
+}
 
 // ==================== BUILD MESSAGE WITH ATTACHMENTS ====================
 // ==================== MEMORY PROMPT ====================
@@ -1009,6 +1616,14 @@ async function handleSend() {
   saveChats();
   renderMessages();
   state.chatOrder = [c.id, ...state.chatOrder.filter(id => id !== c.id)];
+
+  // Auto-generate chat name after first successful exchange (only if still default)
+  const hasDefault = /^(Чат з |Рада:)/i.test(c.name || '');
+  const aiMessages = (c.messages || []).filter(m => m.role === 'assistant' && !m.loading && !m.error && m.content);
+  if (hasDefault && aiMessages.length === 1) {
+    // Fire and forget — don't await
+    generateChatName(c.id).catch(() => {});
+  }
 }
 
 async function handleSingleAI(c, text, attachments) {
@@ -1047,6 +1662,7 @@ async function handleSingleAI(c, text, attachments) {
     } else {
       const { text: reply } = await CALLERS[p.ai](msgs, opts);
       finalText = reply;
+      trackUsage(p.ai, model.id, msgs, reply, c.id);
     }
     // Replace loading
     const idx = c.messages.findIndex(m => m.id === loadingId);
@@ -1120,6 +1736,7 @@ async function runParallel(c, text, attachments, active, mode) {
     };
     try {
       const { text: reply } = await CALLERS[p.ai](msgs, opts);
+      trackUsage(p.ai, model.id, msgs, reply, c.id);
       const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
       c.messages[idx] = {
         id: loadings[p.ai], role: 'assistant', source: p.ai,
@@ -1161,13 +1778,17 @@ async function runParallel(c, text, attachments, active, mode) {
     const synthModel = MODELS[synthesizerAI][3];
 
     try {
-      const { text: reply } = await CALLERS[synthesizerAI]([{role:'user', content: synthPrompt}], { model: synthModel.id });
+      const synthMsgs = [{role:'user', content: synthPrompt}];
+      const { text: reply } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+      trackUsage(synthesizerAI, synthModel.id, synthMsgs, reply, c.id);
+      const { cleanedText, meta } = parseSynthMeta(reply);
       const idx = c.messages.findIndex(m => m.id === synthId);
       c.messages[idx] = {
         id: synthId, role: 'assistant', source: 'council-synth',
-        content: reply, isPrimary: true,
+        content: cleanedText, isPrimary: true,
         modelShort: `${synthesizerAI}/${synthModel.short}`,
         levelColor: LEVEL_COLORS[3],
+        synthMeta: meta,
         time: Date.now()
       };
     } catch (err) {
@@ -1240,6 +1861,7 @@ async function runDebate(c, text, attachments, active) {
 
       try {
         const { text: reply } = await CALLERS[p.ai](msgs, opts);
+        trackUsage(p.ai, model.id, msgs, reply, c.id);
         allAnswers[p.ai].push(reply);
         const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
         c.messages[idx] = {
@@ -1272,29 +1894,55 @@ async function runDebate(c, text, attachments, active) {
   const finalAnswers = active.map(p => ({
     ai: p.ai,
     text: allAnswers[p.ai][allAnswers[p.ai].length - 1] || '(немає)',
-    ok: !!allAnswers[p.ai][allAnswers[p.ai].length - 1]
+    ok: !!allAnswers[p.ai][allAnswers[p.ai].length - 1],
+    roundsAnswered: allAnswers[p.ai].filter(x => x).length
   })).filter(x => x.ok);
 
-  const synthPrompt = `Після ${rounds} раундів дебату AI-моделей на питання "${text}", дай короткий фінальний висновок українською мовою.
+  // Check if any AI failed to complete all rounds
+  const incompleteAI = active.filter(p => {
+    const answers = allAnswers[p.ai] || [];
+    return answers.filter(x => x).length < rounds;
+  });
+  const warningNote = incompleteAI.length > 0
+    ? `\n\n⚠️ УВАГА: ${incompleteAI.length} з ${active.length} AI не завершили всі ${rounds} раунди (використано їхні останні успішні відповіді). Це може знизити якість синтезу.`
+    : '';
+
+  const aiIdList = finalAnswers.map(a => a.ai).join(', ');
+  const synthPrompt = `Після ${rounds} раундів дебату AI-моделей на питання "${text}", дай короткий фінальний висновок українською мовою.${warningNote}
 
 Фінальні позиції:
-${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} ===\n${a.text}`).join('\n\n')}
+${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.roundsAnswered}/${rounds}) ===\n${a.text}`).join('\n\n')}
 
 Структура:
 1. **Консенсус** — спільна позиція (1-2 речення)
 2. **Ключові розбіжності** — якщо залишились (коротко)
-3. **Рекомендація** — фінальна відповідь від імені Ради`;
+3. **Рекомендація** — фінальна відповідь від імені Ради${incompleteAI.length > 0 ? '\n4. **⚠️ Обмеження** — зазнач що не всі AI завершили повний цикл' : ''}
+
+В КІНЦІ додай JSON-блок з мета-аналізом (у backticks):
+\`\`\`json
+{
+  "confidence": "high|medium|low",
+  "confidence_reason": "коротке пояснення",
+  "contributions": [
+    {"ai": "claude", "unique_insights": 2, "supported_by": ["gemini"]}
+  ]
+}
+\`\`\`
+Доступні ai-id: ${aiIdList}`;
 
   try {
     const synthesizerAI = state.keys.claude ? 'claude' : finalAnswers[0].ai;
     const synthModel = MODELS[synthesizerAI][3];
-    const { text: reply } = await CALLERS[synthesizerAI]([{role:'user', content: synthPrompt}], { model: synthModel.id });
+    const synthMsgs = [{role:'user', content: synthPrompt}];
+    const { text: reply } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+    trackUsage(synthesizerAI, synthModel.id, synthMsgs, reply, c.id);
+    const { cleanedText, meta } = parseSynthMeta(reply);
     const idx = c.messages.findIndex(m => m.id === synthId);
     c.messages[idx] = {
       id: synthId, role: 'assistant', source: 'council-synth',
-      content: reply, isPrimary: true,
+      content: cleanedText, isPrimary: true,
       modelShort: `${synthesizerAI}/${synthModel.short}`,
-      levelColor: LEVEL_COLORS[3], time: Date.now()
+      levelColor: LEVEL_COLORS[3], synthMeta: meta, time: Date.now()
     };
   } catch (err) {
     const idx = c.messages.findIndex(m => m.id === synthId);
@@ -1337,6 +1985,7 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
 // ==================== SYNTHESIS PROMPTS ====================
 function buildSynthesisPrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
+  const aiList = answers.map(r => r.ai).join(', ');
   return `Ти — голова ради AI. На питання користувача відповіли кілька AI-моделей. Проаналізуй їхні відповіді, знайди точки згоди та розбіжності, і сформулюй одне підсумкове рішення.
 
 ПИТАННЯ:
@@ -1349,7 +1998,26 @@ ${formatted}
 Дай структуровану відповідь українською:
 1. **Консенсус** — в чому всі згодні
 2. **Розбіжності** — де думки розходяться і чому це важливо
-3. **Рекомендація** — фінальна відповідь, яка враховує сильні сторони кожного`;
+3. **Рекомендація** — фінальна відповідь, яка враховує сильні сторони кожного
+
+В САМОМУ КІНЦІ своєї відповіді додай JSON-блок з мета-аналізом (у трьох backticks, мовою json):
+\`\`\`json
+{
+  "confidence": "high|medium|low",
+  "confidence_reason": "коротке пояснення чому такий рівень впевненості (1 речення)",
+  "contributions": [
+    {"ai": "claude", "unique_insights": 2, "supported_by": ["gemini"]},
+    {"ai": "gemini", "unique_insights": 1, "supported_by": []}
+  ]
+}
+\`\`\`
+Де:
+- confidence "high" — якщо всі AI значно згодні
+- "medium" — є часткова згода але важливі розбіжності
+- "low" — моделі значно не згодні
+- unique_insights — скільки цінних пунктів саме цей AI додав до фіналу (0-5)
+- supported_by — масив ai-ідентифікаторів які підтвердили/підкріпили його позицію
+Доступні ai-ідентифікатори: ${aiList}`;
 }
 
 function buildVotePrompt(question, answers) {
@@ -1513,6 +2181,109 @@ function copyMessageText(text) {
   }
 }
 
+// ==================== CHAT EXPORT (Пункт 6) ====================
+function exportChatAsMarkdown(chatId) {
+  const c = state.chats[chatId];
+  if (!c) return;
+
+  const participants = (c.participants || []).map(p => {
+    const ai = AI_CONFIG[p.ai]?.name || p.ai;
+    const m = MODELS[p.ai]?.[p.level];
+    return `${ai} (${m?.name || 'unknown'})`;
+  }).join(', ');
+
+  const mode = c.participants.length > 1 && c.mode ? MODES[c.mode]?.name : 'Одиночний чат';
+  const cost = getSessionCost(chatId);
+  const created = new Date(c.createdAt).toLocaleString('uk-UA');
+
+  let md = `# ${c.name || 'Без назви'}\n\n`;
+  md += `**Учасники:** ${participants}\n`;
+  md += `**Режим:** ${mode}\n`;
+  md += `**Створено:** ${created}\n`;
+  if (cost > 0) md += `**Вартість сесії:** ${formatCost(cost)}\n`;
+  md += `\n---\n\n`;
+
+  (c.messages || []).forEach(m => {
+    if (m.loading) return;
+    const time = m.time ? new Date(m.time).toLocaleString('uk-UA') : '';
+    if (m.role === 'user') {
+      md += `## 👤 Ти · ${time}\n\n${m.content || ''}\n\n`;
+    } else if (m.source === 'council-synth') {
+      md += `## 🧠 РАДА (синтез) · ${time}\n\n${m.error ? '❌ ' : ''}${m.content || ''}\n\n`;
+    } else {
+      const aiName = AI_CONFIG[m.source]?.name || m.source;
+      const modelInfo = m.modelShort ? ` [${m.modelShort}]` : '';
+      const roundInfo = m.round ? ` Раунд ${m.round}` : '';
+      md += `## 🤖 ${aiName}${modelInfo}${roundInfo} · ${time}\n\n${m.error ? '❌ ' : ''}${m.content || ''}\n\n`;
+    }
+    md += `---\n\n`;
+  });
+
+  md += `\n*Експортовано з AI Council · ${new Date().toLocaleString('uk-UA')}*\n`;
+
+  // Create download
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = (c.name || 'chat').replace(/[^a-zа-яіїєґ0-9_-]/gi, '_').slice(0, 40);
+  a.href = url;
+  a.download = `${safeName}_${Date.now()}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  flash('Експортовано як .md');
+}
+
+// ==================== AUTO CHAT NAME (Пункт 8) ====================
+async function generateChatName(chatId) {
+  const c = state.chats[chatId];
+  if (!c || !c.messages || c.messages.length < 2) return;
+  // Only auto-rename if user hasn't manually named it (still has default name)
+  const isDefault = /^(Чат з |Рада:)/i.test(c.name || '');
+  if (!isDefault) return;
+  // Must have at least one user message and one AI response
+  const userMsg = c.messages.find(m => m.role === 'user');
+  const aiMsg = c.messages.find(m => m.role === 'assistant' && !m.loading && !m.error && m.content);
+  if (!userMsg || !aiMsg) return;
+
+  // Find a working AI — prefer the cheapest one
+  let aiToUse = null;
+  if (state.keys.claude) aiToUse = 'claude';
+  else if (state.keys.gemini) aiToUse = 'gemini';
+  else if (state.keys.openai) aiToUse = 'openai';
+  if (!aiToUse) return;
+
+  const model = MODELS[aiToUse][0]; // cheapest tier
+  const prompt = `Згенеруй дуже коротку назву чату (3-5 слів, українською, без лапок, без емодзі, без крапки в кінці) на основі першого питання і відповіді:
+
+Питання: ${String(userMsg.content).slice(0, 200)}
+Відповідь: ${String(aiMsg.content).slice(0, 300)}
+
+Назва:`;
+
+  try {
+    const { text } = await CALLERS[aiToUse]([{role:'user', content: prompt}], { model: model.id });
+    const cleanName = String(text || '').trim()
+      .replace(/^["'«»]|["'«»]$/g, '')
+      .replace(/^Назва:?\s*/i, '')
+      .split('\n')[0]
+      .slice(0, 60);
+    if (cleanName && cleanName.length >= 3) {
+      c.name = cleanName;
+      saveChats();
+      // Re-render chat list and header
+      if (state.activeChatId === chatId) {
+        document.getElementById('chatHeaderTitle').textContent = cleanName;
+      }
+      if (state.currentScreen === 'list') renderChatList();
+    }
+  } catch (e) {
+    // Silent failure — auto-name is nice-to-have
+    console.warn('Auto-name failed:', e.message);
+  }
+}
+
 // ==================== CHAT INFO ====================
 function showChatInfo() {
   const c = state.chats[state.activeChatId];
@@ -1584,6 +2355,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
 function init() {
   load();
 
+  // Set version in UI (settings footer + header pill)
+  const vFooter = document.getElementById('appVersion');
+  if (vFooter) vFooter.textContent = `AI Council · v${APP_VERSION} · ${APP_VERSION_DATE}`;
+  const vPill = document.getElementById('headerVersion');
+  if (vPill) vPill.textContent = `v${APP_VERSION}`;
+
   // List screen
   document.getElementById('newChatBtn').addEventListener('click', () => goScreen('new'));
   document.getElementById('settingsBtn').addEventListener('click', openSettings);
@@ -1650,10 +2427,16 @@ function init() {
     if (confirm('Видалити цей чат повністю?')) {
       delete state.chats[state.activeChatId];
       state.chatOrder = state.chatOrder.filter(id => id !== state.activeChatId);
+      state.archivedChatIds = state.archivedChatIds.filter(id => id !== state.activeChatId);
       saveChats();
       closeOverlay('chatMenuOverlay');
       goScreen('list');
     }
+  });
+  // Export chat as .md (Пункт 6)
+  document.getElementById('menuExportChat').addEventListener('click', () => {
+    exportChatAsMarkdown(state.activeChatId);
+    closeOverlay('chatMenuOverlay');
   });
 
   // Settings save
