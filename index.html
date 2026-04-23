@@ -45,7 +45,10 @@
     </div>
   </header>
   <div class="new-chat-body">
-    <div class="section-label">Назва чату</div>
+    <div class="section-label">Швидкий старт — шаблони</div>
+    <div class="templates-grid" id="templatesGrid"></div>
+
+    <div class="section-label spaced">Назва чату</div>
     <input type="text" class="chat-name-input" id="chatNameInput" placeholder="Напр. Порада по імплантології" maxlength="60">
 
     <div class="section-label spaced">Учасники та рівень мислення</div>
@@ -195,6 +198,21 @@
     </div>
 
     <div class="settings-section">
+      <h3>🇨🇿 Контекст чеської практики</h3>
+      <div class="info-text">Увімкнені блоки додаються до кожного запиту. Корисно для точніших клінічних відповідей.</div>
+      <div id="czechBlocksContainer"></div>
+    </div>
+
+    <div class="settings-section">
+      <h3>📁 База випадків</h3>
+      <div class="info-text">Анонімні кейси для контексту при нових консультаціях. Без персональних даних пацієнтів.</div>
+      <button class="settings-btn" id="openCasesBtn">
+        <span>Переглянути випадки</span>
+        <span id="casesCount" class="memory-count">0</span>
+      </button>
+    </div>
+
+    <div class="settings-section">
       <button class="settings-btn primary" id="saveSettingsBtn">Зберегти</button>
       <button class="settings-btn danger" id="wipeDataBtn">Очистити всі дані та ключі</button>
     </div>
@@ -233,6 +251,31 @@
       </button>
     </div>
     <div id="chatInfoContent"></div>
+  </div>
+</div>
+
+<!-- OVERLAY: cases (v4.5) -->
+<div class="overlay" id="casesOverlay">
+  <div class="sheet">
+    <div class="sheet-header">
+      <h2>📁 База випадків</h2>
+      <button class="header-btn" data-close="casesOverlay">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="settings-section">
+      <div class="info-text" style="background: rgba(230, 180, 60, 0.1); border-left: 3px solid #e6b43c; padding: 10px;">
+        ⚠️ <strong>GDPR нагадування:</strong> НІКОЛИ не зберігай імена пацієнтів, дати народження, ідентифікатори. Тільки анонімний опис випадку: стать, вік, клінічна картина.
+      </div>
+      <label class="memory-label">Короткий заголовок</label>
+      <input type="text" id="newCaseTitle" class="chat-name-input" placeholder="Напр. Ретровершина 46, ускладнений ендо">
+      <label class="memory-label">Теги (через кому)</label>
+      <input type="text" id="newCaseTags" class="chat-name-input" placeholder="ендо, моляр, ускладнення">
+      <label class="memory-label">Опис випадку (анонімно)</label>
+      <textarea id="newCaseDescription" class="memory-textarea" placeholder="Чол. 45р, скарга на ниючий біль..." style="min-height: 100px;"></textarea>
+      <button class="settings-btn primary" id="addCaseBtn">Додати випадок</button>
+    </div>
+    <div class="settings-section" id="casesList"></div>
   </div>
 </div>
 
