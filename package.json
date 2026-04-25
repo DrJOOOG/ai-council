@@ -1,6 +1,6 @@
 {
   "name": "ai-council",
-  "version": "6.0.5-beta",
+  "version": "6.0.6-beta",
   "private": true,
   "scripts": {
     "test": "npm run test:syntax && npm run test:e2e",

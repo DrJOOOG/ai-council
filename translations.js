@@ -1,5 +1,5 @@
 // ================================================================
-// AI Council v6.0.5-beta — UI localization dictionary
+// AI Council v6.0.6-beta — UI localization dictionary
 // No build step. Loaded before app.js.
 // ================================================================
 
@@ -40,21 +40,21 @@ const TRANSLATIONS = {
     'radiology.quick.aria': 'Automatic OPG report',
     'radiology.quick.title': 'Automatic OPG report: select an image and AI will start a structured report',
     'radiology.quick.enabled': 'OPG mode enabled. Select an image — reporting will start automatically.',
-    'radiology.autoPrompt.visible': '🩻 Automatic OPG report: {{count}} file(s)',
+    'radiology.autoPrompt.visible': '🦷☢️ Automatic OPG report: {{count}} file(s)',
     'radiology.autoPrompt.sending': 'OPG image uploaded — starting automatic report…',
     'error.fileTypeNotAllowed': '{{name}}: file type is not allowed',
     'error.filePrepareFailed': '{{name}}: failed to prepare file',
     'radiology.quick.aria': 'Automatický OPG popis',
     'radiology.quick.title': 'Automatický OPG popis: vyber snímek a AI spustí strukturovaný popis',
     'radiology.quick.enabled': 'OPG režim je zapnutý. Vyber snímek — popis se spustí automaticky.',
-    'radiology.autoPrompt.visible': '🩻 Automatický OPG popis: {{count}} souborů',
+    'radiology.autoPrompt.visible': '🦷☢️ Automatický OPG popis: {{count}} souborů',
     'radiology.autoPrompt.sending': 'OPG snímek nahrán — spouštím automatický popis…',
     'error.fileTypeNotAllowed': '{{name}}: typ souboru není povolen',
     'error.filePrepareFailed': '{{name}}: soubor se nepodařilo připravit',
     'radiology.quick.aria': 'OPG автоопис',
     'radiology.quick.title': 'OPG автоопис: вибери знімок, і AI сам запустить структурований опис',
     'radiology.quick.enabled': 'OPG-режим увімкнено. Обери знімок — опис запуститься автоматично.',
-    'radiology.autoPrompt.visible': '🩻 OPG автоопис: {{count}} файл(ів)',
+    'radiology.autoPrompt.visible': '🦷☢️ OPG автоопис: {{count}} файл(ів)',
     'radiology.autoPrompt.sending': 'OPG-знімок завантажено — запускаю автоопис…',
     'error.fileTypeNotAllowed': '{{name}}: тип файлу не дозволений',
     'error.filePrepareFailed': '{{name}}: не вдалось підготувати файл',

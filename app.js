@@ -1,13 +1,23 @@
 // ================================================================
-// AI Council v6.0.5-beta — One-tap OPG workflow + radiology auto-prompt
+// AI Council v6.0.6-beta — OPG per-tooth chart format + language-safe council
 // ================================================================
 
-const APP_VERSION = '6.0.5-beta';
+const APP_VERSION = '6.0.6-beta';
 const APP_VERSION_DATE = '2026-04-25';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.0.6-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🦷☢️ Заміна OPG-іконки: зуб із знаком радіації замість ребер',
+      '📝 OPG-опис тепер просить формат по FDI-зубах: [18] — знахідка / [15] — підозра до перевірки',
+      '🛡️ Фінальний синтез Ради у OPG-режимі отримує сам знімок і застосовує consensus-filter',
+      '🌐 Виправлено змішування мов: підсумки Ради мають відповідати вибраній мові інтерфейсу'
+    ]
+  },
   {
     version: '6.0.5-beta',
     date: '2026-04-25',
@@ -221,6 +231,13 @@ const LOGOS = {
     <line x1="15.5" y1="8" x2="9.5" y2="12" opacity="0.4" stroke-width="0.8"/>
     <line x1="9.5" y1="12" x2="14.5" y2="12" opacity="0.4" stroke-width="0.8"/>
   </svg>`,
+  radiology: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z"/>
+    <circle cx="12" cy="10.4" r="1.1" fill="currentColor" stroke="none"/>
+    <path d="M12 7.3 A3.1 3.1 0 0 1 14.7 9.0 L13.1 9.7 A1.4 1.4 0 0 0 12 9.0 Z" fill="currentColor" stroke="none" opacity="0.95"/>
+    <path d="M14.7 11.8 A3.1 3.1 0 0 1 12.1 13.5 L12.0 11.8 A1.4 1.4 0 0 0 13.1 11.1 Z" fill="currentColor" stroke="none" opacity="0.95"/>
+    <path d="M9.3 11.8 A3.1 3.1 0 0 1 9.3 9.0 L10.9 9.7 A1.4 1.4 0 0 0 10.9 11.1 Z" fill="currentColor" stroke="none" opacity="0.95"/>
+  </svg>`,
   user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>`,
   emptyChat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
     <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z"/>
@@ -427,7 +444,7 @@ const DEFAULT_TEMPLATES = [
   },
   {
     id: 'opg-report',
-    icon: '🩻',
+    icon: LOGOS.radiology,
     name: 'OPG / рентген-опис',
     description: 'Структурований опис OPG/зубного рентгену для карти пацієнта без вигадувань',
     systemAddition: `Користувач потребує радіологічний опис стоматологічного знімка (OPG / панорамний знімок / intraoral PA / bitewing) для медичної карти пацієнта. Працюй як асистент лікаря-стоматолога, не як самостійний діагност.
@@ -743,6 +760,9 @@ function renderMd(text) {
   s = s.replace(/^# (.+)$/gm, '<h1>$1</h1>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+  s = s.replace(/^🔴\s*(.+)$/gm, '<div class="finding-line finding-red">🔴 $1</div>');
+  s = s.replace(/^🟡\s*(.+)$/gm, '<div class="finding-line finding-yellow">🟡 $1</div>');
+  s = s.replace(/^⚪\s*(.+)$/gm, '<div class="finding-line finding-neutral">⚪ $1</div>');
   // [text](url) markdown links — only https/http, only if url doesn't contain dangerous chars
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s<>"')]+)\)/g, (_, t, u) =>
     `<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`);
@@ -752,7 +772,7 @@ function renderMd(text) {
   s = s.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
   s = s.replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
   s = s.split(/\n\n+/).map(p => {
-    if (/^<(h\d|ul|ol|pre|li)/.test(p)) return p;
+    if (/^<(h\d|ul|ol|pre|li|div)/.test(p)) return p;
     return `<p>${p.replace(/\n/g,'<br>')}</p>`;
   }).join('\n');
   return s;
@@ -3020,14 +3040,110 @@ function buildRadiologyAutoPrompt(attachments = []) {
     : '- image / radiograph';
 
   if (getLang() === 'cs') {
-    return `${getLanguageInstruction()}\n\nAutomatický režim OPG / RTG popisu. Popiš přiložený stomatologický RTG snímek pro zdravotnickou dokumentaci pacienta.\n\nPřiložené soubory:\n${fileList}\n\nPoužij FDI číslování 18–48.\n\nVelmi důležité:\n- nefantazíruj a nevymýšlej diagnózy;\n- popisuj pouze to, co je na snímku skutečně viditelné;\n- pokud nález nelze na OPG spolehlivě hodnotit, napiš „na tomto snímku nelze spolehlivě posoudit“;\n- kaz na OPG neuváděj jako jistý fakt, pouze jako podezření, pokud je patrná odpovídající radiolucence;\n- periapikální změny uváděj jen tehdy, pokud jsou zřetelné;\n- u nejistých oblastí napiš, že je nutné ověření klinicky / PA / BW / CBCT.\n\nStruktura odpovědi:\n1. Typ a kvalita snímku\n2. Celkový přehled\n3. Chybějící zuby\n4. Výplně / korunky / můstky\n5. Endodonticky ošetřené zuby\n6. Periapikální nálezy\n7. Parodontální úroveň kosti\n8. Implantáty / kostní struktury\n9. Podezřelé oblasti k ověření\n10. Krátký text připravený do dokumentace\n11. Co má lékař ověřit sám klinicky nebo doplňkovým RTG.`;
+    return `${getLanguageInstruction()}
+
+Automatický režim OPG / RTG popisu. Popiš přiložený stomatologický RTG snímek pro zdravotnickou dokumentaci pacienta.
+
+Přiložené soubory:
+${fileList}
+
+Použij FDI číslování 18–48.
+
+NEJDŮLEŽITĚJŠÍ PRAVIDLA:
+- Nehalucinuj. Nevymýšlej diagnózy, kazy, periapikální léze, resorpce, endodontické ošetření ani kalcifikace, pokud je přímo nevidíš.
+- OPG je orientační snímek. Aproximální kazy, okraje výplní, jemné periapikální změny a přesnou periimplantární kost často nelze spolehlivě posoudit.
+- Nepiš u každého zubu „periapikální nález v normě“. Pokud není zjevná hrubá patologie, použij opatrnou formulaci „bez jednoznačné hrubé periapikální patologie na OPG“.
+- Pokud si nejsi jistý, napiš „pouze k ověření“ a doporuč PA/BW/CBCT/klinické ověření.
+
+POVINNÝ FORMÁT:
+1. Typ a kvalita snímku — krátce.
+2. Zub po zubu podle FDI. Každý řádek začínej přesně takto:
+   [18] – nález
+   [17] – nález
+   ...
+   [48] – nález
+3. Používej barevné priority na začátku řádku, pokud je to potřeba:
+   🔴 [15] – suspektní radiolucence v distální korunkové části; nelze potvrdit z OPG, ověřit BW/klinicky.
+   🟡 [16] – rozsáhlá ortopedická konstrukce / velká fotokompozitní výplň; okraje na OPG nehodnotitelné.
+   ⚪ [14] – endodontické ošetření, bez jednoznačné hrubé apikální patologie na OPG.
+4. Pokud zub není viditelný nebo chybí, napiš: [17] – nepřítomen / nezobrazen / extrahován, pouze pokud je to zřejmé.
+5. Pokud si nejsi jistý číslem zubu, napiš konflikt: „číslování vyžaduje ověření lékařem“.
+6. Na konec přidej:
+   A. Bezpečný krátký text do dokumentace
+   B. Podezření / ověřit
+   C. Co nepřepisovat do karty jako fakt
+   D. Doporučené doplňkové snímky: BW / PA / CBCT.`;
   }
 
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}\n\nAutomatic OPG / dental X-ray reporting mode. Describe the attached dental radiograph for the patient chart.\n\nAttached files:\n${fileList}\n\nUse FDI numbering 18–48.\n\nVery important:\n- do not hallucinate or invent diagnoses;\n- describe only findings that are actually visible on the image;\n- if a finding cannot be reliably assessed on OPG, state “not reliably assessable on this image”;\n- do not diagnose approximal caries as a fact on OPG; write “suspected” only if a corresponding radiolucency is visible;\n- report periapical changes only when clearly visible;\n- for uncertain areas, recommend verification clinically / PA / bitewing / CBCT.\n\nAnswer structure:\n1. Image type and diagnostic quality\n2. General overview\n3. Missing teeth\n4. Restorations / crowns / bridges\n5. Endodontically treated teeth\n6. Periapical findings\n7. Periodontal bone level\n8. Implants / bony structures\n9. Suspicious areas requiring verification\n10. Short chart-ready note\n11. What the dentist must verify clinically or with additional imaging.`;
+    return `${getLanguageInstruction()}
+
+Automatic OPG / dental X-ray reporting mode. Describe the attached dental radiograph for the patient chart.
+
+Attached files:
+${fileList}
+
+Use FDI numbering 18–48.
+
+CORE RULES:
+- Do not hallucinate. Do not invent caries, periapical lesions, resorption, endodontic treatment, calcifications, or tooth positions unless directly visible.
+- OPG is an overview image. Approximal caries, restoration margins, subtle periapical changes, and exact peri-implant bone levels often cannot be reliably assessed.
+- Do not write “periapical finding normal” tooth by tooth. Prefer cautious wording such as “no obvious gross periapical pathology on OPG”.
+- If uncertain, write “requires verification” and recommend PA/BW/CBCT/clinical check.
+
+MANDATORY FORMAT:
+1. Image type and quality — short.
+2. Tooth-by-tooth FDI list. Start each line exactly like:
+   [18] – finding
+   [17] – finding
+   ...
+   [48] – finding
+3. Use priority markers at the beginning when needed:
+   🔴 [15] – suspected radiolucency in distal coronal part; cannot be confirmed on OPG, verify with BW/clinically.
+   🟡 [16] – large prosthetic restoration / extensive composite; margins not reliably assessable on OPG.
+   ⚪ [14] – endodontic treatment, no obvious gross apical pathology on OPG.
+4. If a tooth is missing/non-visible, write it only when reasonably clear.
+5. If tooth numbering is uncertain, mark it as a conflict requiring clinician verification.
+6. End with:
+   A. Safe short chart note
+   B. Suspicions / verify
+   C. Do not copy as fact
+   D. Recommended additional imaging: BW / PA / CBCT.`;
   }
 
-  return `${getLanguageInstruction()}\n\nАвтоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.\n\nПрикріплені файли:\n${fileList}\n\nВикористовуй FDI-нумерацію 18–48.\n\nДуже важливо:\n- не вигадуй діагнози;\n- описуй тільки те, що реально видно на знімку;\n- якщо ознака не оцінюється на OPG — прямо пиши “не оцінюється на цьому знімку”;\n- карієс на OPG не став як факт, тільки як “підозра”, якщо справді видно рентгенпрозору ділянку;\n- періапікальні зміни описуй тільки якщо видно чітко;\n- для сумнівних місць пиши “потребує перевірки PA/BW/CBCT/клінічно”.\n\nФормат відповіді:\n1. Тип знімка і якість\n2. Загальний огляд\n3. Відсутні зуби\n4. Реставрації / коронки / мости\n5. Ендодонтично ліковані зуби\n6. Періапікальні знахідки\n7. Пародонтальний рівень кістки\n8. Імпланти / кісткові структури\n9. Підозрілі ділянки, які треба перевірити\n10. Готовий короткий текст для карти пацієнта\n11. Що лікар має перевірити сам клінічно або додатковим RTG.`;
+  return `${getLanguageInstruction()}
+
+Автоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.
+
+Прикріплені файли:
+${fileList}
+
+Використовуй FDI-нумерацію 18–48.
+
+НАЙВАЖЛИВІШІ ПРАВИЛА:
+- Не галюцинуй. Не вигадуй карієс, періапікальні зміни, резорбції, ендодонтичне лікування, кальцифікати або положення зубів, якщо це прямо не видно.
+- OPG є оглядовим знімком. Апроксимальний карієс, краї пломб, дрібні періапікальні зміни і точний рівень кістки біля імплантів часто не оцінюються достовірно.
+- Не пиши по кожному зубу “періапікальна ділянка в нормі”. Краще: “без очевидної грубої апікальної патології на OPG”.
+- Якщо не впевнений — пиши “потребує уточнення” і рекомендуй PA/BW/CBCT/клінічну перевірку.
+
+ОБОВʼЯЗКОВИЙ ФОРМАТ:
+1. Тип і якість знімка — коротко.
+2. Опис зуб за зубом за FDI. Кожен рядок починай саме так:
+   [18] – знахідка
+   [17] – знахідка
+   ...
+   [48] – знахідка
+3. Для важливих або сумнівних місць став маркер на початку рядка:
+   🔴 [15] – рентгенпрояснення в дистальній частині коронкової частини зуба; не підтверджується на OPG, уточнити BW/клінічно.
+   🟡 [16] – ортопедична конструкція / фотокомпозит великого обсягу; краї на OPG не оцінюються достовірно.
+   ⚪ [14] – наявне ендодонтичне лікування, без очевидної грубої апікальної патології на OPG.
+4. Якщо зуб відсутній або не візуалізується — пиши це лише якщо достатньо очевидно.
+5. Якщо нумерація зуба сумнівна — пиши “потребує перевірки лікарем”.
+6. В кінці додай:
+   A. Безпечний короткий текст у карту
+   B. Підозри / уточнити
+   C. Що НЕ переносити в карту як факт
+   D. Які додаткові знімки потрібні: BW / PA / CBCT.`;
 }
 
 // ==================== SEND ====================
@@ -3256,12 +3372,12 @@ async function runParallel(c, text, attachments, active, mode) {
     });
     renderMessages();
 
-    const synthPrompt = mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good);
+    const synthPrompt = isRadiologyChat(c) && mode === 'synthesis' ? buildRadiologySynthesisPrompt(text, good) : (mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good));
     const synthesizerAI = state.keys.claude ? 'claude' : good[0].ai;
     const synthModel = MODELS[synthesizerAI][3];
 
     try {
-      const synthMsgs = [{role:'user', content: synthPrompt}];
+      const synthMsgs = isRadiologyChat(c) ? buildMessagesForAI(synthesizerAI, [], synthPrompt, attachments) : [{role:'user', content: synthPrompt}];
       const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
       trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
       const { cleanedText, meta } = parseSynthMeta(reply);
@@ -3405,28 +3521,29 @@ async function runDebate(c, text, attachments, active) {
 
   const aiIdList = finalAnswers.map(a => a.ai).join(', ');
   const synthPrompt = `${getLanguageInstruction()}
+${councilOutputLanguageRule()}
 
-Після ${rounds} раундів дебату AI-моделей на питання "${text}", give a concise final conclusion in the preferred response language.${warningNote}
+After ${rounds} debate round(s) on the question "${text}", give a concise final conclusion in the required output language.${warningNote}
 
-Фінальні позиції:
+Final positions:
 ${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.roundsAnswered}/${rounds}) ===\n${a.text}`).join('\n\n')}
 
-Структура:
-1. **Консенсус** — спільна позиція (1-2 речення)
-2. **Ключові розбіжності** — якщо залишились (коротко)
-3. **Рекомендація** — фінальна відповідь від імені Ради${incompleteAI.length > 0 ? '\n4. **⚠️ Обмеження** — зазнач що не всі AI завершили повний цикл' : ''}
+Structure in the required output language:
+1. **Consensus**
+2. **Key disagreements**
+3. **Recommendation**${incompleteAI.length > 0 ? '\n4. **⚠️ Limitations** — mention that not all AI completed all rounds' : ''}
 
-В КІНЦІ додай JSON-блок з мета-аналізом (у backticks):
+At the end, add a JSON meta-analysis block in backticks:
 \`\`\`json
 {
   "confidence": "high|medium|low",
-  "confidence_reason": "коротке пояснення",
+  "confidence_reason": "short explanation",
   "contributions": [
     {"ai": "claude", "unique_insights": 2, "supported_by": ["gemini"]}
   ]
 }
 \`\`\`
-Доступні ai-id: ${aiIdList}`;
+Available ai-id: ${aiIdList}`;
 
   try {
     const synthesizerAI = state.keys.claude ? 'claude' : finalAnswers[0].ai;
@@ -3483,62 +3600,46 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
 }
 
 // ==================== SYNTHESIS PROMPTS ====================
+function councilOutputLanguageRule() {
+  if (getLang() === 'cs') return 'OUTPUT LANGUAGE: Czech only. Do not add Ukrainian translation. JSON meta block may keep English keys.';
+  if (getLang() === 'en') return 'OUTPUT LANGUAGE: English only. Do not add Ukrainian or Czech translation. JSON meta block may keep English keys.';
+  return 'МОВА ВІДПОВІДІ: тільки українська. Не додавай переклад іншою мовою. JSON meta block може мати англійські ключі.';
+}
+
+function buildRadiologySynthesisPrompt(question, answers) {
+  const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
+  const aiList = answers.map(r => r.ai).join(', ');
+  if (getLang() === 'cs') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
+  }
+  if (getLang() === 'en') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+  }
+  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
+}
+
 function buildSynthesisPrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
   const aiList = answers.map(r => r.ai).join(', ');
-  return `${getLanguageInstruction()}
-
-Ти — голова ради AI. На питання користувача відповіли кілька AI-моделей. Проаналізуй їхні відповіді, знайди точки згоди та розбіжності, і сформулюй одне підсумкове рішення.
-
-ПИТАННЯ:
-${question}
-
-ВІДПОВІДІ:
-
-${formatted}
-
-Answer in the preferred response language, structured as:
-1. **Консенсус** — в чому всі згодні
-2. **Розбіжності** — де думки розходяться і чому це важливо
-3. **Рекомендація** — фінальна відповідь, яка враховує сильні сторони кожного
-
-В САМОМУ КІНЦІ своєї відповіді додай JSON-блок з мета-аналізом (у трьох backticks, мовою json):
-\`\`\`json
-{
-  "confidence": "high|medium|low",
-  "confidence_reason": "коротке пояснення чому такий рівень впевненості (1 речення)",
-  "contributions": [
-    {"ai": "claude", "unique_insights": 2, "supported_by": ["gemini"]},
-    {"ai": "gemini", "unique_insights": 1, "supported_by": []}
-  ]
+  if (getLang() === 'cs') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi předseda Rady AI. Několik AI modelů odpovědělo na otázku uživatele. Porovnej odpovědi, najdi shodu a rozpory a vytvoř jeden finální závěr.\n\nOTÁZKA:\n${question}\n\nODPOVĚDI:\n${formatted}\n\nStruktura odpovědi:\n1. **Konsenzus** — v čem se modely shodují\n2. **Rozpory** — kde se liší a proč je to důležité\n3. **Doporučení** — finální odpověď Rady\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
+  }
+  if (getLang() === 'en') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the chair of the AI Council. Several AI models answered the user's question. Compare their answers, identify consensus and disagreements, and produce one final answer.\n\nQUESTION:\n${question}\n\nANSWERS:\n${formatted}\n\nStructure:\n1. **Consensus** — what the models agree on\n2. **Disagreements** — where they differ and why it matters\n3. **Recommendation** — final Council answer\n\nEnd with a JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short explanation\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+  }
+  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — голова Ради AI. На питання користувача відповіли кілька AI-моделей. Порівняй відповіді, знайди консенсус і розбіжності, сформулюй один фінальний висновок.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ:\n${formatted}\n\nСтруктура:\n1. **Консенсус** — в чому моделі згодні\n2. **Розбіжності** — де думки розходяться і чому це важливо\n3. **Рекомендація** — фінальна відповідь Ради\n\nВ кінці додай JSON-блок:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
 }
-\`\`\`
-Де:
-- confidence "high" — якщо всі AI значно згодні
-- "medium" — є часткова згода але важливі розбіжності
-- "low" — моделі значно не згодні
-- unique_insights — скільки цінних пунктів саме цей AI додав до фіналу (0-5)
-- supported_by — масив ai-ідентифікаторів які підтвердили/підкріпили його позицію
-Доступні ai-ідентифікатори: ${aiList}`;
-}
+
 
 function buildVotePrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
-  return `${getLanguageInstruction()}
-
-На питання відповіли кілька AI-моделей. Оціни якість кожної відповіді та обери переможця.
-
-ПИТАННЯ:
-${question}
-
-ВІДПОВІДІ:
-
-${formatted}
-
-Use the preferred response language:
-1. **Ранжування / Ranking** — від найкращої до найслабшої (1-2 речення оцінки кожної)
-2. **Переможець** — хто дав найкращу відповідь і чому
-3. **Ідеальна відповідь** — на основі найкращих елементів`;
+  if (getLang() === 'cs') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nNěkolik AI modelů odpovědělo na otázku. Ohodnoť kvalitu odpovědí a vyber nejlepší.\n\nOTÁZKA:\n${question}\n\nODPOVĚDI:\n${formatted}\n\nStruktura:\n1. **Pořadí** — od nejlepší po nejslabší\n2. **Vítěz** — kdo odpověděl nejlépe a proč\n3. **Ideální odpověď** — složená z nejsilnějších částí.`;
+  }
+  if (getLang() === 'en') {
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nSeveral AI models answered the question. Evaluate the quality and choose the best answer.\n\nQUESTION:\n${question}\n\nANSWERS:\n${formatted}\n\nStructure:\n1. **Ranking** — best to weakest\n2. **Winner** — who gave the best answer and why\n3. **Ideal answer** — based on the strongest elements.`;
+  }
+  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nНа питання відповіли кілька AI-моделей. Оціни якість кожної відповіді та обери найкращу.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ:\n${formatted}\n\nСтруктура:\n1. **Ранжування** — від найкращої до найслабшої\n2. **Переможець** — хто дав найкращу відповідь і чому\n3. **Ідеальна відповідь** — на основі найкращих елементів.`;
 }
 
 // ==================== SETTINGS ====================

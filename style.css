@@ -919,3 +919,12 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
 .api-error-link { color: var(--accent); overflow-wrap: anywhere; font-size: 12px; }
 .api-error-muted { color: var(--text-mute); }
 @media (max-width: 420px) { .api-error-grid { grid-template-columns: 1fr; } }
+
+
+/* v6.0.6 OPG priority lines */
+.opg-btn svg { width: 22px; height: 22px; display: block; }
+.template-icon svg { width: 24px; height: 24px; display: inline-block; vertical-align: middle; }
+.finding-line { padding: 6px 8px; margin: 4px 0; border-radius: 8px; font-weight: 500; border: 1px solid transparent; }
+.finding-red { color: #ff5570; background: rgba(255,85,112,0.08); border-color: rgba(255,85,112,0.25); }
+.finding-yellow { color: #ffb347; background: rgba(255,179,71,0.08); border-color: rgba(255,179,71,0.25); }
+.finding-neutral { color: var(--text-dim); background: rgba(138,138,160,0.06); border-color: rgba(138,138,160,0.18); }
