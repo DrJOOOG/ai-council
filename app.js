@@ -1,13 +1,22 @@
 // ================================================================
-// AI Council v5.1.6 — test-ready + OpenAI PDF fix
+// AI Council v6.0.0-beta — localization UA/CS/EN
 // ================================================================
 
-const APP_VERSION = '5.1.6';
+const APP_VERSION = '6.0.0-beta';
 const APP_VERSION_DATE = '2026-04-25';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.0.0-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🌐 Додано локалізацію інтерфейсу UA / CS / EN',
+      '🧠 AI-side language instruction для відповідей, TL;DR, автоназв і синтезу',
+      '🧪 Додано i18n Playwright smoke tests'
+    ]
+  },
   {
     version: '5.1.6',
     date: '2026-04-25',
@@ -426,6 +435,7 @@ let state = {
   pendingAttachments: [],
   showFullLog: false,
   sendInProgress: false,
+  settings: { language: 'uk' },
   chatSearchQuery: '',
   selectionMode: false,
   selectedChatIds: new Set(),
@@ -455,6 +465,8 @@ function load() {
     state.chats = saved.chats || {};
     state.chatOrder = saved.order || [];
     state.archivedChatIds = saved.archived || [];
+    const appSettings = JSON.parse(localStorage.getItem(STORAGE.settings) || '{}');
+    state.settings = { language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : 'uk' };
     const mem = JSON.parse(localStorage.getItem(STORAGE.memory) || '{}');
     state.memory.profile = mem.profile || '';
     state.memory.facts = mem.facts || [];
@@ -476,23 +488,23 @@ function saveKeys() {
   try {
     localStorage.setItem(STORAGE.keys, JSON.stringify(state.keys));
   } catch (e) {
-    flash('Не вдалось зберегти ключі: сховище переповнене', true);
+    flash(t('flash.storageKeysFailed'), true);
   }
 }
 function saveMemory() {
   try {
     localStorage.setItem(STORAGE.memory, JSON.stringify(state.memory));
   } catch (e) {
-    flash('Не вдалось зберегти пам\'ять', true);
+    flash(t('flash.storageMemoryFailed'), true);
   }
 }
 function saveTemplates() {
   try { localStorage.setItem(STORAGE.templates, JSON.stringify(state.templates)); }
-  catch (e) { flash('Не вдалось зберегти шаблони', true); }
+  catch (e) { flash(t('flash.storageTemplatesFailed'), true); }
 }
 function saveCases() {
   try { localStorage.setItem(STORAGE.cases, JSON.stringify(state.cases)); }
-  catch (e) { flash('Не вдалось зберегти випадки', true); }
+  catch (e) { flash(t('flash.storageCasesFailed'), true); }
 }
 function saveStats() {
   try { localStorage.setItem(STORAGE.stats, JSON.stringify(state.stats)); }
@@ -524,21 +536,143 @@ function saveChats() {
     }
     localStorage.setItem(STORAGE.chats, data);
   } catch (e) {
-    flash('Сховище переповнене. Видали старі чати.', true);
+    flash(t('flash.storageFull'), true);
   }
 }
 
 // ==================== UTILS ====================
+const SUPPORTED_LANGS = ['uk', 'cs', 'en'];
+const HTML_LANG = { uk: 'uk', cs: 'cs-CZ', en: 'en' };
+const LOCALES = { uk: 'uk-UA', cs: 'cs-CZ', en: 'en-US' };
+
+function getLang() {
+  const lang = state.settings?.language || 'uk';
+  return SUPPORTED_LANGS.includes(lang) ? lang : 'uk';
+}
+
+function locale() {
+  return LOCALES[getLang()] || 'uk-UA';
+}
+
+function t(key, params = {}) {
+  const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : { uk: {} };
+  const lang = getLang();
+  let text = dict[lang]?.[key] ?? dict.uk?.[key] ?? key;
+  for (const [k, v] of Object.entries(params)) {
+    text = String(text).replaceAll(`{{${k}}}`, String(v));
+  }
+  return text;
+}
+
+function hasTranslation(key, lang = getLang()) {
+  const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : { uk: {} };
+  return Boolean(dict[lang]?.[key] || dict.uk?.[key]);
+}
+
+function plural(count, forms) {
+  const lang = getLang();
+  if (lang === 'en') return count === 1 ? forms.one : forms.other;
+  if (lang === 'cs') {
+    if (count === 1) return forms.one;
+    if (count >= 2 && count <= 4) return forms.few;
+    return forms.many;
+  }
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return forms.one;
+  if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return forms.few;
+  return forms.many;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.dataset.i18nTitle));
+  });
+  document.documentElement.lang = HTML_LANG[getLang()] || 'uk';
+}
+
+function saveSettingsState() {
+  try { localStorage.setItem(STORAGE.settings, JSON.stringify(state.settings || {})); }
+  catch (e) { console.warn('Settings save failed:', e); }
+}
+
+function renderLanguagePicker() {
+  document.querySelectorAll('[data-lang-option]').forEach(btn => {
+    const lang = btn.dataset.langOption;
+    btn.classList.toggle('active', lang === getLang());
+    btn.onclick = () => {
+      if (!SUPPORTED_LANGS.includes(lang)) return;
+      state.settings.language = lang;
+      saveSettingsState();
+      applyTranslations();
+      renderLanguagePicker();
+      if (state.currentScreen === 'list') renderChatList();
+      if (state.currentScreen === 'new') {
+        renderTemplates(); renderAICards(); renderModePicker(); updateCostEstimate();
+      }
+      if (state.currentScreen === 'chat') renderChatScreen();
+      flash(t('flash.languageChanged'));
+    };
+  });
+}
+
+function getLanguageInstruction() {
+  return t(`prompt.language.${getLang()}`);
+}
+
+function levelName(level) {
+  const keys = ['level.fast', 'level.medium', 'level.smart', 'level.maximum'];
+  return t(keys[level] || 'level.medium');
+}
+
+function modeName(key) {
+  return t(`mode.${key}.name`);
+}
+
+function modeDesc(key) {
+  return t(`mode.${key}.desc`);
+}
+
+function templateText(template, field) {
+  if (!template) return '';
+  const key = `template.${template.id}.${field}`;
+  return hasTranslation(key) ? t(key) : (template[field] || '');
+}
+
+function templatePersonaText(template, ai) {
+  const key = `template.${template.id}.persona.${ai}`;
+  return hasTranslation(key) ? t(key) : template.personas?.[ai];
+}
+
+function czechBlockName(key, block) {
+  const k = `czechContext.${key}.name`;
+  return hasTranslation(k) ? t(k) : block.name;
+}
+
+function czechBlockDesc(key, block) {
+  const k = `czechContext.${key}.description`;
+  return hasTranslation(k) ? t(k) : block.description;
+}
+
 function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function fmtTime(ts) { return ts ? new Date(ts).toLocaleTimeString('uk', {hour:'2-digit', minute:'2-digit'}) : ''; }
+function fmtTime(ts) { return ts ? new Date(ts).toLocaleTimeString(locale(), {hour:'2-digit', minute:'2-digit'}) : ''; }
 function fmtDate(ts) {
   if (!ts) return '';
   const d = new Date(ts), now = new Date();
   if (d.toDateString() === now.toDateString()) return fmtTime(ts);
   const diff = (now - d) / (1000*60*60*24);
-  if (diff < 7) return d.toLocaleDateString('uk', { weekday: 'short' });
-  return d.toLocaleDateString('uk', { day: '2-digit', month: '2-digit' });
+  if (diff < 7) return d.toLocaleDateString(locale(), { weekday: 'short' });
+  return d.toLocaleDateString(locale(), { day: '2-digit', month: '2-digit' });
 }
 function renderMd(text) {
   if (!text) return '';
@@ -607,8 +741,8 @@ function renderChatList() {
     el.innerHTML = `
       <div class="chat-list-empty">
         <div class="icon-wrap">${LOGOS.emptyChat}</div>
-        <h2>Ще немає чатів</h2>
-        <p>Натисни <strong>+</strong> внизу щоб створити свій перший чат.</p>
+        <h2>${t('list.empty.title')}</h2>
+        <p>${t('list.empty.desc')}</p>
       </div>`;
     return;
   }
@@ -617,7 +751,7 @@ function renderChatList() {
 
   // Search bar
   html += `<div class="chat-search-wrap">
-    <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="🔍 Пошук по чатах..." value="${escapeHtml(state.chatSearchQuery || '')}">
+    <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="${escapeHtml(t('list.search.placeholder'))}" value="${escapeHtml(state.chatSearchQuery || '')}">
     ${state.chatSearchQuery ? '<button class="chat-search-clear" id="chatSearchClear">✕</button>' : ''}
   </div>`;
 
@@ -625,11 +759,11 @@ function renderChatList() {
   if (state.selectionMode) {
     const count = state.selectedChatIds.size;
     html += `<div class="selection-bar">
-      <span class="selection-count">${count} обрано</span>
+      <span class="selection-count">${t('selection.count', {count})}</span>
       <div class="selection-actions">
-        <button class="selection-btn" id="selectionCancel">Скасувати</button>
-        <button class="selection-btn danger" id="selectionDelete" ${count === 0 ? 'disabled' : ''}>Видалити</button>
-        <button class="selection-btn" id="selectionArchive" ${count === 0 ? 'disabled' : ''}>Архів</button>
+        <button class="selection-btn" id="selectionCancel">${t('selection.cancel')}</button>
+        <button class="selection-btn danger" id="selectionDelete" ${count === 0 ? 'disabled' : ''}>${t('selection.delete')}</button>
+        <button class="selection-btn" id="selectionArchive" ${count === 0 ? 'disabled' : ''}>${t('selection.archive')}</button>
       </div>
     </div>`;
   }
@@ -638,13 +772,13 @@ function renderChatList() {
   if (filteredActive.length > 0) {
     html += filteredActive.map(c => renderChatItem(c, false)).join('');
   } else if (query) {
-    html += `<div class="chat-list-empty" style="padding:30px 20px;"><p>Нічого не знайдено за запитом "${escapeHtml(query)}"</p></div>`;
+    html += `<div class="chat-list-empty" style="padding:30px 20px;"><p>${t('list.noResults', {query: escapeHtml(query)})}</p></div>`;
   }
 
   // Archived section
   if (filteredArchived.length > 0) {
     html += `<div class="archive-section">
-      <div class="archive-header">📦 Архів (${filteredArchived.length})</div>
+      <div class="archive-header">${t('list.archive', {count: filteredArchived.length})}</div>
       ${filteredArchived.map(c => renderChatItem(c, true)).join('')}
     </div>`;
   }
@@ -755,7 +889,7 @@ function renderChatList() {
       const chatId = btn.dataset.chatId;
       const action = btn.dataset.action;
       if (action === 'delete') {
-        if (confirm('Видалити цей чат?')) {
+        if (confirm(t('confirm.deleteChat'))) {
           deleteChat(chatId);
         } else {
           // Reset swipe
@@ -803,7 +937,7 @@ function renderChatList() {
   document.getElementById('selectionDelete')?.addEventListener('click', () => {
     const count = state.selectedChatIds.size;
     if (!count) return;
-    if (confirm(`Видалити ${count} ${count === 1 ? 'чат' : 'чатів'}?`)) {
+    if (confirm(t('confirm.deleteChats', {count}))) {
       for (const id of state.selectedChatIds) deleteChat(id, false);
       state.selectionMode = false;
       state.selectedChatIds.clear();
@@ -819,7 +953,7 @@ function renderChatList() {
     state.selectedChatIds.clear();
     saveChats();
     renderChatList();
-    flash('Перенесено в архів');
+    flash(t('flash.archived'));
   });
 }
 
@@ -843,20 +977,20 @@ function archiveChat(chatId) {
   if (!state.archivedChatIds.includes(chatId)) state.archivedChatIds.push(chatId);
   saveChats();
   renderChatList();
-  flash('Перенесено в архів');
+  flash(t('flash.archived'));
 }
 
 function unarchiveChat(chatId) {
   state.archivedChatIds = state.archivedChatIds.filter(id => id !== chatId);
   saveChats();
   renderChatList();
-  flash('Повернуто зі архіву');
+  flash(t('flash.unarchived'));
 }
 
 function renderChatItem(c, isArchived = false) {
   const participants = c.participants || [];
   const lastMsg = [...(c.messages || [])].reverse().find(m => !m.loading && !m.hidden);
-  const preview = lastMsg ? (lastMsg.role === 'user' ? 'Ти: ' : '') + (lastMsg.content || '').slice(0, 50) : 'Новий чат';
+  const preview = lastMsg ? (lastMsg.role === 'user' ? t('chat.youPreview') : '') + (lastMsg.content || '').slice(0, 50) : t('chat.newPreview');
   const isMulti = participants.length > 1;
 
   let avatars;
@@ -874,7 +1008,7 @@ function renderChatItem(c, isArchived = false) {
     avatars = `<div class="chat-avatars"></div>`;
   }
 
-  const modeLabel = isMulti ? (c.mode ? MODES[c.mode].name.toUpperCase() : 'РАДА') : AI_CONFIG[participants[0]?.ai]?.name.toUpperCase() || '';
+  const modeLabel = isMulti ? (c.mode ? modeName(c.mode).toUpperCase() : t('label.council')) : AI_CONFIG[participants[0]?.ai]?.name.toUpperCase() || '';
   const badgeClass = isMulti ? 'council' : '';
 
   const isSelected = state.selectedChatIds.has(c.id);
@@ -894,7 +1028,7 @@ function renderChatItem(c, isArchived = false) {
         ${checkbox}
         ${avatars}
         <div class="chat-meta">
-          <div class="chat-title">${escapeHtml(c.name || 'Без назви')}</div>
+          <div class="chat-title">${escapeHtml(c.name || t('chat.noTitle'))}</div>
           <div class="chat-preview">
             <span class="chat-mode-badge ${badgeClass}">${modeLabel}</span>
             ${escapeHtml(preview)}
@@ -943,8 +1077,8 @@ function renderTemplates() {
   wrap.innerHTML = templates.map(t => `
     <button class="template-card" data-template-id="${t.id}">
       <div class="template-icon">${t.icon}</div>
-      <div class="template-name">${escapeHtml(t.name)}</div>
-      <div class="template-desc">${escapeHtml(t.description)}</div>
+      <div class="template-name">${escapeHtml(templateText(t, 'name'))}</div>
+      <div class="template-desc">${escapeHtml(templateText(t, 'description'))}</div>
     </button>
   `).join('');
   wrap.querySelectorAll('.template-card').forEach(btn => {
@@ -960,7 +1094,7 @@ function applyTemplate(templateId) {
   const d = state.newChatDraft;
   // Set name if still empty
   if (!document.getElementById('chatNameInput').value) {
-    document.getElementById('chatNameInput').value = t.name;
+    document.getElementById('chatNameInput').value = templateText(t, 'name');
   }
   // Apply suggested AIs
   d.participants.forEach(p => {
@@ -976,9 +1110,9 @@ function applyTemplate(templateId) {
   const selCount = d.participants.filter(p => p.selected).length;
   if (selCount >= 2) d.mode = 'synthesis';
   // Store system addition to inject at send time
-  d.templateSystemAddition = t.systemAddition;
-  d.templateName = t.name;
-  d.templatePersonas = t.personas || null; // v5.0: per-AI personas
+  d.templateSystemAddition = templateText(t, 'systemAddition');
+  d.templateName = templateText(t, 'name');
+  d.templatePersonas = t.personas ? Object.fromEntries(Object.keys(t.personas).map(ai => [ai, templatePersonaText(t, ai)])) : null; // v6.0: localized per-AI personas when available
 
   renderAICards();
   renderModePicker();
@@ -989,7 +1123,7 @@ function applyTemplate(templateId) {
   document.querySelectorAll('.template-card').forEach(card => {
     card.classList.toggle('selected', card.dataset.templateId === templateId);
   });
-  flash(`Шаблон "${t.name}" застосовано`);
+  flash(t('template.applied', {name: templateText(t, 'name')}));
 }
 
 function renderAICards() {
@@ -1006,17 +1140,17 @@ function renderAICards() {
           <div class="ai-logo">${ai.logo}</div>
           <div class="ai-card-name">
             ${ai.name}
-            ${!hasKey ? '<span class="missing">Немає ключа</span>' : ''}
+            ${!hasKey ? `<span class="missing">${t('label.missingKey')}</span>` : ''}
           </div>
           <div class="toggle" data-toggle="${idx}"></div>
         </div>
         <div class="level-slider-wrap">
           <div class="level-slider-label">
-            <span>${LEVEL_NAMES[p.level]}</span>
+            <span>${levelName(p.level)}</span>
             <span class="level-name">${model.name}</span>
           </div>
           <input type="range" class="slider" min="0" max="3" step="1" value="${p.level}" data-level="${idx}">
-          <div class="price-hint">~$${model.inPrice.toFixed(2)} / $${model.outPrice.toFixed(2)} за 1M токенів (in/out)</div>
+          <div class="price-hint">${t('label.priceHint', {inPrice: model.inPrice.toFixed(2), outPrice: model.outPrice.toFixed(2)})}</div>
         </div>
       </div>`;
   }).join('');
@@ -1026,7 +1160,7 @@ function renderAICards() {
       e.stopPropagation();
       const idx = +el.dataset.toggle;
       const p = state.newChatDraft.participants[idx];
-      if (!state.keys[p.ai]) { flash('Додай API ключ у налаштуваннях', true); return; }
+      if (!state.keys[p.ai]) { flash(t('flash.addApiKey'), true); return; }
       p.selected = !p.selected;
       renderAICards();
       updateCouncilVisibility();
@@ -1050,8 +1184,8 @@ function renderModePicker() {
   const wrap = document.getElementById('modePicker');
   wrap.innerHTML = Object.entries(MODES).map(([key, m]) => `
     <div class="mode-option ${state.newChatDraft.mode === key ? 'active' : ''}" data-mode="${key}">
-      <div class="mode-name">${m.name}</div>
-      <div class="mode-desc">${m.desc}</div>
+      <div class="mode-name">${modeName(key)}</div>
+      <div class="mode-desc">${modeDesc(key)}</div>
     </div>
   `).join('');
   wrap.querySelectorAll('[data-mode]').forEach(el => {
@@ -1094,9 +1228,9 @@ function autoName() {
   const selected = state.newChatDraft.participants.filter(p => p.selected);
   if (selected.length === 0) { el.value = ''; return; }
   if (selected.length === 1) {
-    el.value = `Чат з ${AI_CONFIG[selected[0].ai].name}`;
+    el.value = `${t('chat.title')} · ${AI_CONFIG[selected[0].ai].name}`;
   } else {
-    el.value = `Рада: ${selected.map(p => AI_CONFIG[p.ai].name).join(' · ')}`;
+    el.value = `${t('chat.council')}: ${selected.map(p => AI_CONFIG[p.ai].name).join(' · ')}`;
   }
   el.dataset.auto = '1';
 }
@@ -1108,7 +1242,7 @@ function updateCostEstimate() {
   const box = document.getElementById('costEstimate');
 
   if (selected.length === 0) {
-    box.innerHTML = `<div class="cost-main">$0.00</div><div class="cost-detail">Обери учасників щоб побачити оцінку</div>`;
+    box.innerHTML = `<div class="cost-main">$0.00</div><div class="cost-detail">${t('newChat.costEmpty')}</div>`;
     return;
   }
 
@@ -1144,13 +1278,13 @@ function updateCostEstimate() {
   if (total > 0.10) cls = 'warn';
   if (total > 0.50) cls = 'danger';
 
-  const runsLabel = runs > 1 ? ` × ${runs} раунди` : '';
-  const modeLabel = selected.length > 1 ? ` · ${MODES[d.mode].name}` : '';
-  const researchLabel = d.research ? ' · Research' : '';
+  const runsLabel = runs > 1 ? ` × ${runs}` : '';
+  const modeLabel = selected.length > 1 ? ` · ${modeName(d.mode)}` : '';
+  const researchLabel = d.research ? ` · ${t('label.research')}` : '';
 
   box.innerHTML = `
     <div class="cost-main ${cls}">$${total.toFixed(4)}</div>
-    <div class="cost-detail">${selected.length} AI${modeLabel}${runsLabel}${researchLabel}<br>Оцінка приблизна, залежить від довжини</div>`;
+    <div class="cost-detail">${t('label.aiCount', {count: selected.length})}${modeLabel}${runsLabel}${researchLabel}<br>${t('newChat.costApprox')}</div>`;
 }
 
 // ==================== CREATE CHAT ====================
@@ -1158,7 +1292,7 @@ function createChat() {
   const d = state.newChatDraft;
   const selected = d.participants.filter(p => p.selected);
   if (selected.length === 0) return;
-  const name = document.getElementById('chatNameInput').value.trim() || `Чат ${new Date().toLocaleDateString('uk')}`;
+  const name = document.getElementById('chatNameInput').value.trim() || `${t('chat.title')} ${new Date().toLocaleDateString(locale())}`;
 
   const chat = {
     id: uid(),
@@ -1206,8 +1340,8 @@ function renderChatScreen() {
     const m = MODELS[participants[0].ai][participants[0].level];
     sub = m.name.toUpperCase();
   } else {
-    const modeName = c.mode ? MODES[c.mode].name.toUpperCase() : 'РАДА';
-    sub = `${participants.length} AI · ${modeName}${c.research && participants.length === 1 ? ' · RESEARCH' : ''}`;
+    const modeNameText = c.mode ? modeName(c.mode).toUpperCase() : t('label.council');
+    sub = `${participants.length} AI · ${modeNameText}${c.research && participants.length === 1 ? ` · ${t('label.research').toUpperCase()}` : ''}`;
   }
 
   // Session cost pill (Пункт 7)
@@ -1222,7 +1356,7 @@ function renderChatScreen() {
   }
 
   // Update menu label
-  document.getElementById('menuToggleLogLabel').textContent = state.showFullLog ? 'Згорнути до головних' : 'Повний лог розмови';
+  document.getElementById('menuToggleLogLabel').textContent = state.showFullLog ? t('menu.compactLog') : t('menu.fullLog');
 
   // Background watermarks
   renderChatBackground(c);
@@ -1242,7 +1376,7 @@ function openLevelMenu(c) {
 
   const participants = c.participants || [];
   let html = `<div class="level-menu-sheet">
-    <div class="level-menu-title">Змінити рівень AI для цього чату</div>`;
+    <div class="level-menu-title">${t('chatInfo.mode')}</div>`;
 
   participants.forEach(p => {
     const ai = AI_CONFIG[p.ai];
@@ -1254,14 +1388,14 @@ function openLevelMenu(c) {
       html += `<div class="level-option ${isCurrent ? 'current' : ''}" data-ai="${p.ai}" data-level="${lvl}">
         <div class="level-option-dot" style="background:${LEVEL_COLORS[lvl]};"></div>
         <div class="level-option-info">
-          <div class="level-option-name">${LEVEL_NAMES[lvl]}</div>
+          <div class="level-option-name">${levelName(lvl)}</div>
           <div class="level-option-model">${m.name}</div>
         </div>
       </div>`;
     }
     html += `</div>`;
   });
-  html += `<button class="settings-btn" id="levelMenuClose" style="width:100%;margin-top:8px;">Готово</button></div>`;
+  html += `<button class="settings-btn" id="levelMenuClose" style="width:100%;margin-top:8px;">${t('label.ready')}</button></div>`;
   overlay.innerHTML = html;
   document.body.appendChild(overlay);
 
@@ -1278,7 +1412,7 @@ function openLevelMenu(c) {
       if (p) {
         p.level = level;
         saveChats();
-        flash(`${AI_CONFIG[ai].name}: ${LEVEL_NAMES[level]}`);
+        flash(`${AI_CONFIG[ai].name}: ${levelName(level)}`);
         renderChatScreen();
       }
     }
@@ -1326,7 +1460,7 @@ function renderMessages() {
     wrap.innerHTML = `
       <div class="chat-empty">
         <h2>${escapeHtml(c.name)}</h2>
-        <p>${isMulti ? `Задай питання — ${c.participants.length} AI відповідатимуть за режимом "${MODES[c.mode].name}".` : `Почни розмову з ${AI_CONFIG[c.participants[0].ai].name}.`}</p>
+        <p>${isMulti ? t('chat.askMulti', {count: c.participants.length, mode: modeName(c.mode)}) : t('chat.askSingle', {ai: AI_CONFIG[c.participants[0].ai].name})}</p>
       </div>`;
     return;
   }
@@ -1341,7 +1475,7 @@ function renderMessages() {
     const prev = visibleMsgs[i-1];
     let sep = '';
     if (m.round && (!prev || prev.round !== m.round)) {
-      sep = `<div class="round-sep">Раунд ${m.round}</div>`;
+      sep = `<div class="round-sep">${t('chat.round', {n: m.round})}</div>`;
     }
     return sep + renderMessage(m);
   }).join('');
@@ -1367,7 +1501,7 @@ function renderMessages() {
       const msg = (state.chats[state.activeChatId]?.messages || []).find(m => m.id === msgId);
       if (!msg || !msg.content) return;
 
-      btn.textContent = '⏳ Стискаю...';
+      btn.textContent = t('action.tldrLoading');
       btn.disabled = true;
 
       // Use cheapest available AI
@@ -1376,8 +1510,8 @@ function renderMessages() {
       else if (state.keys.gemini) aiToUse = 'gemini';
       else if (state.keys.openai) aiToUse = 'openai';
       if (!aiToUse) {
-        flash('Немає ключа для TL;DR', true);
-        btn.textContent = '⚡ TL;DR';
+        flash(t('flash.noTldrKey'), true);
+        btn.textContent = t('action.tldr');
         btn.disabled = false;
         return;
       }
@@ -1390,8 +1524,8 @@ function renderMessages() {
         saveChats();
         renderMessages();
       } catch (err) {
-        flash('TL;DR не вдався: ' + err.message, true);
-        btn.textContent = '⚡ TL;DR';
+        flash(t('flash.tldrFailed', {error: err.message}), true);
+        btn.textContent = t('action.tldr');
         btn.disabled = false;
       }
     });
@@ -1409,9 +1543,9 @@ function renderMessage(m) {
   const isCouncilSynth = m.source === 'council-synth';
   let ai;
   if (isUser) {
-    ai = { name: 'ТИ', color: '#e8e8f0', logo: LOGOS.user };
+    ai = { name: t('chat.you'), color: '#e8e8f0', logo: LOGOS.user };
   } else if (isCouncilSynth) {
-    ai = { name: 'РАДА', color: (AI_CONFIG.council && AI_CONFIG.council.color) || '#d4ff3a', logo: LOGOS.council };
+    ai = { name: t('chat.council'), color: (AI_CONFIG.council && AI_CONFIG.council.color) || '#d4ff3a', logo: LOGOS.council };
   } else if (m.source && AI_CONFIG[m.source]) {
     ai = AI_CONFIG[m.source];
   } else {
@@ -1426,7 +1560,7 @@ function renderMessage(m) {
   if (m.loading) {
     bodyContent = `<div class="thinking"><span></span><span></span><span></span>${m.loadingLabel ? `<span class="thinking-label">${escapeHtml(m.loadingLabel)}</span>` : ''}</div>`;
   } else if (m.error) {
-    bodyContent = `<div class="error-msg">✕ ${escapeHtml(m.content || 'Невідома помилка')}</div>`;
+    bodyContent = `<div class="error-msg">✕ ${escapeHtml(m.content || t('chat.unknownError'))}</div>`;
   } else {
     bodyContent = renderMd(m.content || '');
     if (m.attachments && m.attachments.length > 0) {
@@ -1449,14 +1583,14 @@ function renderMessage(m) {
   const tldrBtnHtml = hasLongContent
     ? (m.tldr
         ? `<div class="tldr-content">${renderMd(m.tldr)}</div>`
-        : `<button class="tldr-btn" data-action="tldr" data-msg-id="${m.id}">⚡ TL;DR</button>`)
+        : `<button class="tldr-btn" data-action="tldr" data-msg-id="${m.id}">${t('action.tldr')}</button>`)
     : '';
 
   // Action buttons — only for non-user, non-loading, non-error AI responses with content
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
-         <button class="msg-action-btn" data-action="copy" data-msg-id="${m.id}">📋 Копіювати</button>
-         <button class="msg-action-btn" data-action="memory" data-msg-id="${m.id}">🧠 В пам'ять</button>
+         <button class="msg-action-btn" data-action="copy" data-msg-id="${m.id}">${t('action.copy')}</button>
+         <button class="msg-action-btn" data-action="memory" data-msg-id="${m.id}">${t('action.memory')}</button>
        </div>`
     : '';
 
@@ -1490,9 +1624,9 @@ function renderAttachment(a) {
     return `<div class="msg-attachment"><img src="data:${a.mime};base64,${a.data}" alt=""></div>`;
   }
   const extra = a.extractedText
-    ? ` <span style="color:var(--text-mute);">(текст передано AI)</span>`
-    : (a.summary ? ` <span style="color:var(--text-mute);">(summary передано AI)</span>` : '');
-  return `<div class="msg-attachment">${fileIcon(a.kind)} ${escapeHtml(a.name || 'файл')}${extra}</div>`;
+    ? ` <span style="color:var(--text-mute);">(${t('chat.attachmentTextSent')})</span>`
+    : (a.summary ? ` <span style="color:var(--text-mute);">(${t('chat.attachmentSummarySent')})</span>` : '');
+  return `<div class="msg-attachment">${fileIcon(a.kind)} ${escapeHtml(a.name || t('chat.file'))}${extra}</div>`;
 }
 
 // ==================== ATTACHMENTS ====================
@@ -2028,7 +2162,7 @@ function sanitizeApiError(status, rawText) {
 
 async function callClaude(messages, opts = {}) {
   const key = state.keys.claude;
-  if (!key) throw new Error('Немає Claude ключа');
+  if (!key) throw new Error(t('error.noKey', {ai: 'Claude'}));
   const model = opts.model || 'claude-sonnet-4-6';
 
   const body = {
@@ -2120,13 +2254,13 @@ async function callOpenAIChatCompletions(messages, opts, model) {
   if (typeof msg?.content === 'string') text = msg.content;
   else if (Array.isArray(msg?.content)) text = msg.content.map(p => p.text || '').filter(Boolean).join('\n');
   if (!text && msg?.refusal) text = msg.refusal;
-  if (!text) throw new Error('OpenAI повернув порожню відповідь');
+  if (!text) throw new Error(t('error.openaiEmpty'));
   return { text, model };
 }
 
 async function callOpenAI(messages, opts = {}) {
   const key = state.keys.openai;
-  if (!key) throw new Error('Немає OpenAI ключа');
+  if (!key) throw new Error(t('error.noKey', {ai: 'OpenAI'}));
   let model = opts.model || 'gpt-5.4-mini';
 
   // v5.1: GPT-5+ and o-series go through Responses API for best results.
@@ -2161,13 +2295,13 @@ async function callOpenAI(messages, opts = {}) {
 
   const data = await resp.json();
   const text = extractOpenAIResponseText(data);
-  if (!text) throw new Error('OpenAI повернув порожню відповідь');
+  if (!text) throw new Error(t('error.openaiEmpty'));
   return { text, model };
 }
 
 async function callGemini(messages, opts = {}) {
   const key = state.keys.gemini;
-  if (!key) throw new Error('Немає Gemini ключа');
+  if (!key) throw new Error(t('error.noKey', {ai: 'Gemini'}));
   const model = opts.model || 'gemini-2.5-flash';
 
   const contents = messages.map(m => ({
@@ -2201,7 +2335,7 @@ async function callGemini(messages, opts = {}) {
 
 async function callPerplexity(messages, opts = {}) {
   const key = state.keys.perplexity;
-  if (!key) throw new Error('Немає Perplexity ключа');
+  if (!key) throw new Error(t('error.noKey', {ai: 'Perplexity'}));
   const model = opts.model || 'sonar-pro';
   const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
 
@@ -2282,9 +2416,8 @@ function getSessionCost(chatId) {
 
 function formatCost(cost) {
   if (cost < 0.001) return '< $0.001';
-  if (cost < 0.01) return '$' + cost.toFixed(4);
-  if (cost < 1) return '$' + cost.toFixed(3);
-  return '$' + cost.toFixed(2);
+  const digits = cost < 0.01 ? 4 : (cost < 1 ? 3 : 2);
+  return '$' + new Intl.NumberFormat(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(cost);
 }
 
 // Parse meta JSON from synthesis response (confidence + contributions)
@@ -2307,9 +2440,9 @@ function parseSynthMeta(text) {
 function renderConfidenceBadge(meta) {
   if (!meta || !meta.confidence) return '';
   const levels = {
-    high: { icon: '✅', label: 'Висока впевненість', cls: 'confidence-high' },
-    medium: { icon: '⚠️', label: 'Середня впевненість', cls: 'confidence-medium' },
-    low: { icon: '❌', label: 'Низька впевненість', cls: 'confidence-low' }
+    high: { icon: '✅', label: t('confidence.high'), cls: 'confidence-high' },
+    medium: { icon: '⚠️', label: t('confidence.medium'), cls: 'confidence-medium' },
+    low: { icon: '❌', label: t('confidence.low'), cls: 'confidence-low' }
   };
   const cfg = levels[meta.confidence] || levels.medium;
   const reason = meta.confidence_reason ? ` — ${escapeHtml(meta.confidence_reason)}` : '';
@@ -2326,7 +2459,7 @@ function renderContributionBlock(meta) {
     const count = c.unique_insights || 0;
     const pct = Math.round((count / maxInsights) * 100);
     const supportedBy = (c.supported_by || []).map(a => AI_CONFIG[a]?.name || a).join(', ');
-    const supportHtml = supportedBy ? `<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Підтримали: ${escapeHtml(supportedBy)}</div>` : '';
+    const supportHtml = supportedBy ? `<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${t('confidence.supportedBy', {list: escapeHtml(supportedBy)})}</div>` : '';
     return `<div class="contribution-row">
       <div class="contribution-ai" style="color:${ai.color};">${escapeHtml(ai.name)}</div>
       <div style="flex:1;">
@@ -2337,7 +2470,7 @@ function renderContributionBlock(meta) {
     </div>`;
   }).join('');
   return `<div class="contribution-block">
-    <div class="contribution-header">📊 Внесок у фінал (унікальні інсайти)</div>
+    <div class="contribution-header">${t('confidence.contributionTitle')}</div>
     ${rows}
   </div>`;
 }
@@ -2346,7 +2479,7 @@ function renderContributionBlock(meta) {
 // ==================== MEMORY PROMPT ====================
 // Builds the system prompt that carries the user's profile + saved facts to every AI call
 function buildMemoryPrompt(chatContext, currentAI) {
-  const parts = [];
+  const parts = [getLanguageInstruction()];
   if (state.memory.profile && state.memory.profile.trim()) {
     parts.push('ПРО КОРИСТУВАЧА:\n' + state.memory.profile.trim());
   }
@@ -2697,7 +2830,7 @@ async function handleCouncil(c, text, attachments) {
   if (active.length === 0) {
     c.messages.push({
       id: uid(), role: 'assistant', source: 'council-synth',
-      error: true, content: 'Немає активних AI з ключами', isPrimary: true, time: Date.now()
+      error: true, content: t('error.noActiveAI'), isPrimary: true, time: Date.now()
     });
     return;
   }
@@ -2780,7 +2913,7 @@ async function runParallel(c, text, attachments, active, mode) {
     const synthId = uid();
     c.messages.push({
       id: synthId, role: 'assistant', source: 'council-synth',
-      loading: true, isPrimary: true, loadingLabel: 'Синтезую...',
+      loading: true, isPrimary: true, loadingLabel: modeName('synthesis') + '...',
       time: Date.now()
     });
     renderMessages();
@@ -2808,7 +2941,7 @@ async function runParallel(c, text, attachments, active, mode) {
       const idx = c.messages.findIndex(m => m.id === synthId);
       c.messages[idx] = {
         id: synthId, role: 'assistant', source: 'council-synth',
-        error: true, content: 'Синтез не вдався: ' + err.message, isPrimary: true, time: Date.now()
+        error: true, content: t('error.synthesisFailed', {error: err.message}), isPrimary: true, time: Date.now()
       };
       // Upgrade successful answers to primary since synthesis died
       c.messages.forEach(m => {
@@ -2825,7 +2958,7 @@ async function runParallel(c, text, attachments, active, mode) {
     });
     c.messages.push({
       id: uid(), role: 'assistant', source: 'council-synth',
-      content: `⚠️ Синтез не виконано — тільки ${AI_CONFIG[good[0].ai].fullName} відповів успішно. Інші AI повернули помилку.`,
+      content: t('error.synthesisSkippedSingle', {ai: AI_CONFIG[good[0].ai].fullName}),
       isPrimary: true, time: Date.now()
     });
     renderMessages();
@@ -2864,7 +2997,7 @@ async function runDebate(c, text, attachments, active) {
           .filter(([ai]) => ai !== p.ai)
           .map(([ai, arr]) => `${AI_CONFIG[ai].fullName} у попередньому раунді сказав:\n${arr[arr.length - 1] || '(немає відповіді)'}`)
           .join('\n\n---\n\n');
-        prompt = `Оригінальне питання:\n${text}\n\nТи раніше відповів:\n${allAnswers[p.ai][r-2]}\n\nІнші AI відповіли:\n\n${others}\n\nПроаналізуй їхні позиції, визнай де вони праві, збережи де ти правий. Дай оновлену, відшліфовану відповідь українською.`;
+        prompt = `Оригінальне питання:\n${text}\n\nТи раніше відповів:\n${allAnswers[p.ai][r-2]}\n\nІнші AI відповіли:\n\n${others}\n\nПроаналізуй їхні позиції, визнай де вони праві, збережи де ти правий. Give an updated, polished answer in the preferred response language.`;
       }
 
       // v4.5: In R1 pass conversation history; in R2+ the prompt already contains all prior round answers
@@ -2901,7 +3034,7 @@ async function runDebate(c, text, attachments, active) {
   const synthId = uid();
   c.messages.push({
     id: synthId, role: 'assistant', source: 'council-synth',
-    loading: true, isPrimary: true, loadingLabel: 'Фінальний висновок...',
+    loading: true, isPrimary: true, loadingLabel: t('chat.council') + '...',
     time: Date.now()
   });
   renderMessages();
@@ -2934,7 +3067,9 @@ async function runDebate(c, text, attachments, active) {
     : '';
 
   const aiIdList = finalAnswers.map(a => a.ai).join(', ');
-  const synthPrompt = `Після ${rounds} раундів дебату AI-моделей на питання "${text}", дай короткий фінальний висновок українською мовою.${warningNote}
+  const synthPrompt = `${getLanguageInstruction()}
+
+Після ${rounds} раундів дебату AI-моделей на питання "${text}", give a concise final conclusion in the preferred response language.${warningNote}
 
 Фінальні позиції:
 ${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.roundsAnswered}/${rounds}) ===\n${a.text}`).join('\n\n')}
@@ -2984,9 +3119,9 @@ ${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.ro
 async function runResearch(aiName, messages, opts, loadingId, c) {
   // 3 iterations: plan → search → synthesize
   const iters = [
-    { label: 'Складаю план...', prompt: 'Перед відповіддю: проаналізуй питання і склади короткий план дослідження (3-5 пунктів) українською.' },
-    { label: 'Глибоко аналізую...', prompt: 'Тепер детально досліди кожен пункт плану, використовуй веб-пошук де потрібно. Знаходь конкретні факти і джерела.' },
-    { label: 'Формую висновок...', prompt: 'На основі всього дослідження вище, дай фінальну структуровану відповідь українською з чіткими висновками і практичними рекомендаціями.' }
+    { label: 'Plan...', prompt: getLanguageInstruction() + '\nBefore answering: analyze the question and create a short research plan (3-5 points).' },
+    { label: 'Research...', prompt: getLanguageInstruction() + '\nNow investigate each point in detail, use web search where needed, and find concrete facts and sources.' },
+    { label: 'Synthesis...', prompt: getLanguageInstruction() + '\nBased on the research above, give a final structured answer with clear conclusions and practical recommendations.' }
   ];
 
   let context = messages;
@@ -3014,7 +3149,9 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
 function buildSynthesisPrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
   const aiList = answers.map(r => r.ai).join(', ');
-  return `Ти — голова ради AI. На питання користувача відповіли кілька AI-моделей. Проаналізуй їхні відповіді, знайди точки згоди та розбіжності, і сформулюй одне підсумкове рішення.
+  return `${getLanguageInstruction()}
+
+Ти — голова ради AI. На питання користувача відповіли кілька AI-моделей. Проаналізуй їхні відповіді, знайди точки згоди та розбіжності, і сформулюй одне підсумкове рішення.
 
 ПИТАННЯ:
 ${question}
@@ -3023,7 +3160,7 @@ ${question}
 
 ${formatted}
 
-Дай структуровану відповідь українською:
+Answer in the preferred response language, structured as:
 1. **Консенсус** — в чому всі згодні
 2. **Розбіжності** — де думки розходяться і чому це важливо
 3. **Рекомендація** — фінальна відповідь, яка враховує сильні сторони кожного
@@ -3050,7 +3187,9 @@ ${formatted}
 
 function buildVotePrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
-  return `На питання відповіли кілька AI-моделей. Оціни якість кожної відповіді та обери переможця.
+  return `${getLanguageInstruction()}
+
+На питання відповіли кілька AI-моделей. Оціни якість кожної відповіді та обери переможця.
 
 ПИТАННЯ:
 ${question}
@@ -3059,8 +3198,8 @@ ${question}
 
 ${formatted}
 
-Українською:
-1. **Ранжування** — від найкращої до найслабшої (1-2 речення оцінки кожної)
+Use the preferred response language:
+1. **Ранжування / Ranking** — від найкращої до найслабшої (1-2 речення оцінки кожної)
 2. **Переможець** — хто дав найкращу відповідь і чому
 3. **Ідеальна відповідь** — на основі найкращих елементів`;
 }
@@ -3082,11 +3221,11 @@ function openSettings() {
         <div class="api-links">
           <a href="${cfg.keyUrl}" target="_blank" rel="noopener" class="api-link" style="--link-color: ${cfg.color};">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-            Отримати ключ
+            ${t('settings.getKey')}
           </a>
           <a href="${cfg.billingUrl}" target="_blank" rel="noopener" class="api-link" style="--link-color: ${cfg.color};">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-            Баланс
+            ${t('settings.billing')}
           </a>
         </div>
       </div>`;
@@ -3103,8 +3242,8 @@ function openSettings() {
     czechWrap.innerHTML = Object.entries(CZECH_CONTEXT_BLOCKS).map(([key, block]) => `
       <div class="czech-block">
         <div class="czech-block-info">
-          <div class="czech-block-name">${escapeHtml(block.name)}</div>
-          <div class="czech-block-desc">${escapeHtml(block.description)}</div>
+          <div class="czech-block-name">${escapeHtml(czechBlockName(key, block))}</div>
+          <div class="czech-block-desc">${escapeHtml(czechBlockDesc(key, block))}</div>
         </div>
         <div class="czech-toggle ${enabled[key] ? 'on' : ''}" data-czech-key="${key}"></div>
       </div>
@@ -3140,7 +3279,7 @@ function saveSettings() {
     saveMemory();
   }
   closeOverlay('settingsOverlay');
-  flash('Налаштування збережено');
+  flash(t('flash.settingsSaved'));
 }
 
 // ==================== MEMORY FACTS ====================
@@ -3164,7 +3303,7 @@ function renderCasesList() {
   if (!wrap) return;
   const cases = state.cases || [];
   if (cases.length === 0) {
-    wrap.innerHTML = '<div class="fact-empty">Ще немає випадків</div>';
+    wrap.innerHTML = `<div class="fact-empty">${t('cases.empty')}</div>`;
     return;
   }
   wrap.innerHTML = cases.slice().reverse().map(cs => `
@@ -3174,10 +3313,10 @@ function renderCasesList() {
           <div class="fact-text" style="font-weight: 600;">${escapeHtml(cs.title || 'Без назви')}</div>
           ${cs.tags && cs.tags.length ? `<div style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">${cs.tags.map(t => `#${escapeHtml(t)}`).join(' ')}</div>` : ''}
         </div>
-        <button class="fact-delete" data-case-id="${cs.id}" title="Видалити">✕</button>
+        <button class="fact-delete" data-case-id="${cs.id}" title="${escapeHtml(t('memoryFacts.deleteTitle'))}">✕</button>
       </div>
       ${cs.description ? `<div class="fact-text" style="font-size: 12px; color: var(--text-dim); margin-top: 6px; white-space: pre-wrap;">${escapeHtml(cs.description.slice(0, 200))}${cs.description.length > 200 ? '...' : ''}</div>` : ''}
-      <div style="font-size: 10px; color: var(--text-mute); margin-top: 4px; font-family: var(--mono);">${new Date(cs.createdAt).toLocaleDateString('uk-UA')}</div>
+      <div style="font-size: 10px; color: var(--text-mute); margin-top: 4px; font-family: var(--mono);">${new Date(cs.createdAt).toLocaleDateString(locale())}</div>
     </div>
   `).join('');
   wrap.querySelectorAll('.fact-delete').forEach(btn => {
@@ -3190,18 +3329,18 @@ function addCase() {
   const tagsRaw = document.getElementById('newCaseTags').value.trim();
   const description = document.getElementById('newCaseDescription').value.trim();
   if (!title && !description) {
-    flash('Додай хоча б назву або опис', true);
+    flash(t('flash.addCaseRequired'), true);
     return;
   }
   // Basic PII check — warn if we detect obvious identifiers
   const piiPattern = /\b\d{6,}\b|\b[А-ЯЁІЇЄҐ][а-яёіїєґ']+\s+[А-ЯЁІЇЄҐ][а-яёіїєґ']+(?:ич|ович|евич|івна|овна|евна)\b/;
   if (piiPattern.test(description) || piiPattern.test(title)) {
-    if (!confirm('⚠️ Схоже, текст містить ПІБ або ID. GDPR забороняє таке зберігати. Все одно додати?')) return;
+    if (!confirm(t('confirm.piiCase'))) return;
   }
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
   const cs = {
     id: uid(),
-    title: title || 'Без назви',
+    title: title || t('chat.noTitle'),
     tags,
     description,
     createdAt: Date.now(),
@@ -3214,11 +3353,11 @@ function addCase() {
   document.getElementById('newCaseTags').value = '';
   document.getElementById('newCaseDescription').value = '';
   renderCasesList();
-  flash('Випадок додано');
+  flash(t('flash.caseAdded'));
 }
 
 function deleteCase(id) {
-  if (!confirm('Видалити цей випадок?')) return;
+  if (!confirm(t('confirm.deleteCase'))) return;
   state.cases = (state.cases || []).filter(c => c.id !== id);
   saveCases();
   renderCasesList();
@@ -3234,7 +3373,7 @@ function openChangelog() {
       <div class="changelog-entry ${isCurrent ? 'current' : ''}">
         <div class="changelog-version-row">
           <span class="changelog-version">v${escapeHtml(entry.version)}</span>
-          ${isCurrent ? '<span class="changelog-current-badge">поточна</span>' : ''}
+          ${isCurrent ? `<span class="changelog-current-badge">${t('changelog.current')}</span>` : ''}
           <span class="changelog-date">${escapeHtml(entry.date)}</span>
         </div>
         <ul class="changelog-highlights">
@@ -3251,13 +3390,13 @@ function renderFactsList() {
   const wrap = document.getElementById('memoryFactsList');
   const facts = state.memory.facts || [];
   if (facts.length === 0) {
-    wrap.innerHTML = '<div class="fact-empty">Ще немає збережених фактів</div>';
+    wrap.innerHTML = `<div class="fact-empty">${t('memoryFacts.empty')}</div>`;
     return;
   }
   wrap.innerHTML = facts.map(f => `
     <div class="fact-item">
       <div class="fact-text">${escapeHtml(f.text)}</div>
-      <button class="fact-delete" data-fact-id="${f.id}" title="Видалити">✕</button>
+      <button class="fact-delete" data-fact-id="${f.id}" title="${escapeHtml(t('memoryFacts.deleteTitle'))}">✕</button>
     </div>
   `).join('');
   // Attach delete handlers
@@ -3270,11 +3409,11 @@ function addFact() {
   const el = document.getElementById('newFactText');
   const text = el.value.trim();
   if (!text) {
-    flash('Напиши факт який треба запам\'ятати', true);
+    flash(t('flash.addFactText'), true);
     return;
   }
   if (text.length > 500) {
-    flash('Факт занадто довгий (макс 500 символів)', true);
+    flash(t('flash.factTooLong'), true);
     return;
   }
   state.memory.facts.push({
@@ -3289,7 +3428,7 @@ function addFact() {
   // Update counter in settings
   const counter = document.getElementById('memoryFactsCount');
   if (counter) counter.textContent = state.memory.facts.length;
-  flash('Факт збережено в пам\'ять');
+  flash(t('flash.factSaved'));
 }
 
 function deleteFact(id) {
@@ -3311,15 +3450,15 @@ function saveFactFromMessage(messageText) {
     source: 'message'
   });
   saveMemory();
-  flash('Збережено в пам\'ять');
+  flash(t('flash.memorySaved'));
 }
 
 function copyMessageText(text) {
   if (!text) return;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(
-      () => flash('Скопійовано'),
-      () => flash('Не вдалось скопіювати', true)
+      () => flash(t('flash.copied')),
+      () => flash(t('flash.copyFailed'), true)
     );
   } else {
     // Fallback
@@ -3327,8 +3466,8 @@ function copyMessageText(text) {
     ta.value = text;
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); flash('Скопійовано'); }
-    catch { flash('Не вдалось скопіювати', true); }
+    try { document.execCommand('copy'); flash(t('flash.copied')); }
+    catch { flash(t('flash.copyFailed'), true); }
     document.body.removeChild(ta);
   }
 }
@@ -3344,9 +3483,9 @@ function exportChatAsMarkdown(chatId) {
     return `${ai} (${m?.name || 'unknown'})`;
   }).join(', ');
 
-  const mode = c.participants.length > 1 && c.mode ? MODES[c.mode]?.name : 'Одиночний чат';
+  const mode = c.participants.length > 1 && c.mode ? modeName(c.mode) : t('chat.title');
   const cost = getSessionCost(chatId);
-  const created = new Date(c.createdAt).toLocaleString('uk-UA');
+  const created = new Date(c.createdAt).toLocaleString(locale());
 
   let md = `# ${c.name || 'Без назви'}\n\n`;
   md += `**Учасники:** ${participants}\n`;
@@ -3357,7 +3496,7 @@ function exportChatAsMarkdown(chatId) {
 
   (c.messages || []).forEach(m => {
     if (m.loading) return;
-    const time = m.time ? new Date(m.time).toLocaleString('uk-UA') : '';
+    const time = m.time ? new Date(m.time).toLocaleString(locale()) : '';
     if (m.role === 'user') {
       md += `## 👤 Ти · ${time}\n\n${m.content || ''}\n\n`;
     } else if (m.source === 'council-synth') {
@@ -3371,7 +3510,7 @@ function exportChatAsMarkdown(chatId) {
     md += `---\n\n`;
   });
 
-  md += `\n*Експортовано з AI Council · ${new Date().toLocaleString('uk-UA')}*\n`;
+  md += `\n*Експортовано з AI Council · ${new Date().toLocaleString(locale())}*\n`;
 
   // Create download
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
@@ -3384,7 +3523,7 @@ function exportChatAsMarkdown(chatId) {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  flash('Експортовано як .md');
+  flash(t('flash.exported'));
 }
 
 // ==================== AUTO CHAT NAME (Пункт 8) ====================
@@ -3407,7 +3546,9 @@ async function generateChatName(chatId) {
   if (!aiToUse) return;
 
   const model = MODELS[aiToUse][0]; // cheapest tier
-  const prompt = `Згенеруй дуже коротку назву чату (3-5 слів, українською, без лапок, без емодзі, без крапки в кінці) на основі першого питання і відповіді:
+  const prompt = `${getLanguageInstruction()}
+
+Згенеруй дуже коротку назву чату (3-5 слів, українською, без лапок, без емодзі, без крапки в кінці) на основі першого питання і відповіді:
 
 Питання: ${String(userMsg.content).slice(0, 200)}
 Відповідь: ${String(aiMsg.content).slice(0, 300)}
@@ -3448,39 +3589,39 @@ function showChatInfo() {
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
       <div class="ai-logo" style="--ai-color:${ai.color};width:28px;height:28px;">${ai.logo}</div>
       <div style="flex:1;"><div style="font-weight:600;">${ai.name}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:${LEVEL_COLORS[p.level]};">${m.name} · ${LEVEL_NAMES[p.level]}</div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:${LEVEL_COLORS[p.level]};">${m.name} · ${levelName(p.level)}</div></div>
     </div>`;
   }).join('');
 
   const modeBlock = c.participants.length > 1 ? `
     <div class="info-block">
-      <div class="info-label">Режим</div>
-      <div class="info-value">${MODES[c.mode].name}${c.mode === 'debate' ? ` · ${c.debateRounds} раундів` : ''}</div>
+      <div class="info-label">${t('chatInfo.mode')}</div>
+      <div class="info-value">${modeName(c.mode)}${c.mode === 'debate' ? ` · ${c.debateRounds}` : ''}</div>
     </div>` : '';
 
   const extras = (c.webSearch || c.research) ? `
     <div class="info-block">
-      <div class="info-label">Додатково</div>
+      <div class="info-label">${t('chatInfo.extras')}</div>
       <div class="info-value">${c.webSearch ? '🌐 Веб-пошук · ' : ''}${c.research ? '🔬 Research' : ''}</div>
     </div>` : '';
 
   el.innerHTML = `
     <div class="info-block">
-      <div class="info-label">Назва</div>
+      <div class="info-label">${t('chatInfo.name')}</div>
       <div class="info-value">${escapeHtml(c.name)}</div>
     </div>
     <div class="info-block">
-      <div class="info-label">Учасники</div>
+      <div class="info-label">${t('chatInfo.participants')}</div>
       ${participantsHtml}
     </div>
     ${modeBlock}
     ${extras}
     <div class="info-block">
-      <div class="info-label">Створено</div>
-      <div class="info-value">${new Date(c.createdAt).toLocaleString('uk')}</div>
+      <div class="info-label">${t('chatInfo.created')}</div>
+      <div class="info-value">${new Date(c.createdAt).toLocaleString(locale())}</div>
     </div>
     <div class="info-block">
-      <div class="info-label">Повідомлень</div>
+      <div class="info-label">${t('chatInfo.messages')}</div>
       <div class="info-value">${(c.messages || []).filter(m => !m.loading).length}</div>
     </div>`;
   openOverlay('chatInfoOverlay');
@@ -3506,6 +3647,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // ==================== INIT ====================
 function init() {
   load();
+  applyTranslations();
+  renderLanguagePicker();
 
   // Set version in UI (settings footer + header pill + author line)
   const vFooter = document.getElementById('appVersion');
@@ -3517,7 +3660,7 @@ function init() {
 
   // List screen
   document.getElementById('newChatBtn').addEventListener('click', () => goScreen('new'));
-  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('settingsBtn').addEventListener('click', () => { openSettings(); renderLanguagePicker(); applyTranslations(); });
 
   // New chat screen
   document.getElementById('newBackBtn').addEventListener('click', () => goScreen('list'));
@@ -3571,14 +3714,14 @@ function init() {
     showChatInfo();
   });
   document.getElementById('menuClearChat').addEventListener('click', () => {
-    if (confirm('Очистити історію цього чату?')) {
+    if (confirm(t('confirm.clearHistory'))) {
       const c = state.chats[state.activeChatId];
       if (c) { c.messages = []; saveChats(); renderMessages(); }
       closeOverlay('chatMenuOverlay');
     }
   });
   document.getElementById('menuDeleteChat').addEventListener('click', () => {
-    if (confirm('Видалити цей чат повністю?')) {
+    if (confirm(t('confirm.deleteChatFull'))) {
       delete state.chats[state.activeChatId];
       state.chatOrder = state.chatOrder.filter(id => id !== state.activeChatId);
       state.archivedChatIds = state.archivedChatIds.filter(id => id !== state.activeChatId);

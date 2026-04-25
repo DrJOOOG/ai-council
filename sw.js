@@ -1,8 +1,9 @@
-const CACHE = 'ai-council-v5.1.6';
+const CACHE = 'ai-council-v6.0.0-beta';
 const ASSETS = [
   './',
   './index.html',
   './app.js',
+  './translations.js',
   './style.css',
   './manifest.json',
   './icon.svg',

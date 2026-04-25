@@ -1,13 +1,13 @@
 {
   "name": "ai-council",
-  "version": "5.1.6",
+  "version": "6.0.0-beta",
   "private": true,
   "scripts": {
     "test": "npm run test:syntax && npm run test:e2e",
     "test:syntax": "node --check app.js && node --check sw.js",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:report": "playwright show-report"
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:report": "npx playwright show-report"
   },
   "devDependencies": {
     "@playwright/test": "latest"

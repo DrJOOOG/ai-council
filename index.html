@@ -21,15 +21,15 @@
   <header>
     <div class="header-title">
       <div class="main">AI Council</div>
-      <div class="sub"><span class="brand-dot"></span>ТВОЯ РАДА AI <span class="version-pill" id="headerVersion"></span></div>
+      <div class="sub"><span class="brand-dot"></span><span data-i18n="app.tagline">ТВОЯ РАДА AI</span> <span class="version-pill" id="headerVersion"></span></div>
       <div class="author-line" id="headerAuthor"></div>
     </div>
-    <button class="header-btn" id="settingsBtn" aria-label="Налаштування">
+    <button class="header-btn" id="settingsBtn" aria-label="Налаштування" data-i18n-aria-label="settings.open">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </header>
   <div class="chat-list" id="chatList"></div>
-  <button class="fab" id="newChatBtn" aria-label="Новий чат">
+  <button class="fab" id="newChatBtn" aria-label="Новий чат" data-i18n-aria-label="newChat.open">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
 </div>
@@ -41,26 +41,26 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="header-title">
-      <div class="main">Новий чат</div>
-      <div class="sub">НАЛАШТУЙ УЧАСНИКІВ</div>
+      <div class="main" data-i18n="newChat.title">Новий чат</div>
+      <div class="sub" data-i18n="newChat.subtitle">НАЛАШТУЙ УЧАСНИКІВ</div>
     </div>
   </header>
   <div class="new-chat-body">
-    <div class="section-label">Швидкий старт — шаблони</div>
+    <div class="section-label" data-i18n="newChat.templates">Швидкий старт — шаблони</div>
     <div class="templates-grid" id="templatesGrid"></div>
 
-    <div class="section-label spaced">Назва чату</div>
-    <input type="text" class="chat-name-input" id="chatNameInput" placeholder="Напр. Порада по імплантології" maxlength="60">
+    <div class="section-label spaced" data-i18n="newChat.name">Назва чату</div>
+    <input type="text" class="chat-name-input" id="chatNameInput" placeholder="Напр. Порада по імплантології" data-i18n-placeholder="newChat.namePlaceholder" maxlength="60">
 
-    <div class="section-label spaced">Учасники та рівень мислення</div>
+    <div class="section-label spaced" data-i18n="newChat.participants">Учасники та рівень мислення</div>
     <div id="aiCardsContainer"></div>
 
     <div class="council-block" id="councilBlock" style="display:none;">
-      <div class="section-label spaced">Режим роботи ради</div>
+      <div class="section-label spaced" data-i18n="newChat.councilMode">Режим роботи ради</div>
       <div class="mode-picker" id="modePicker"></div>
 
       <div id="debateRoundsWrap" style="display:none;" class="mt-16">
-        <div class="section-label">Кількість раундів дебату</div>
+        <div class="section-label" data-i18n="newChat.debateRounds">Кількість раундів дебату</div>
         <div class="rounds-picker">
           <button class="round-btn" data-rounds="1">1</button>
           <button class="round-btn active" data-rounds="2">2</button>
@@ -68,36 +68,36 @@
           <button class="round-btn" data-rounds="4">4</button>
           <button class="round-btn" data-rounds="5">5</button>
         </div>
-        <div class="hint-text">Більше раундів = глибший аналіз, дорожче.</div>
+        <div class="hint-text" data-i18n="newChat.roundsHint">Більше раундів = глибший аналіз, дорожче.</div>
       </div>
     </div>
 
-    <div class="section-label spaced">Додатково</div>
+    <div class="section-label spaced" data-i18n="newChat.extras">Додатково</div>
     <div class="extras">
       <label class="extra-row" id="webSearchRow">
         <div class="extra-info">
-          <div class="extra-name">🌐 Веб-пошук (Claude)</div>
-          <div class="extra-desc">Claude зможе шукати в інтернеті. Інші AI поки не підтримуються.</div>
+          <div class="extra-name" data-i18n="newChat.webSearch.name">🌐 Веб-пошук (Claude)</div>
+          <div class="extra-desc" data-i18n="newChat.webSearch.desc">Claude зможе шукати в інтернеті. Інші AI поки не підтримуються.</div>
         </div>
         <input type="checkbox" class="checkbox" id="webSearchToggle">
       </label>
       <label class="extra-row">
         <div class="extra-info">
-          <div class="extra-name">🔬 Research режим</div>
-          <div class="extra-desc">3-5 ітерацій з глибоким аналізом. Повільніше, краще.</div>
+          <div class="extra-name" data-i18n="newChat.research.name">🔬 Research режим</div>
+          <div class="extra-desc" data-i18n="newChat.research.desc">3-5 ітерацій з глибоким аналізом. Повільніше, краще.</div>
         </div>
         <input type="checkbox" class="checkbox" id="researchToggle">
       </label>
     </div>
 
-    <div class="section-label spaced">Оцінка вартості одного запиту</div>
+    <div class="section-label spaced" data-i18n="newChat.costTitle">Оцінка вартості одного запиту</div>
     <div class="cost-estimate" id="costEstimate">
       <div class="cost-main">$0.00</div>
-      <div class="cost-detail">Обери учасників щоб побачити оцінку</div>
+      <div class="cost-detail" data-i18n="newChat.costEmpty">Обери учасників щоб побачити оцінку</div>
     </div>
   </div>
   <div class="create-bar">
-    <button class="create-btn" id="createChatBtn" disabled>Створити чат</button>
+    <button class="create-btn" id="createChatBtn" data-i18n="newChat.create" disabled>Створити чат</button>
   </div>
 </div>
 
@@ -109,10 +109,10 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="header-title">
-      <div class="main" id="chatHeaderTitle">Чат</div>
+      <div class="main" id="chatHeaderTitle" data-i18n="chat.title">Чат</div>
       <div class="sub" id="chatHeaderSub"></div>
     </div>
-    <button class="header-btn ghost" id="chatMenuBtn" aria-label="Меню">
+    <button class="header-btn ghost" id="chatMenuBtn" aria-label="Меню" data-i18n-aria-label="chat.menu">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
     </button>
   </header>
@@ -121,14 +121,14 @@
   <div class="attachments-preview" id="attachmentsPreview"></div>
 
   <div class="composer">
-    <button class="attach-btn" id="attachBtn" aria-label="Прикріпити">
+    <button class="attach-btn" id="attachBtn" aria-label="Прикріпити" data-i18n-aria-label="chat.attach">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
     </button>
     <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,application/pdf,.txt,.md,.markdown,.csv,.tsv,.json,.xml,.doc,.docx,.docm,.xls,.xlsx,.xlsm,.stl" multiple style="display:none;">
     <div class="input-wrap">
-      <textarea class="input" id="input" rows="1" placeholder="Напиши повідомлення..."></textarea>
+      <textarea class="input" id="input" rows="1" placeholder="Напиши повідомлення..." data-i18n-placeholder="chat.input.placeholder"></textarea>
     </div>
-    <button class="send-btn" id="sendBtn" aria-label="Надіслати">
+    <button class="send-btn" id="sendBtn" aria-label="Надіслати" data-i18n-aria-label="chat.send">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
   </div>
@@ -138,7 +138,7 @@
 <div class="overlay" id="chatMenuOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>Меню</h2>
+      <h2 data-i18n="menu.title">Меню</h2>
       <button class="header-btn" data-close="chatMenuOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -146,28 +146,28 @@
     <div class="menu-item" id="menuToggleLog">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <div>
-        <div id="menuToggleLogLabel">Повний лог розмови</div>
-        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;">Показати всі відповіді всіх AI</div>
+        <div id="menuToggleLogLabel" data-i18n="menu.fullLog">Повний лог розмови</div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.fullLog.desc">Показати всі відповіді всіх AI</div>
       </div>
     </div>
     <div class="menu-item" id="menuChatInfo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <div>Інформація про чат</div>
+      <div data-i18n="menu.chatInfo">Інформація про чат</div>
     </div>
     <div class="menu-item" id="menuExportChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <div>
-        <div>Експорт як .md</div>
-        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;">Для Obsidian, нотаток</div>
+        <div data-i18n="menu.export">Експорт як .md</div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.export.desc">Для Obsidian, нотаток</div>
       </div>
     </div>
     <div class="menu-item" id="menuClearChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-      <div>Очистити історію</div>
+      <div data-i18n="menu.clear">Очистити історію</div>
     </div>
     <div class="menu-item danger" id="menuDeleteChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
-      <div>Видалити чат</div>
+      <div data-i18n="menu.delete">Видалити чат</div>
     </div>
   </div>
 </div>
@@ -176,49 +176,59 @@
 <div class="overlay" id="settingsOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>Налаштування</h2>
+      <h2 data-i18n="settings.title">Налаштування</h2>
       <button class="header-btn" data-close="settingsOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="settings-section">
-      <h3>API ключі</h3>
-      <div class="info-text">Ключі зберігаються тільки в твоєму браузері. Надсилаються напряму до API провайдера без посередників.</div>
+      <h3 data-i18n="settings.language.title">🌐 Мова інтерфейсу</h3>
+      <div class="info-text" data-i18n="settings.language.desc">Обери мову інтерфейсу та стандартну мову відповідей AI.</div>
+      <div class="language-picker" id="languagePicker">
+        <button type="button" class="language-option" data-lang-option="uk">🇺🇦 Українська</button>
+        <button type="button" class="language-option" data-lang-option="cs">🇨🇿 Čeština</button>
+        <button type="button" class="language-option" data-lang-option="en">🇬🇧 English</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3 data-i18n="settings.apiKeys">API ключі</h3>
+      <div class="info-text" data-i18n="settings.apiInfo">Ключі зберігаються тільки в твоєму браузері. Надсилаються напряму до API провайдера без посередників.</div>
     </div>
     <div class="settings-section" id="apiKeysContainer"></div>
 
     <div class="settings-section">
-      <h3>🧠 Пам'ять AI</h3>
-      <div class="info-text">AI пам'ятатиме цю інформацію у всіх чатах.</div>
-      <label class="memory-label">Про мене (профіль)</label>
-      <textarea id="memoryProfile" class="memory-textarea" placeholder="Наприклад: Я Тарас, дантист-імплантолог з Остравy. Спілкуйся українською. Ціную стислі відповіді."></textarea>
+      <h3 data-i18n="settings.memory.title">🧠 Пам'ять AI</h3>
+      <div class="info-text" data-i18n="settings.memory.desc">AI пам'ятатиме цю інформацію у всіх чатах.</div>
+      <label class="memory-label" data-i18n="settings.memory.profile">Про мене (профіль)</label>
+      <textarea id="memoryProfile" class="memory-textarea" placeholder="Наприклад: Я Тарас, дантист-імплантолог з Острави. Спілкуйся українською. Ціную стислі відповіді." data-i18n-placeholder="settings.memory.placeholder"></textarea>
       <button class="settings-btn" id="openMemoryFactsBtn">
-        <span>📌 Збережені факти</span>
+        <span data-i18n="settings.memory.facts">📌 Збережені факти</span>
         <span id="memoryFactsCount" class="memory-count">0</span>
       </button>
     </div>
 
     <div class="settings-section">
-      <h3>🇨🇿 Контекст чеської практики</h3>
-      <div class="info-text">Увімкнені блоки додаються до кожного запиту. Корисно для точніших клінічних відповідей.</div>
+      <h3 data-i18n="settings.czech.title">🇨🇿 Контекст чеської практики</h3>
+      <div class="info-text" data-i18n="settings.czech.desc">Увімкнені блоки додаються до кожного запиту. Корисно для точніших клінічних відповідей.</div>
       <div id="czechBlocksContainer"></div>
     </div>
 
     <div class="settings-section">
-      <h3>📁 База випадків</h3>
-      <div class="info-text">Анонімні кейси для контексту при нових консультаціях. Без персональних даних пацієнтів.</div>
+      <h3 data-i18n="settings.cases.title">📁 База випадків</h3>
+      <div class="info-text" data-i18n="settings.cases.desc">Анонімні кейси для контексту при нових консультаціях. Без персональних даних пацієнтів.</div>
       <button class="settings-btn" id="openCasesBtn">
-        <span>Переглянути випадки</span>
+        <span data-i18n="settings.cases.open">Переглянути випадки</span>
         <span id="casesCount" class="memory-count">0</span>
       </button>
     </div>
 
     <div class="settings-section">
-      <button class="settings-btn primary" id="saveSettingsBtn">Зберегти</button>
+      <button class="settings-btn primary" id="saveSettingsBtn" data-i18n="settings.save">Зберегти</button>
       <button class="settings-btn" id="openChangelogBtn">
-        <span>📋 Журнал версій</span>
+        <span data-i18n="settings.changelog">📋 Журнал версій</span>
       </button>
-      <button class="settings-btn danger" id="wipeDataBtn">Очистити всі дані та ключі</button>
+      <button class="settings-btn danger" id="wipeDataBtn" data-i18n="settings.wipe">Очистити всі дані та ключі</button>
     </div>
 
     <div class="version-footer">
@@ -231,7 +241,7 @@
 <div class="overlay" id="changelogOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>📋 Журнал версій</h2>
+      <h2 data-i18n="changelog.title">📋 Журнал версій</h2>
       <button class="header-btn" data-close="changelogOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -244,15 +254,15 @@
 <div class="overlay" id="memoryFactsOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>📌 Збережені факти</h2>
+      <h2 data-i18n="memoryFacts.title">📌 Збережені факти</h2>
       <button class="header-btn" data-close="memoryFactsOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="settings-section">
-      <div class="info-text">Факти зберігаються постійно і передаються до кожного AI у всіх чатах.</div>
-      <textarea id="newFactText" class="memory-textarea" placeholder="Наприклад: Я купую CBCT Planmeca Viso G5"></textarea>
-      <button class="settings-btn primary" id="addFactBtn">Додати факт</button>
+      <div class="info-text" data-i18n="memoryFacts.desc">Факти зберігаються постійно і передаються до кожного AI у всіх чатах.</div>
+      <textarea id="newFactText" class="memory-textarea" placeholder="Наприклад: Я купую CBCT Planmeca Viso G5" data-i18n-placeholder="memoryFacts.placeholder"></textarea>
+      <button class="settings-btn primary" id="addFactBtn" data-i18n="memoryFacts.add">Додати факт</button>
     </div>
     <div class="settings-section" id="memoryFactsList"></div>
   </div>
@@ -262,7 +272,7 @@
 <div class="overlay" id="chatInfoOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>Інформація</h2>
+      <h2 data-i18n="chatInfo.title">Інформація</h2>
       <button class="header-btn" data-close="chatInfoOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -275,22 +285,22 @@
 <div class="overlay" id="casesOverlay">
   <div class="sheet">
     <div class="sheet-header">
-      <h2>📁 База випадків</h2>
+      <h2 data-i18n="cases.title">📁 База випадків</h2>
       <button class="header-btn" data-close="casesOverlay">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="settings-section">
       <div class="info-text" style="background: rgba(230, 180, 60, 0.1); border-left: 3px solid #e6b43c; padding: 10px;">
-        ⚠️ <strong>GDPR нагадування:</strong> НІКОЛИ не зберігай імена пацієнтів, дати народження, ідентифікатори. Тільки анонімний опис випадку: стать, вік, клінічна картина.
+        <span data-i18n="cases.gdpr">⚠️ GDPR нагадування: НІКОЛИ не зберігай імена пацієнтів, дати народження, ідентифікатори. Тільки анонімний опис випадку: стать, вік, клінічна картина.</span>
       </div>
-      <label class="memory-label">Короткий заголовок</label>
-      <input type="text" id="newCaseTitle" class="chat-name-input" placeholder="Напр. Ретровершина 46, ускладнений ендо">
-      <label class="memory-label">Теги (через кому)</label>
-      <input type="text" id="newCaseTags" class="chat-name-input" placeholder="ендо, моляр, ускладнення">
-      <label class="memory-label">Опис випадку (анонімно)</label>
-      <textarea id="newCaseDescription" class="memory-textarea" placeholder="Чол. 45р, скарга на ниючий біль..." style="min-height: 100px;"></textarea>
-      <button class="settings-btn primary" id="addCaseBtn">Додати випадок</button>
+      <label class="memory-label" data-i18n="cases.shortTitle">Короткий заголовок</label>
+      <input type="text" id="newCaseTitle" class="chat-name-input" placeholder="Напр. Ретровершина 46, ускладнений ендо" data-i18n-placeholder="cases.titlePlaceholder">
+      <label class="memory-label" data-i18n="cases.tags">Теги (через кому)</label>
+      <input type="text" id="newCaseTags" class="chat-name-input" placeholder="ендо, моляр, ускладнення" data-i18n-placeholder="cases.tagsPlaceholder">
+      <label class="memory-label" data-i18n="cases.description">Опис випадку (анонімно)</label>
+      <textarea id="newCaseDescription" class="memory-textarea" placeholder="Чол. 45р, скарга на ниючий біль..." data-i18n-placeholder="cases.descriptionPlaceholder" style="min-height: 100px;"></textarea>
+      <button class="settings-btn primary" id="addCaseBtn" data-i18n="cases.add">Додати випадок</button>
     </div>
     <div class="settings-section" id="casesList"></div>
   </div>
@@ -299,14 +309,15 @@
 <!-- Install banner -->
 <div class="install-banner" id="installBanner">
   <div class="row">
-    <span>Встановити AI Council на екран?</span>
+    <span data-i18n="install.prompt">Встановити AI Council на екран?</span>
     <div style="display:flex;gap:6px;">
-      <button id="installBtn">Додати</button>
+      <button id="installBtn" data-i18n="install.add">Додати</button>
       <button class="close" id="installClose">×</button>
     </div>
   </div>
 </div>
 
+<script src="translations.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

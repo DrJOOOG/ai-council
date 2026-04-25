@@ -857,3 +857,31 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
 .changelog-entry.current .changelog-highlights li {
   color: var(--text);
 }
+
+/* ==================== v6.0 i18n language picker ==================== */
+.language-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.language-option {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.language-option.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(212,255,58,0.18);
+}
+.language-option:active { transform: scale(0.97); }
