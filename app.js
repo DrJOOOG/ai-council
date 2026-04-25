@@ -1,13 +1,41 @@
 // ================================================================
-// AI Council v6.0.6-beta — OPG per-tooth chart format + language-safe council
+// AI Council v6.1.0-beta — ProfiDentist UI refresh
 // ================================================================
 
-const APP_VERSION = '6.0.6-beta';
+const APP_VERSION = '6.1.0-beta';
 const APP_VERSION_DATE = '2026-04-25';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.1.0-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🎨 ProfiDentist-inspired UI refresh: фіолетовий/білий/бетонний стиль',
+      '🧱 Додано concrete-like фон, світліші картки, сучасніші кнопки та менше неону',
+      '🧠 Висновок Ради та AI-повідомлення стали читабельнішими як клінічні картки'
+    ]
+  },
+  {
+    version: '6.0.9-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🧭 Уточнено OPG default orientation за clockwise FDI-мапою',
+      '🦷 FDI-мапа за замовчуванням: UL image 18→11, UR image 21→28, LR image 38→31, LL image 41→48',
+      '👨‍⚕️ Якщо користувач/лікар задав іншу орієнтацію або виправив номер — це має пріоритет'
+    ]
+  },
+  {
+    version: '6.0.7-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🧭 OPG orientation guard: default FDI-мапа + R/L/клінічні корекції мають пріоритет',
+      '🛡️ Safe-chart filter посилено: знахідки однієї AI не потрапляють у карту як факт',
+      '👨‍⚕️ Корекції лікаря у чаті мають пріоритет над оцінками моделей',
+      '🔬 Gemini працює як visual scout, не як фінальний автор опису'
+    ]
+  },
   {
     version: '6.0.6-beta',
     date: '2026-04-25',
@@ -469,8 +497,8 @@ const DEFAULT_TEMPLATES = [
     autoPromptType: 'radiology',
     personas: {
       claude: 'Ти — досвідчений стоматолог-рентгенолог і клінічний аудитор. Даєш структурований опис для медичної карти, обережно формулюєш висновки і чітко вказуєш обмеження OPG.',
-      openai: 'Ти — критичний ревʼюер рентген-опису. Твоя задача — не допустити галюцинацій: розділяй “точно видно”, “підозра”, “не можна оцінити”. Пиши по FDI-зубах.',
-      gemini: 'Ти — візуальний асистент для аналізу стоматологічних знімків. Фокус на якості зображення, анатомії, видимих реставраціях, ендо, періапікальних і пародонтальних ознаках. Не став остаточні діагнози без клініки.',
+      openai: 'Ти — критичний ревʼюер рентген-опису. Не допускай галюцинацій і помилок сторони/FDI. Якщо R/L або нумерація неочевидні — не фіксуй номер зуба як факт. Розділяй “точно видно”, “підозра”, “не можна оцінити”, “потребує перевірки лікарем”.',
+      gemini: 'Ти — visual scout, не фінальний автор опису. Давай тільки короткі видимі підказки з confidence high/medium/low. Використовуй default OPG-орієнтацію, якщо користувач не вказав інше; не фіксуй FDI як факт при сумніві або конфлікті. Не пиши “норма” по кожному зубу, не вигадуй ендо/відсутні зуби/кальцифікати.',
       perplexity: 'Ти — evidence checker. Якщо тебе використовують у цьому шаблоні, не аналізуй зображення напряму, а нагадуй про обмеження OPG, показання до BW/PA/CBCT і стандарти документування.'
     }
   }
@@ -2782,6 +2810,16 @@ function renderContributionBlock(meta) {
 // ==================== BUILD MESSAGE WITH ATTACHMENTS ====================
 // ==================== MEMORY PROMPT ====================
 // Builds the system prompt that carries the user's profile + saved facts to every AI call
+
+function radiologySystemSafetyAddition() {
+  if (getLang() === 'cs') {
+    return "RADIOLOGICKÝ BEZPEČNOSTNÍ REŽIM:\n- Výchozí orientace OPG, pokud uživatel neuvede jinak: levý horní roh obrázku = 1. kvadrant (18→11), pravý horní = 2. kvadrant (21→28), pravý dolní = 3. kvadrant (38→31), levý dolní = 4. kvadrant (41→48).\n- Pokud je na snímku viditelný R/L marker a odporuje výchozí orientaci, prioritu má marker. Pokud uživatel/lékař opraví pozici, prioritu má jeho korekce.\n- U implantátů, retinovaných a chybějících zubů vždy uveď nejistotu, pokud je číslování nejasné nebo je konflikt mezi AI.\n- Nález jedné AI nikdy nepřepisuj do dokumentace jako fakt.\n- Gemini používej jen jako visual scout, nikoli jako zdroj definitivních zubních čísel.";
+  }
+  if (getLang() === 'en') {
+    return "RADIOLOGY SAFETY MODE:\n- Default OPG orientation unless the user states otherwise: image upper-left = quadrant 1 (18→11), image upper-right = quadrant 2 (21→28), image lower-right = quadrant 3 (38→31), image lower-left = quadrant 4 (41→48).\n- If a visible R/L marker contradicts the default orientation, the marker wins. If the user/clinician corrects a position, the correction wins.\n- For implants, impacted teeth, and missing teeth, explicitly state uncertainty whenever numbering is unclear or AI reports conflict.\n- A finding from only one AI must never be copied into the chart as fact.\n- Treat Gemini as visual scout only, not as a source of definitive tooth numbering.";
+  }
+  return "РАДІОЛОГІЧНИЙ РЕЖИМ БЕЗПЕКИ:\n- Орієнтація OPG за замовчуванням, якщо користувач не вказав інше: лівий верхній кут картинки = 1-й квадрант (18→11), правий верхній = 2-й квадрант (21→28), нижній правий = 3-й квадрант (38→31), нижній лівий = 4-й квадрант (41→48).\n- Якщо на знімку видно R/L-маркер і він суперечить default-мапі — пріоритет має маркер. Якщо користувач/лікар виправив позицію — пріоритет має його корекція.\n- Для імплантів, ретенованих і відсутніх зубів завжди вказуй невизначеність, якщо нумерація нечітка або AI між собою конфліктують.\n- Знахідку лише однієї AI ніколи не переносити в карту як факт.\n- Gemini використовувати тільки як visual scout, не як джерело остаточної нумерації зубів.";
+}
 function buildMemoryPrompt(chatContext, currentAI) {
   const parts = [getLanguageInstruction()];
   if (state.memory.profile && state.memory.profile.trim()) {
@@ -2803,8 +2841,10 @@ function buildMemoryPrompt(chatContext, currentAI) {
       parts.push('КОНТЕКСТ ЧЕСЬКОЇ ПРАКТИКИ:\n' + blocks.join('\n\n'));
     }
   }
-  // v4.5: Template system addition (if this chat was started from a template)
-  if (chatContext && chatContext.templateSystemAddition) {
+  // v4.5/v6.0.9: Template system addition. For radiology, use current-language safety block dynamically, not stale localStorage text.
+  if (chatContext && isRadiologyChat(chatContext)) {
+    parts.push(radiologySystemSafetyAddition());
+  } else if (chatContext && chatContext.templateSystemAddition) {
     parts.push('СПЕЦІАЛІЗАЦІЯ ЧАТУ:\n' + chatContext.templateSystemAddition);
   }
   // v5.0: Per-AI persona from template (if any)
@@ -3039,111 +3079,21 @@ function buildRadiologyAutoPrompt(attachments = []) {
     ? attachments.map(a => `- ${a.name || t('chat.file')} (${a.kind || 'file'}, ${a.mime || 'unknown'})`).join('\n')
     : '- image / radiograph';
 
+  const shared = getLang() === 'cs'
+    ? `Přiložené soubory:\n${fileList}\n\nVÝCHOZÍ ORIENTACE OPG:\n- Pokud uživatel neuvede jinak, používej tuto mapu obrázku: levý horní roh = 1. kvadrant (18→11), pravý horní = 2. kvadrant (21→28), pravý dolní = 3. kvadrant (38→31), levý dolní = 4. kvadrant (41→48).\n- Pokud je na snímku viditelný R/L marker a odporuje této mapě, prioritu má marker. Pokud uživatel/lékař opraví pozici, prioritu má korekce.\n- U implantátů, retinovaných zubů a chybějících zubů buď extrémně opatrný: chyba o jeden zub nebo záměna strany je nepřijatelná pro dokumentaci.\n- Pokud si nejsi jistý konkrétním FDI číslem, napiš číslo jako pravděpodobné a dej ho do ověření.`
+    : getLang() === 'en'
+      ? `Attached files:\n${fileList}\n\nDEFAULT OPG ORIENTATION:\n- Unless the user states otherwise, use this image map: upper-left = quadrant 1 (18→11), upper-right = quadrant 2 (21→28), lower-right = quadrant 3 (38→31), lower-left = quadrant 4 (41→48).\n- If a visible R/L marker contradicts this map, the marker wins. If the user/clinician corrects a position, the correction wins.\n- For implants, impacted teeth, and missing teeth be extremely cautious: a one-tooth error or side reversal is unacceptable for charting.\n- If a specific FDI number is uncertain, mark it as probable and put it under verification.`
+      : `Прикріплені файли:\n${fileList}\n\nОРІЄНТАЦІЯ OPG ЗА ЗАМОВЧУВАННЯМ:\n- Якщо користувач не вказав інше, використовуй таку мапу картинки: лівий верхній кут = 1-й квадрант (18→11), правий верхній = 2-й квадрант (21→28), нижній правий = 3-й квадрант (38→31), нижній лівий = 4-й квадрант (41→48).\n- Якщо на знімку видно R/L-маркер і він суперечить цій мапі — пріоритет має маркер. Якщо користувач/лікар виправив позицію — пріоритет має корекція.\n- Для імплантів, ретенованих зубів і відсутніх зубів будь максимально обережний: помилка на один зуб або дзеркальна сторона неприпустима для карти.\n- Якщо конкретний FDI-номер сумнівний, познач його як ймовірний і винеси в перевірку.`;
+
   if (getLang() === 'cs') {
-    return `${getLanguageInstruction()}
-
-Automatický režim OPG / RTG popisu. Popiš přiložený stomatologický RTG snímek pro zdravotnickou dokumentaci pacienta.
-
-Přiložené soubory:
-${fileList}
-
-Použij FDI číslování 18–48.
-
-NEJDŮLEŽITĚJŠÍ PRAVIDLA:
-- Nehalucinuj. Nevymýšlej diagnózy, kazy, periapikální léze, resorpce, endodontické ošetření ani kalcifikace, pokud je přímo nevidíš.
-- OPG je orientační snímek. Aproximální kazy, okraje výplní, jemné periapikální změny a přesnou periimplantární kost často nelze spolehlivě posoudit.
-- Nepiš u každého zubu „periapikální nález v normě“. Pokud není zjevná hrubá patologie, použij opatrnou formulaci „bez jednoznačné hrubé periapikální patologie na OPG“.
-- Pokud si nejsi jistý, napiš „pouze k ověření“ a doporuč PA/BW/CBCT/klinické ověření.
-
-POVINNÝ FORMÁT:
-1. Typ a kvalita snímku — krátce.
-2. Zub po zubu podle FDI. Každý řádek začínej přesně takto:
-   [18] – nález
-   [17] – nález
-   ...
-   [48] – nález
-3. Používej barevné priority na začátku řádku, pokud je to potřeba:
-   🔴 [15] – suspektní radiolucence v distální korunkové části; nelze potvrdit z OPG, ověřit BW/klinicky.
-   🟡 [16] – rozsáhlá ortopedická konstrukce / velká fotokompozitní výplň; okraje na OPG nehodnotitelné.
-   ⚪ [14] – endodontické ošetření, bez jednoznačné hrubé apikální patologie na OPG.
-4. Pokud zub není viditelný nebo chybí, napiš: [17] – nepřítomen / nezobrazen / extrahován, pouze pokud je to zřejmé.
-5. Pokud si nejsi jistý číslem zubu, napiš konflikt: „číslování vyžaduje ověření lékařem“.
-6. Na konec přidej:
-   A. Bezpečný krátký text do dokumentace
-   B. Podezření / ověřit
-   C. Co nepřepisovat do karty jako fakt
-   D. Doporučené doplňkové snímky: BW / PA / CBCT.`;
+    return `${getLanguageInstruction()}\n\nAutomatický režim OPG / RTG popisu. Popiš přiložený stomatologický RTG snímek pro zdravotnickou dokumentaci pacienta.\n\n${shared}\n\nNEJDŮLEŽITĚJŠÍ PRAVIDLA:\n- Nehalucinuj. Nevymýšlej diagnózy, kazy, periapikální léze, resorpce, endodontické ošetření ani kalcifikace, pokud je přímo nevidíš.\n- Nález, který je nejistý nebo vychází jen z dojmu, dej pouze do části „ověřit“, ne do textu dokumentace.\n- OPG je orientační snímek. Aproximální kazy, okraje výplní, jemné periapikální změny a přesnou periimplantární kost často nelze spolehlivě posoudit.\n- Nepiš u každého zubu „periapikální nález v normě“. Pokud není zjevná hrubá patologie, použij opatrnou formulaci „bez jednoznačné hrubé periapikální patologie na OPG“.\n- Gemini/visual scout nálezy nejsou samy o sobě dostatečné pro dokumentaci.\n\nPOVINNÝ FORMÁT:\n1. **Orientace a kvalita snímku** — potvrď použitou defaultní OPG mapu nebo uveď odchylku podle R/L markeru/uživatele.\n2. **Zub po zubu podle FDI**. Každý řádek začínej: [18] – ... až [48] – ...\n   Pokud je číslo nejisté, napiš: [??] / [oblast] – vyžaduje ověření lékařem.\n3. Priority:\n   🔴 suspektní/rizikové/ověřit před dokumentací.\n   🟡 omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ orientační popis bez jasné hrubé patologie.\n4. Na konec:\n   A. Bezpečný krátký text do dokumentace — pouze nízkorizikové formulace.\n   B. Pouze k ověření — NEPŘEPISOVAT jako fakt.\n   C. Co nepřepisovat do karty.\n   D. Doporučené doplňkové snímky: BW / PA / CBCT.`;
   }
 
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}
-
-Automatic OPG / dental X-ray reporting mode. Describe the attached dental radiograph for the patient chart.
-
-Attached files:
-${fileList}
-
-Use FDI numbering 18–48.
-
-CORE RULES:
-- Do not hallucinate. Do not invent caries, periapical lesions, resorption, endodontic treatment, calcifications, or tooth positions unless directly visible.
-- OPG is an overview image. Approximal caries, restoration margins, subtle periapical changes, and exact peri-implant bone levels often cannot be reliably assessed.
-- Do not write “periapical finding normal” tooth by tooth. Prefer cautious wording such as “no obvious gross periapical pathology on OPG”.
-- If uncertain, write “requires verification” and recommend PA/BW/CBCT/clinical check.
-
-MANDATORY FORMAT:
-1. Image type and quality — short.
-2. Tooth-by-tooth FDI list. Start each line exactly like:
-   [18] – finding
-   [17] – finding
-   ...
-   [48] – finding
-3. Use priority markers at the beginning when needed:
-   🔴 [15] – suspected radiolucency in distal coronal part; cannot be confirmed on OPG, verify with BW/clinically.
-   🟡 [16] – large prosthetic restoration / extensive composite; margins not reliably assessable on OPG.
-   ⚪ [14] – endodontic treatment, no obvious gross apical pathology on OPG.
-4. If a tooth is missing/non-visible, write it only when reasonably clear.
-5. If tooth numbering is uncertain, mark it as a conflict requiring clinician verification.
-6. End with:
-   A. Safe short chart note
-   B. Suspicions / verify
-   C. Do not copy as fact
-   D. Recommended additional imaging: BW / PA / CBCT.`;
+    return `${getLanguageInstruction()}\n\nAutomatic OPG / dental X-ray reporting mode. Describe the attached dental radiograph for the patient chart.\n\n${shared}\n\nCORE RULES:\n- Do not hallucinate. Do not invent caries, periapical lesions, resorption, endodontic treatment, calcifications, missing teeth, or tooth positions unless directly visible.\n- Any uncertain finding goes only to “verify”, never to chart-ready text.\n- OPG is an overview image. Approximal caries, restoration margins, subtle periapical changes, and exact peri-implant bone levels often cannot be reliably assessed.\n- Do not write “periapical finding normal” tooth by tooth. Prefer cautious wording such as “no obvious gross periapical pathology on OPG”.\n- Gemini/visual scout findings are not sufficient by themselves for charting.\n\nMANDATORY FORMAT:\n1. **Orientation and image quality** — confirm the default OPG map used or state any override from R/L marker/user instruction.\n2. **Tooth-by-tooth FDI list**. Start each line: [18] – ... through [48] – ...\n   If numbering is uncertain, write: [??] / [region] – requires clinician verification.\n3. Priorities:\n   🔴 suspicious/risk/verify before charting.\n   🟡 limited assessment / large restoration or prosthesis.\n   ⚪ orientational description/no obvious gross pathology.\n4. End with:\n   A. Safe short chart note — low-risk wording only.\n   B. Verify only — DO NOT copy as fact.\n   C. Do not copy into chart.\n   D. Recommended additional imaging: BW / PA / CBCT.`;
   }
 
-  return `${getLanguageInstruction()}
-
-Автоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.
-
-Прикріплені файли:
-${fileList}
-
-Використовуй FDI-нумерацію 18–48.
-
-НАЙВАЖЛИВІШІ ПРАВИЛА:
-- Не галюцинуй. Не вигадуй карієс, періапікальні зміни, резорбції, ендодонтичне лікування, кальцифікати або положення зубів, якщо це прямо не видно.
-- OPG є оглядовим знімком. Апроксимальний карієс, краї пломб, дрібні періапікальні зміни і точний рівень кістки біля імплантів часто не оцінюються достовірно.
-- Не пиши по кожному зубу “періапікальна ділянка в нормі”. Краще: “без очевидної грубої апікальної патології на OPG”.
-- Якщо не впевнений — пиши “потребує уточнення” і рекомендуй PA/BW/CBCT/клінічну перевірку.
-
-ОБОВʼЯЗКОВИЙ ФОРМАТ:
-1. Тип і якість знімка — коротко.
-2. Опис зуб за зубом за FDI. Кожен рядок починай саме так:
-   [18] – знахідка
-   [17] – знахідка
-   ...
-   [48] – знахідка
-3. Для важливих або сумнівних місць став маркер на початку рядка:
-   🔴 [15] – рентгенпрояснення в дистальній частині коронкової частини зуба; не підтверджується на OPG, уточнити BW/клінічно.
-   🟡 [16] – ортопедична конструкція / фотокомпозит великого обсягу; краї на OPG не оцінюються достовірно.
-   ⚪ [14] – наявне ендодонтичне лікування, без очевидної грубої апікальної патології на OPG.
-4. Якщо зуб відсутній або не візуалізується — пиши це лише якщо достатньо очевидно.
-5. Якщо нумерація зуба сумнівна — пиши “потребує перевірки лікарем”.
-6. В кінці додай:
-   A. Безпечний короткий текст у карту
-   B. Підозри / уточнити
-   C. Що НЕ переносити в карту як факт
-   D. Які додаткові знімки потрібні: BW / PA / CBCT.`;
+  return `${getLanguageInstruction()}\n\nАвтоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.\n\n${shared}\n\nНАЙВАЖЛИВІШІ ПРАВИЛА:\n- Не галюцинуй. Не вигадуй карієс, періапікальні зміни, резорбції, ендодонтичне лікування, кальцифікати, відсутні зуби або позиції зубів, якщо це прямо не видно.\n- Усе сумнівне йде тільки в “уточнити”, не в текст карти.\n- OPG є оглядовим знімком. Апроксимальний карієс, краї пломб, дрібні періапікальні зміни і точний рівень кістки біля імплантів часто не оцінюються достовірно.\n- Не пиши по кожному зубу “періапікальна ділянка в нормі”. Краще: “без очевидної грубої апікальної патології на OPG”.\n- Знахідки Gemini/visual scout самі по собі не є достатніми для карти.\n\nОБОВʼЯЗКОВИЙ ФОРМАТ:\n1. **Орієнтація і якість знімка** — підтверди використану default-мапу OPG або вкажи відхилення за R/L-маркером/вказівкою користувача.\n2. **Опис зуб за зубом за FDI**. Кожен рядок починай: [18] – ... до [48] – ...\n   Якщо номер сумнівний, пиши: [??] / [ділянка] – потребує перевірки лікарем.\n3. Пріоритети:\n   🔴 підозра/ризик/перевірити перед внесенням у карту.\n   🟡 обмежено оцінюється / велика реставрація або конструкція.\n   ⚪ орієнтовний опис / без очевидної грубої патології.\n4. В кінці:\n   A. Безпечний короткий текст у карту — тільки низькоризикові формулювання.\n   B. Тільки перевірити — НЕ переносити як факт.\n   C. Що НЕ переносити в карту.\n   D. Які додаткові знімки потрібні: BW / PA / CBCT.`;
 }
 
 // ==================== SEND ====================
@@ -3610,12 +3560,12 @@ function buildRadiologySynthesisPrompt(question, answers) {
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
   const aiList = answers.map(r => r.ai).join(', ');
   if (getLang() === 'cs') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n- ORIENTACE/FDI: Pokud uživatel neuvede jinak, použij defaultní OPG mapu: levý horní obrázku = Q1 18→11, pravý horní = Q2 21→28, pravý dolní = Q3 38→31, levý dolní = Q4 41→48. Pokud R/L marker nebo korekce lékaře odporuje defaultu, prioritu má marker/korekce.\n- KOREKCE LÉKAŘE: Pokud uživatel v této konverzaci opravil polohu zubu/implantátu, tato korekce má prioritu před všemi AI zprávami.\n- SAFE CHART TEXT nesmí obsahovat konfliktní zuby, jednostranné nálezy Gemini ani číslování, které není bezpečně ověřené.\n- U implantátu bez jisté orientace piš raději „implantát v laterálním úseku mandibuly, přesná FDI pozice vyžaduje ověření“ než špatné číslo.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
   }
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n- ORIENTATION/FDI: Unless the user states otherwise, use the default OPG map: image upper-left = Q1 18→11, upper-right = Q2 21→28, lower-right = Q3 38→31, lower-left = Q4 41→48. If an R/L marker or clinician correction contradicts the default, the marker/correction wins.\n- CLINICIAN CORRECTIONS: If the user corrected a tooth/implant position in this conversation, that correction overrides all AI reports.\n- SAFE CHART TEXT must not contain conflicted teeth, single-model Gemini findings, or tooth numbering that is not safely verified.\n- For implants without certain orientation, prefer “implant in the posterior mandible; exact FDI position requires verification” over a wrong tooth number.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
   }
-  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
+  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n- ОРІЄНТАЦІЯ/FDI: якщо користувач не вказав інше, використовуй default-мапу OPG: лівий верх картинки = Q1 18→11, правий верх = Q2 21→28, нижній правий = Q3 38→31, нижній лівий = Q4 41→48. Якщо R/L-маркер або корекція лікаря суперечить default — пріоритет має маркер/корекція.\n- КОРЕКЦІЇ ЛІКАРЯ: якщо користувач у цій розмові виправив позицію зуба/імпланта, ця корекція має пріоритет над усіма AI-відповідями.\n- БЕЗПЕЧНИЙ ТЕКСТ У КАРТУ не має містити конфліктні зуби, знахідки тільки Gemini або нумерацію, яка не верифікована безпечно.\n- Для імпланта без певної орієнтації краще писати “імплант у боковому відділі нижньої щелепи, точна FDI-позиція потребує перевірки”, ніж помилковий номер.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
 }
 
 function buildSynthesisPrompt(question, answers) {
