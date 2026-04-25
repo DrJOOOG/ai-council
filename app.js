@@ -1,9 +1,169 @@
 // ================================================================
-// AI Council v4.5-beta — Templates, Czech context, Cases, Council history
+// AI Council v5.1.6 — test-ready + OpenAI PDF fix
 // ================================================================
 
-const APP_VERSION = '4.5-beta';
-const APP_VERSION_DATE = '2026-04-22';
+const APP_VERSION = '5.1.6';
+const APP_VERSION_DATE = '2026-04-25';
+const APP_AUTHOR = 'Dr. Parkhoma';
+
+// Changelog — newest first
+const CHANGELOG = [
+  {
+    version: '5.1.6',
+    date: '2026-04-25',
+    highlights: [
+      '🧪 Додано Playwright smoke/E2E тести та GitHub Actions workflow',
+      '📄 OpenAI Responses API тепер отримує PDF як input_file, а не лише текстове попередження',
+      '🛡️ Debate mode більше не падає, якщо всі AI дали помилку'
+    ]
+  },
+  {
+    version: '5.1.5',
+    date: '2026-04-25',
+    highlights: [
+      '✋ Прибрано надлишковий confirm-діалог при кожному вкладенні (заважав щоденній роботі)',
+      '🛡️ Залишено confirm тільки для PII та запитів дорожче $0.10',
+      '🚫 Жорсткий ліміт $1.00 на запит (захист від випадкових великих витрат)'
+    ]
+  },
+  {
+    version: '5.1.4-files-pro',
+    date: '2026-04-25',
+    highlights: [
+      '📄 DOCX/DOCM тепер читаються локально: витягується текст з document/header/footer/footnotes/endnotes',
+      '📊 XLSX/XLSM тепер читаються локально: витягуються аркуші у TSV-preview з shared strings',
+      '🧯 Legacy DOC/XLS мають безпечний heuristic text extraction замість повної відмови',
+      '🛡️ Прибрано application/octet-stream із whitelist MIME — доступ контролюється також за розширенням файлу'
+    ]
+  },
+
+  {
+    version: '5.1.3-files',
+    date: '2026-04-25',
+    highlights: [
+      '📎 Додано ширшу підтримку вкладень: PDF, Word, Excel/CSV, TXT/MD/JSON/XML, PNG/JPG/WebP, STL',
+      '🛡️ Файли й далі не зберігаються в localStorage як base64; зображення очищаються від EXIF',
+      '🧩 TXT/CSV/JSON/MD/XML/STL передаються AI як текстовий екстракт/summary; Word/Excel приймаються як вкладення з безпечним попередженням'
+    ]
+  },
+
+  {
+    version: '5.1.2-security',
+    date: '2026-04-25',
+    highlights: [
+      '🔐 Швидкий security patch: whitelist типів файлів, заборона SVG upload',
+      '🧼 Фото перед відправкою перемальовуються через canvas для видалення EXIF/metadata',
+      '🗃️ Вкладення більше не зберігаються в localStorage як base64',
+      '💸 Додано попередження/блокування дорогих запитів',
+      '🛡️ Додано підтвердження перед відправкою потенційних персональних/клінічних даних',
+      '🧹 Очистка даних тепер видаляє localStorage, CacheStorage і Service Worker',
+      '🔑 Gemini API key перенесено з URL у x-goog-api-key header'
+    ]
+  },
+  {
+    version: '5.1.1-beta',
+    date: '2026-04-25',
+    highlights: [
+      '💰 Виправлено офіційні ціни OpenAI: nano $0.20/$1.25, mini $0.75/$4.50, gpt-5.4 $2.50/$15',
+      '🐛 Cost tracking тепер враховує fallback (gpt-5.5 → gpt-5.4 рахується правильно)',
+      '🛡️ Захист від падіння Дебату коли всі AI помилки в усіх раундах'
+    ]
+  },
+  {
+    version: '5.1-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🚀 OpenAI Responses API для GPT-5+ моделей (рекомендований OpenAI)',
+      '🐛 Виправлено передачу синтезу Ради як user-context (краща якість дебатів)',
+      '📊 Research mode тепер коректно рахується в статистиці витрат',
+      '🏷️ Автоназва чату тепер працює і в режимі Ради',
+      '🧹 Видалено дублікат функції saveMemory()',
+      '⚙️ Service Worker стійкий до відсутності окремих файлів (Promise.allSettled)'
+    ]
+  },
+  {
+    version: '5.0.1-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🆕 OpenAI GPT-5.5 додано на ЧЕРВОНИЙ рівень ($5/$30 за 1M токенів)',
+      '🐛 Виправлено дублікат id моделі OpenAI (тепер cost tracking коректний)'
+    ]
+  },
+  {
+    version: '5.0-beta',
+    date: '2026-04-23',
+    highlights: [
+      '✍️ Підпис автора "by Dr. Parkhoma" під логотипом',
+      '📋 Журнал версій у налаштуваннях — прозора історія змін',
+      '👥 AI Personas — шаблони з ролями для кожного AI (Ендодонтист, Хірург, Скептик, Аудитор)',
+      '🎨 Оновлений логотип Ради з медичним стилем'
+    ]
+  },
+  {
+    version: '4.5-beta',
+    date: '2026-04-22',
+    highlights: [
+      '🔴 Критичний фікс: історія контексту для Ради (більше "256=Алабама")',
+      '🦷 5 шаблонів стоматолога (ендо, імпланти, пародонт, ургент, диф-біль)',
+      '🇨🇿 Чеський контекст — SÚKL, VZP, інформована згода',
+      '📁 База випадків з GDPR-детектором',
+      '↔️ Покращений свайп (закриття зворотним свайпом або тапом)'
+    ]
+  },
+  {
+    version: '4.0-beta',
+    date: '2026-04-19',
+    highlights: [
+      '✅ Confidence indicator над синтезом Ради',
+      '⚡ TL;DR кнопка на довгих відповідях',
+      '📥 Експорт чату як .md (для Obsidian)',
+      '💰 Лічильник вартості сесії в хедері',
+      '🏷️ Автоназва чату через найдешевший AI',
+      '📊 Блок внеску учасників під синтезом',
+      '👈 Свайп-видалення + batch вибір'
+    ]
+  },
+  {
+    version: '3.12',
+    date: '2026-04-18',
+    highlights: [
+      'Фільтр <think> блоків для Perplexity Reasoning',
+      'Warning при недозавершених раундах дебату'
+    ]
+  },
+  {
+    version: '3.11',
+    date: '2026-04-18',
+    highlights: [
+      'Виправлено GPT-5.4 Pro 404 (fallback на GPT-5.4)',
+      'Фільтр reasoning-блоків Perplexity'
+    ]
+  },
+  {
+    version: '3.10',
+    date: '2026-04-17',
+    highlights: [
+      'CSP-сумісні кнопки закриття overlay',
+      'Виправлено хрестик у налаштуваннях'
+    ]
+  },
+  {
+    version: '3.7',
+    date: '2026-04-15',
+    highlights: [
+      '🧠 Система пам\'ять AI — профіль "Про мене" + збережені факти',
+      'Пам\'ять передається як system prompt у кожен запит'
+    ]
+  },
+  {
+    version: '3.0',
+    date: '2026-04-12',
+    highlights: [
+      'Початкова робоча версія: 4 AI, 4 рівні, 4 режими Ради',
+      'PWA з offline UI, ключі в localStorage'
+    ]
+  }
+];
 
 // ==================== LOGOS ====================
 const LOGOS = {
@@ -11,9 +171,25 @@ const LOGOS = {
   openai: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4.5" r="1.8"/><circle cx="18.5" cy="8.3" r="1.8"/><circle cx="18.5" cy="15.7" r="1.8"/><circle cx="12" cy="19.5" r="1.8"/><circle cx="5.5" cy="15.7" r="1.8"/><circle cx="5.5" cy="8.3" r="1.8"/><g stroke="currentColor" stroke-width="0.8" opacity="0.5"><line x1="12" y1="4.5" x2="12" y2="19.5"/><line x1="5.5" y1="8.3" x2="18.5" y2="15.7"/><line x1="5.5" y1="15.7" x2="18.5" y2="8.3"/></g></svg>`,
   gemini: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 C13 7 13.5 10 22 12 C13.5 14 13 17 12 22 C11 17 10.5 14 2 12 C10.5 10 11 7 12 2 Z"/></svg>`,
   perplexity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-width="1.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.4"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>`,
-  council: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M9 5 C6 5 4 7.5 4 10 C3 10.5 3 12 3.5 13 C3 14 3.5 15.5 5 16 C5 18 7 19 9 18.5 M15 5 C18 5 20 7.5 20 10 C21 10.5 21 12 20.5 13 C21 14 20.5 15.5 19 16 C19 18 17 19 15 18.5"/><path d="M9 5 C10 4 11 4 12 5 C13 4 14 4 15 5 M9 18.5 C10 19.5 11 19.5 12 18.5 C13 19.5 14 19.5 15 18.5"/><path d="M12 5 L12 18.5" opacity="0.5"/><circle cx="7" cy="10" r="1" fill="currentColor"/><circle cx="17" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>`,
+  council: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stylized tooth outline (dental context) -->
+    <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z" opacity="0.85"/>
+    <!-- Neural nodes (4 AI representation) -->
+    <circle cx="8.5" cy="8" r="0.9" fill="currentColor" stroke="none"/>
+    <circle cx="15.5" cy="8" r="0.9" fill="currentColor" stroke="none"/>
+    <circle cx="9.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+    <circle cx="14.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+    <!-- Connections between nodes -->
+    <line x1="8.5" y1="8" x2="15.5" y2="8" opacity="0.4" stroke-width="0.8"/>
+    <line x1="8.5" y1="8" x2="14.5" y2="12" opacity="0.4" stroke-width="0.8"/>
+    <line x1="15.5" y1="8" x2="9.5" y2="12" opacity="0.4" stroke-width="0.8"/>
+    <line x1="9.5" y1="12" x2="14.5" y2="12" opacity="0.4" stroke-width="0.8"/>
+  </svg>`,
   user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>`,
-  emptyChat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M9 5 C6 5 4 7.5 4 10 C3 10.5 3 12 3.5 13 C3 14 3.5 15.5 5 16 C5 18 7 19 9 18.5 M15 5 C18 5 20 7.5 20 10 C21 10.5 21 12 20.5 13 C21 14 20.5 15.5 19 16 C19 18 17 19 15 18.5"/><path d="M9 5 C10 4 11 4 12 5 C13 4 14 4 15 5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`
+  emptyChat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z"/>
+    <circle cx="12" cy="10" r="1.5" fill="currentColor"/>
+  </svg>`
 };
 
 // ==================== MODELS with price data ====================
@@ -27,10 +203,10 @@ const MODELS = {
     { id: 'claude-opus-4-7',    name: 'Opus 4.7',    short: 'OPUS',   inPrice: 15.00, outPrice: 75.00 }
   ],
   openai: [
-    { id: 'gpt-5.4-nano',  name: 'GPT-5.4 Nano',  short: 'NANO', inPrice: 0.10, outPrice: 0.40 },
-    { id: 'gpt-5.4-mini',  name: 'GPT-5.4 Mini',  short: 'MINI', inPrice: 0.25, outPrice: 2.00 },
-    { id: 'gpt-5.4',       name: 'GPT-5.4',       short: '5.4',  inPrice: 1.25, outPrice: 10.00 },
-    { id: 'gpt-5.4',       name: 'GPT-5.4 (max)', short: '5.4+', inPrice: 1.25, outPrice: 10.00 }
+    { id: 'gpt-5.4-nano',  name: 'GPT-5.4 Nano',  short: 'NANO', inPrice: 0.20, outPrice: 1.25 },
+    { id: 'gpt-5.4-mini',  name: 'GPT-5.4 Mini',  short: 'MINI', inPrice: 0.75, outPrice: 4.50 },
+    { id: 'gpt-5.4',       name: 'GPT-5.4',       short: '5.4',  inPrice: 2.50, outPrice: 15.00 },
+    { id: 'gpt-5.5',       name: 'GPT-5.5',       short: '5.5',  inPrice: 5.00, outPrice: 30.00 }
   ],
   gemini: [
     { id: 'gemini-2.5-flash-lite', name: 'Flash Lite 2.5', short: 'LITE',  inPrice: 0.10, outPrice: 0.40 },
@@ -48,6 +224,43 @@ const MODELS = {
 
 const LEVEL_COLORS = ['#6a6a80', '#d4d600', '#ff9500', '#ff3030'];
 const LEVEL_NAMES = ['ШВИДКИЙ', 'СЕРЕДНІЙ', 'РОЗУМНИЙ', 'МАКСИМУМ'];
+
+
+// ==================== SECURITY SETTINGS ====================
+// Client-side mitigation only. Real production security still requires a backend proxy.
+const SECURITY = {
+  // Keep this whitelist narrow. Unsupported files are accepted as metadata only, not executed or rendered as HTML.
+  allowedFileTypes: [
+    'image/jpeg', 'image/png', 'image/webp',
+    'application/pdf',
+    'text/plain', 'text/markdown', 'text/csv', 'text/tab-separated-values',
+    'application/json', 'application/xml', 'text/xml',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-word.document.macroEnabled.12',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel.sheet.macroEnabled.12',
+    'model/stl', 'application/sla', 'application/vnd.ms-pki.stl'
+  ],
+  allowedFileExtensions: [
+    'jpg', 'jpeg', 'png', 'webp', 'pdf',
+    'txt', 'md', 'markdown', 'csv', 'tsv', 'json', 'xml',
+    'doc', 'docx', 'docm', 'xls', 'xlsx', 'xlsm', 'stl'
+  ],
+  maxFileBytes: 15 * 1024 * 1024,
+  maxTextExtractChars: 180000,
+  maxStlTrianglesForSummary: 250000,
+  confirmCostAboveUsd: 0.10,
+  hardCostAboveUsd: 1.00,
+  stripAttachmentDataOnSave: true,
+  // v5.1.5: Не надокучати дантисту confirm'ом при кожному фото пацієнта.
+  // Залишаємо тільки confirm для PII і високої ціни — це справді важливе.
+  requireConfirmationForAttachments: false,
+  requireConfirmationForPotentialPII: true
+};
+
+
 
 const AI_CONFIG = {
   claude: {
@@ -102,6 +315,7 @@ const STORAGE = {
 };
 
 // Default templates for dental context
+// v5.0: Templates now support per-AI personas (roles)
 const DEFAULT_TEMPLATES = [
   {
     id: 'endo',
@@ -110,7 +324,13 @@ const DEFAULT_TEMPLATES = [
     description: 'Лікування кореневих каналів, діагностика пульпіту',
     systemAddition: 'Користувач потребує консультацію з ендодонтії. Давай структуровану відповідь: діагностика → план лікування → матеріали → прогноз. Згадуй сучасні протоколи (ESE guidelines).',
     suggestedAI: ['claude', 'perplexity'],
-    suggestedLevel: 2
+    suggestedLevel: 2,
+    personas: {
+      claude: 'Ти — ендодонтист-консерватор з 15-річним досвідом. Твій фокус: збереження природного зуба, максимальна обережність з перфораціями, сучасні протоколи ESE. Запропонуй консервативний план.',
+      perplexity: 'Ти — дослідник доказової стоматології. Знайди останні публікації PubMed (2023-2026) щодо ендодонтичних протоколів, MTA vs Biodentine, рівні доказовості. Цитуй джерела.',
+      gemini: 'Ти — матеріалознавець стоматолог. Аналізуй доступні на ринку матеріали (іригaнти, силери, coronal seal), їхні переваги/недоліки, ціну.',
+      openai: 'Ти — критичний рев\'юер. Шукай слабкі місця в плані лікування, ризики, альтернативи. Запитай що могло б піти не так.'
+    }
   },
   {
     id: 'implants',
@@ -119,7 +339,13 @@ const DEFAULT_TEMPLATES = [
     description: 'Планування імплантації, вибір системи, ускладнення',
     systemAddition: 'Користувач потребує консультацію з імплантології. Структура: клінічна ситуація → варіанти імплант-системи → хірургічний протокол → протезування → ризики. Враховуй ITI та EAO guidelines.',
     suggestedAI: ['claude', 'gemini', 'perplexity'],
-    suggestedLevel: 3
+    suggestedLevel: 3,
+    personas: {
+      claude: 'Ти — досвідчений хірург-імплантолог, ITI Fellow. Мислиш поетапно, від діагностики CBCT до остаточного протезування. Обережний щодо аугментацій.',
+      perplexity: 'Ти — пошуковик доказової медицини. Знаходь сучасні studies (2023-2026) про successes rates, peri-implantitis, нові поверхні імплантів. Цитуй джерела.',
+      gemini: 'Ти — аналітик ринку імплант-систем. Порівнюй Straumann, Nobel, Zimmer, MIS та інших. Вартість, доступність у ЄС, довгострокова підтримка.',
+      openai: 'Ти — ризик-менеджер у хірургії. Прораховуй ускладнення, протипоказання, законні аспекти informed consent.'
+    }
   },
   {
     id: 'perio',
@@ -128,7 +354,13 @@ const DEFAULT_TEMPLATES = [
     description: 'Лікування пародонтиту, підтримуюча терапія',
     systemAddition: 'Консультація з пародонтології. Структура: оцінка стадії/ступеня → план лікування → підтримуюча терапія. Посилайся на EFP 2018 classification.',
     suggestedAI: ['claude', 'perplexity'],
-    suggestedLevel: 2
+    suggestedLevel: 2,
+    personas: {
+      claude: 'Ти — пародонтолог-клініцист. Робиш staging/grading за EFP 2018, плануєш нехірургічне та хірургічне лікування крок за кроком.',
+      perplexity: 'Ти — дослідник мікробіології та доказів. Знаходь протоколи антимікробної терапії, ризики системних захворювань, guidelines EFP.',
+      gemini: 'Ти — спеціаліст з підтримуючої терапії. Фокус на SPT, homecare, compliance пацієнта, технології (AirFlow, лазер).',
+      openai: 'Ти — рев\'юер плану лікування. Оцінюй чи правильно визначена стадія, чи не пропущені фактори ризику (діабет, куріння).'
+    }
   },
   {
     id: 'urgent',
@@ -137,7 +369,10 @@ const DEFAULT_TEMPLATES = [
     description: 'Швидке рішення для гострого болю/травми',
     systemAddition: 'УРГЕНТНИЙ ВИПАДОК. Дай КОРОТКУ відповідь у 3 пункти: що робити зараз, що дати з медикаментів (з дозуванням), коли призначити повторний візит. Без зайвих деталей.',
     suggestedAI: ['claude'],
-    suggestedLevel: 1
+    suggestedLevel: 1,
+    personas: {
+      claude: 'Ти — досвідчений лікар ургентної стоматології. Швидко тріажуєш, приймаєш рішення за хвилини, знаєш стандартні протоколи. Коротко і по-ділу.'
+    }
   },
   {
     id: 'diff-pain',
@@ -146,7 +381,13 @@ const DEFAULT_TEMPLATES = [
     description: 'Визначення джерела зубного болю',
     systemAddition: 'Диференційна діагностика болю у щелепно-лицевій ділянці. Структура: можливі джерела (пульпа/періодонт/TMJ/невралгія/синусит) → які тести підтвердити → що виключити першочергово.',
     suggestedAI: ['claude', 'gemini', 'perplexity'],
-    suggestedLevel: 3
+    suggestedLevel: 3,
+    personas: {
+      claude: 'Ти — діагност-консультант. Систематично працюєш через диф-діагноз, від найімовірнішого до рідкісного, не пропускаєш non-odontogenic причини.',
+      perplexity: 'Ти — невролог-стоматолог. Шукай доказові протоколи для TMJ, тригемінальної невралгії, атипового болю обличчя. Посилайся на джерела.',
+      gemini: 'Ти — експерт з візуалізації. Радиш які RTG/CBCT/МРТ потрібні, як інтерпретувати знахідки, коли направити до ЛОР або невролога.',
+      openai: 'Ти — скептик-перевіряч. Запитуй "а якщо це не зуб?", змушуй думати про синусит, міофасціальний біль, психогенні причини.'
+    }
   }
 ];
 
@@ -159,8 +400,8 @@ const CZECH_CONTEXT_BLOCKS = {
   },
   vzp: {
     name: 'VZP — страхові коди',
-    description: 'Коди для здоровотньої страховки',
-    text: 'Якщо доречно — згадуй VZP коди процедур (4-значні, формат K-коди або інші). Приклади: 00900 (prohlídka), 00911 (konzultace), 01701-01765 (záchovná stom.), 02101-02115 (endodoncie). Враховуй що деякі процедури є плноі (плними за страхування), деякі nadstandard (пацієнт доплачує).'
+    description: 'Посилання на офіційні джерела кодів',
+    text: 'УВАГА: НЕ ВИГАДУЙ коди VZP. Якщо не знаєш точний код — напиши "[перевір код у číselníku VZP]". Офіційні джерела: vzp.cz/poskytovatele/ciselniky/zdravotni-vykony та публікація ČSK "Stomatologické výkony v roce 2026". Відомі реальні коди: endodoncie 00925/00926 (за kanálek), výplně signální 00921+00828-00830, dětská péče 00906/00907/00920, pohotovost 00819, stomatologická vyšetření 00901-00902. Amalgam заборонено від 1.7.2026 крім výjimečných випадків. Завжди рекомендуй перевірити поточний číselník перед виставленням рахунку.'
   },
   consent: {
     name: 'Шаблони інформованої згоди',
@@ -257,50 +498,33 @@ function saveStats() {
   try { localStorage.setItem(STORAGE.stats, JSON.stringify(state.stats)); }
   catch (e) { /* silent */ }
 }
-function saveMemory() {
-  try {
-    localStorage.setItem(STORAGE.memory, JSON.stringify(state.memory));
-  } catch (e) {
-    flash('Не вдалось зберегти пам\'ять', true);
-  }
+function stripAttachmentForStorage(a) {
+  return { id: a.id, kind: a.kind, name: a.name, mime: a.mime, size: a.size };
 }
+
+function stripMessageForStorage(m) {
+  const out = { ...m };
+  if (SECURITY.stripAttachmentDataOnSave && Array.isArray(out.attachments)) {
+    out.attachments = out.attachments.map(stripAttachmentForStorage);
+  }
+  return out;
+}
+
 function saveChats() {
   const cleaned = {};
   for (const id in state.chats) {
-    const c = {...state.chats[id]};
-    c.messages = (c.messages || []).filter(m => !m.loading);
+    const c = { ...state.chats[id] };
+    c.messages = (c.messages || []).filter(m => !m.loading).map(stripMessageForStorage);
     cleaned[id] = c;
   }
   try {
-    const data = JSON.stringify({
-      chats: cleaned,
-      order: state.chatOrder,
-      archived: state.archivedChatIds
-    });
+    const data = JSON.stringify({ chats: cleaned, order: state.chatOrder, archived: state.archivedChatIds });
     if (data.length > 4 * 1024 * 1024) {
       console.warn('Chat storage is getting large:', Math.round(data.length / 1024), 'KB');
     }
     localStorage.setItem(STORAGE.chats, data);
   } catch (e) {
-    try {
-      const slim = {};
-      for (const id in cleaned) {
-        const c = {...cleaned[id]};
-        c.messages = (c.messages || []).map(m => {
-          if (m.attachments) {
-            return {...m, attachments: m.attachments.map(a => ({...a, data: undefined, kind: a.kind, name: a.name}))};
-          }
-          return m;
-        });
-        slim[id] = c;
-      }
-      localStorage.setItem(STORAGE.chats, JSON.stringify({
-        chats: slim, order: state.chatOrder, archived: state.archivedChatIds
-      }));
-      flash('Сховище переповнене — великі вкладення видалено з історії', true);
-    } catch (e2) {
-      flash('Сховище переповнене. Видали старі чати.', true);
-    }
+    flash('Сховище переповнене. Видали старі чати.', true);
   }
 }
 
@@ -698,7 +922,8 @@ function initNewChatScreen() {
     debateRounds: 2,
     webSearch: false,
     research: false,
-    templateSystemAddition: null  // v4.5: stores selected template's system addition
+    templateSystemAddition: null,
+    templatePersonas: null  // v5.0
   };
 
   document.getElementById('chatNameInput').value = '';
@@ -753,6 +978,7 @@ function applyTemplate(templateId) {
   // Store system addition to inject at send time
   d.templateSystemAddition = t.systemAddition;
   d.templateName = t.name;
+  d.templatePersonas = t.personas || null; // v5.0: per-AI personas
 
   renderAICards();
   renderModePicker();
@@ -944,6 +1170,7 @@ function createChat() {
     research: d.research,
     templateSystemAddition: d.templateSystemAddition || null,  // v4.5
     templateName: d.templateName || null,
+    templatePersonas: d.templatePersonas || null,  // v5.0
     createdAt: Date.now(),
     updatedAt: Date.now(),
     messages: []
@@ -1250,37 +1477,502 @@ function renderMessage(m) {
     </div>`;
 }
 
+function fileIcon(kind) {
+  const icons = {
+    image: '🖼️', pdf: '📄', text: '📝', csv: '📊', spreadsheet: '📊',
+    word: '📝', stl: '🧊', json: '🧩', xml: '🧩', other: '📎'
+  };
+  return icons[kind] || icons.other;
+}
+
 function renderAttachment(a) {
   if (a.kind === 'image' && a.data) {
     return `<div class="msg-attachment"><img src="data:${a.mime};base64,${a.data}" alt=""></div>`;
   }
-  if (a.kind === 'pdf') {
-    return `<div class="msg-attachment">📄 ${escapeHtml(a.name)}</div>`;
-  }
-  return `<div class="msg-attachment">📎 ${escapeHtml(a.name || 'файл')}</div>`;
+  const extra = a.extractedText
+    ? ` <span style="color:var(--text-mute);">(текст передано AI)</span>`
+    : (a.summary ? ` <span style="color:var(--text-mute);">(summary передано AI)</span>` : '');
+  return `<div class="msg-attachment">${fileIcon(a.kind)} ${escapeHtml(a.name || 'файл')}${extra}</div>`;
 }
 
 // ==================== ATTACHMENTS ====================
-function handleFiles(files) {
-  for (const file of files) {
-    if (file.size > 8 * 1024 * 1024) { flash(`${file.name} > 8 МБ`, true); continue; }
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const data = reader.result.split(',')[1]; // base64
-      const kind = file.type.startsWith('image/') ? 'image' : (file.type === 'application/pdf' ? 'pdf' : 'other');
-      state.pendingAttachments.push({
-        id: uid(),
-        kind,
-        name: file.name,
-        mime: file.type,
-        size: file.size,
-        data
-      });
-      updateAttachmentsUI();
-    };
-    reader.readAsDataURL(file);
+    reader.onload = () => resolve(String(reader.result).split(',')[1]);
+    reader.onerror = () => reject(reader.error || new Error('FileReader error'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function sanitizeImageFile(file) {
+  // Re-encode via canvas to strip EXIF/GPS/device metadata before sending to AI.
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Не вдалось прочитати зображення'));
+      image.src = objectUrl;
+    });
+    const maxSide = 2200;
+    let { width, height } = img;
+    const scale = Math.min(1, maxSide / Math.max(width, height));
+    width = Math.max(1, Math.round(width * scale));
+    height = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    ctx.drawImage(img, 0, 0, width, height);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+    if (!blob) throw new Error('Не вдалось очистити metadata зображення');
+    return { data: await blobToBase64(blob), mime: 'image/jpeg', size: blob.size };
+  } finally {
+    URL.revokeObjectURL(objectUrl);
   }
 }
+function getFileExt(name) {
+  const m = String(name || '').toLowerCase().match(/\.([a-z0-9]{1,12})$/);
+  return m ? m[1] : '';
+}
+
+function classifyAttachment(file) {
+  const type = (file.type || '').toLowerCase();
+  const ext = getFileExt(file.name);
+  if (type.startsWith('image/')) return 'image';
+  if (type === 'application/pdf' || ext === 'pdf') return 'pdf';
+  if (['txt', 'md', 'markdown'].includes(ext) || type === 'text/plain' || type === 'text/markdown') return 'text';
+  if (ext === 'csv' || ext === 'tsv' || type === 'text/csv' || type === 'text/tab-separated-values') return 'csv';
+  if (ext === 'json' || type === 'application/json') return 'json';
+  if (ext === 'xml' || type === 'application/xml' || type === 'text/xml') return 'xml';
+  if (['doc', 'docx', 'docm'].includes(ext) || type.includes('wordprocessingml') || type.includes('macroenabled') || type === 'application/msword') return 'word';
+  if (['xls', 'xlsx', 'xlsm'].includes(ext) || type.includes('spreadsheetml') || type.includes('macroenabled') || type === 'application/vnd.ms-excel') return 'spreadsheet';
+  if (ext === 'stl' || type === 'model/stl' || type === 'application/sla' || type === 'application/vnd.ms-pki.stl') return 'stl';
+  return 'other';
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('FileReader text error'));
+    reader.readAsText(file);
+  });
+}
+
+function readFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('FileReader buffer error'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function decodeUtf8(bytes) {
+  return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+}
+
+function getXmlAttr(tag, name) {
+  const re = new RegExp('(?:^|\\s)' + name.replace(':', '\\:') + '="([^"]*)"');
+  const m = String(tag || '').match(re);
+  return m ? decodeXmlEntities(m[1]) : '';
+}
+
+function decodeXmlEntities(text) {
+  return String(text || '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(parseInt(n, 10)));
+}
+
+function xmlToPlainText(xml) {
+  let s = String(xml || '');
+  s = s
+    .replace(/<w:tab\s*\/?>/gi, '\t')
+    .replace(/<w:br\s*\/?>/gi, '\n')
+    .replace(/<w:cr\s*\/?>/gi, '\n')
+    .replace(/<\/w:p>/gi, '\n')
+    .replace(/<\/w:tr>/gi, '\n')
+    .replace(/<\/w:tc>/gi, '\t')
+    .replace(/<\/a:p>/gi, '\n')
+    .replace(/<\/si>/gi, '\n')
+    .replace(/<[^>]+>/g, '');
+  s = decodeXmlEntities(s);
+  return s
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function findZipEndOfCentralDirectory(view) {
+  const min = Math.max(0, view.byteLength - 22 - 65535);
+  for (let i = view.byteLength - 22; i >= min; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) return i;
+  }
+  return -1;
+}
+
+function listZipEntries(buffer) {
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  const eocd = findZipEndOfCentralDirectory(view);
+  if (eocd < 0) throw new Error('ZIP структура не знайдена');
+  const total = view.getUint16(eocd + 10, true);
+  let offset = view.getUint32(eocd + 16, true);
+  const entries = [];
+
+  for (let i = 0; i < total && offset < view.byteLength; i++) {
+    if (view.getUint32(offset, true) !== 0x02014b50) break;
+    const flags = view.getUint16(offset + 8, true);
+    const method = view.getUint16(offset + 10, true);
+    const compressedSize = view.getUint32(offset + 20, true);
+    const uncompressedSize = view.getUint32(offset + 24, true);
+    const nameLen = view.getUint16(offset + 28, true);
+    const extraLen = view.getUint16(offset + 30, true);
+    const commentLen = view.getUint16(offset + 32, true);
+    const localOffset = view.getUint32(offset + 42, true);
+    const rawName = bytes.slice(offset + 46, offset + 46 + nameLen);
+    const name = decodeUtf8(rawName).replace(/^\/+/, '');
+    entries.push({ name, method, compressedSize, uncompressedSize, localOffset, flags });
+    offset += 46 + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+
+async function inflateZipPayload(payload, method) {
+  if (method === 0) return payload;
+  if (method !== 8) throw new Error('ZIP compression method ' + method + ' не підтримується');
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('Браузер не підтримує DecompressionStream для DOCX/XLSX');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const stream = new Blob([payload]).stream().pipeThrough(ds);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function readZipEntry(buffer, entryName) {
+  const entries = listZipEntries(buffer);
+  const normalized = String(entryName || '').replace(/^\/+/, '');
+  const entry = entries.find(e => e.name === normalized);
+  if (!entry) return null;
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  const lo = entry.localOffset;
+  if (view.getUint32(lo, true) !== 0x04034b50) throw new Error('ZIP local header пошкоджений: ' + entry.name);
+  const localNameLen = view.getUint16(lo + 26, true);
+  const localExtraLen = view.getUint16(lo + 28, true);
+  const dataStart = lo + 30 + localNameLen + localExtraLen;
+  const payload = bytes.slice(dataStart, dataStart + entry.compressedSize);
+  return inflateZipPayload(payload, entry.method);
+}
+
+async function readZipText(buffer, entryName) {
+  const bytes = await readZipEntry(buffer, entryName);
+  return bytes ? decodeUtf8(bytes) : '';
+}
+
+async function extractDocxText(file) {
+  const buffer = await readFileAsArrayBuffer(file);
+  const entries = listZipEntries(buffer).map(e => e.name);
+  const wanted = [
+    'word/document.xml',
+    ...entries.filter(n => /^word\/(header|footer)\d*\.xml$/i.test(n)).sort(),
+    'word/footnotes.xml',
+    'word/endnotes.xml',
+    'word/comments.xml'
+  ].filter((n, i, arr) => arr.indexOf(n) === i && entries.includes(n));
+
+  const sections = [];
+  for (const name of wanted) {
+    const xml = await readZipText(buffer, name);
+    const text = xmlToPlainText(xml);
+    if (text) sections.push('### ' + name + '\n' + text);
+  }
+  const body = sections.join('\n\n').trim();
+  return 'Word файл: ' + file.name + '\nФормат: DOCX/DOCM\nВитягнуто секцій: ' + sections.length + '\n\n' + trimExtract(body);
+}
+
+function colLettersToIndex(ref) {
+  const letters = String(ref || '').match(/^[A-Z]+/i)?.[0]?.toUpperCase() || '';
+  let n = 0;
+  for (const ch of letters) n = n * 26 + (ch.charCodeAt(0) - 64);
+  return Math.max(0, n - 1);
+}
+
+function parseSharedStrings(xml) {
+  const items = [];
+  const re = /<si[\s\S]*?<\/si>/gi;
+  let m;
+  while ((m = re.exec(xml))) items.push(xmlToPlainText(m[0]));
+  return items;
+}
+
+function parseWorkbookSheets(workbookXml, relsXml, entries) {
+  const rels = {};
+  relsXml.replace(/<Relationship\b([^>]*)\/>/gi, (_, attrs) => {
+    const id = getXmlAttr(attrs, 'Id');
+    let target = getXmlAttr(attrs, 'Target');
+    if (id && target) {
+      target = target.replace(/^\/+/, '');
+      if (!target.startsWith('xl/')) target = 'xl/' + target;
+      rels[id] = target;
+    }
+    return '';
+  });
+
+  const sheets = [];
+  workbookXml.replace(/<sheet\b([^>]*)\/>/gi, (_, attrs) => {
+    const name = getXmlAttr(attrs, 'name') || 'Sheet';
+    const rid = getXmlAttr(attrs, 'r:id');
+    const path = rels[rid];
+    if (path) sheets.push({ name, path });
+    return '';
+  });
+
+  if (sheets.length) return sheets;
+  return entries
+    .filter(n => /^xl\/worksheets\/sheet\d+\.xml$/i.test(n))
+    .sort()
+    .map((path, i) => ({ name: 'Sheet' + (i + 1), path }));
+}
+
+function parseXlsxSheetXml(sheetXml, sharedStrings, maxRows = 120, maxCols = 60) {
+  const rows = [];
+  const rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/gi;
+  let rowMatch;
+  while ((rowMatch = rowRe.exec(sheetXml)) && rows.length < maxRows) {
+    const row = [];
+    const cellRe = /<c\b([^>]*)>([\s\S]*?)<\/c>/gi;
+    let cellMatch;
+    while ((cellMatch = cellRe.exec(rowMatch[1]))) {
+      const attrs = cellMatch[1];
+      const inner = cellMatch[2];
+      const ref = getXmlAttr(attrs, 'r');
+      const t = getXmlAttr(attrs, 't');
+      const idx = Math.min(maxCols - 1, colLettersToIndex(ref));
+      let value = '';
+      const v = inner.match(/<v[^>]*>([\s\S]*?)<\/v>/i)?.[1] ?? '';
+      if (t === 's') value = sharedStrings[parseInt(v, 10)] || '';
+      else if (t === 'inlineStr') value = xmlToPlainText(inner.match(/<is[^>]*>([\s\S]*?)<\/is>/i)?.[1] || inner);
+      else if (t === 'b') value = v === '1' ? 'TRUE' : 'FALSE';
+      else value = decodeXmlEntities(v);
+      const f = inner.match(/<f[^>]*>([\s\S]*?)<\/f>/i)?.[1];
+      if (!value && f) value = '=' + decodeXmlEntities(f);
+      if (idx >= 0 && idx < maxCols) row[idx] = String(value || '').replace(/[\r\n\t]+/g, ' ').trim();
+    }
+    while (row.length && !row[row.length - 1]) row.pop();
+    if (row.length) rows.push(row);
+  }
+  return rows.map(r => r.map(v => v || '').join('\t')).join('\n');
+}
+
+async function extractXlsxText(file) {
+  const buffer = await readFileAsArrayBuffer(file);
+  const entries = listZipEntries(buffer).map(e => e.name);
+  const sharedXml = entries.includes('xl/sharedStrings.xml') ? await readZipText(buffer, 'xl/sharedStrings.xml') : '';
+  const sharedStrings = sharedXml ? parseSharedStrings(sharedXml) : [];
+  const workbookXml = entries.includes('xl/workbook.xml') ? await readZipText(buffer, 'xl/workbook.xml') : '';
+  const relsXml = entries.includes('xl/_rels/workbook.xml.rels') ? await readZipText(buffer, 'xl/_rels/workbook.xml.rels') : '';
+  const sheets = parseWorkbookSheets(workbookXml, relsXml, entries).slice(0, 12);
+
+  const sections = [];
+  for (const sheet of sheets) {
+    const xml = await readZipText(buffer, sheet.path);
+    if (!xml) continue;
+    const tsv = parseXlsxSheetXml(xml, sharedStrings);
+    if (tsv) sections.push('### Аркуш: ' + sheet.name + '\n' + tsv);
+  }
+  const body = sections.join('\n\n').trim();
+  return 'Excel файл: ' + file.name + '\nФормат: XLSX/XLSM\nАркушів витягнуто: ' + sections.length + '/' + sheets.length + '\nЛіміт preview: до 120 рядків і 60 колонок на аркуш.\n\n' + trimExtract(body);
+}
+
+function extractPrintableStringsFromBuffer(buffer, fileName, kind) {
+  const bytes = new Uint8Array(buffer);
+  const ascii = [];
+  let cur = '';
+  for (const b of bytes) {
+    if (b >= 32 && b <= 126) cur += String.fromCharCode(b);
+    else {
+      if (cur.length >= 5) ascii.push(cur);
+      cur = '';
+    }
+  }
+  if (cur.length >= 5) ascii.push(cur);
+
+  const utf16 = [];
+  cur = '';
+  for (let i = 0; i + 1 < bytes.length; i += 2) {
+    const code = bytes[i] | (bytes[i + 1] << 8);
+    if ((code >= 32 && code <= 0xD7FF) || code === 10 || code === 13 || code === 9) cur += String.fromCharCode(code);
+    else {
+      const clean = cur.replace(/[\u0000-\u001f]+/g, ' ').trim();
+      if (clean.length >= 5) utf16.push(clean);
+      cur = '';
+    }
+  }
+  const clean = cur.replace(/[\u0000-\u001f]+/g, ' ').trim();
+  if (clean.length >= 5) utf16.push(clean);
+
+  const seen = new Set();
+  const lines = [...utf16, ...ascii]
+    .map(x => x.replace(/\s+/g, ' ').trim())
+    .filter(x => x.length >= 5 && x.length <= 500)
+    .filter(x => {
+      const key = x.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 1200);
+
+  const label = kind === 'word' ? 'Legacy Word DOC' : 'Legacy Excel XLS';
+  return label + ' файл: ' + fileName + '\nПовноцінний binary parser не вбудований, виконано heuristic extraction printable strings. Для точного аналізу краще DOCX/XLSX/PDF/CSV.\n\n' + trimExtract(lines.join('\n'));
+}
+
+function trimExtract(text, maxChars = SECURITY.maxTextExtractChars) {
+  const raw = String(text || '');
+  if (raw.length <= maxChars) return raw;
+  return raw.slice(0, maxChars) + `\n\n[Текст обрізано: показано перші ${maxChars} символів із ${raw.length}.]`;
+}
+
+function summarizeCsvText(text, fileName) {
+  const lines = String(text || '').split(/\r?\n/).filter(Boolean);
+  const sample = lines.slice(0, 60).join('\n');
+  return `Файл CSV/TSV: ${fileName}\nРядків приблизно: ${lines.length}\n\nПерші рядки:\n${sample}`;
+}
+
+function summarizeBinaryStl(buffer, fileName) {
+  const view = new DataView(buffer);
+  if (buffer.byteLength < 84) return `STL файл ${fileName}: файл занадто малий або пошкоджений.`;
+  const triCount = view.getUint32(80, true);
+  const expected = 84 + triCount * 50;
+  if (expected !== buffer.byteLength || triCount > SECURITY.maxStlTrianglesForSummary) {
+    return `STL файл ${fileName}: binary STL, трикутників: ${triCount}. Bounding box не рахувався через розмір/невідповідність структури.`;
+  }
+  let minX = Infinity, minY = Infinity, minZ = Infinity;
+  let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+  let offset = 84;
+  for (let i = 0; i < triCount; i++) {
+    offset += 12;
+    for (let v = 0; v < 3; v++) {
+      const x = view.getFloat32(offset, true); offset += 4;
+      const y = view.getFloat32(offset, true); offset += 4;
+      const z = view.getFloat32(offset, true); offset += 4;
+      if (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z)) {
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+        minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+      }
+    }
+    offset += 2;
+  }
+  const sizeX = maxX - minX, sizeY = maxY - minY, sizeZ = maxZ - minZ;
+  return `STL файл: ${fileName}\nФормат: binary STL\nТрикутників: ${triCount}\nBounding box:\nX: ${minX.toFixed(3)} … ${maxX.toFixed(3)} (розмір ${sizeX.toFixed(3)})\nY: ${minY.toFixed(3)} … ${maxY.toFixed(3)} (розмір ${sizeY.toFixed(3)})\nZ: ${minZ.toFixed(3)} … ${maxZ.toFixed(3)} (розмір ${sizeZ.toFixed(3)})\n\nОдиниці STL не задані самим файлом; найчастіше це mm, але треба перевірити в CAD/slicer.`;
+}
+
+async function summarizeStl(file) {
+  const buffer = await readFileAsArrayBuffer(file);
+  const headerText = new TextDecoder('utf-8', { fatal: false }).decode(buffer.slice(0, Math.min(buffer.byteLength, 8000)));
+  if (/^\s*solid\b/i.test(headerText) && /facet\s+normal/i.test(headerText)) {
+    const fullText = await readFileAsText(file);
+    const facets = (fullText.match(/facet\s+normal/gi) || []).length;
+    return `STL файл: ${file.name}\nФормат: ASCII STL\nТрикутників приблизно: ${facets}\n\nПочаток файлу:\n${trimExtract(fullText, 30000)}`;
+  }
+  return summarizeBinaryStl(buffer, file.name);
+}
+
+function isAllowedAttachment(file) {
+  const type = (file.type || '').toLowerCase();
+  const ext = getFileExt(file.name);
+  return SECURITY.allowedFileTypes.includes(type) || SECURITY.allowedFileExtensions.includes(ext);
+}
+
+async function prepareAttachment(file) {
+  const kind = classifyAttachment(file);
+  const base = { id: uid(), kind, name: file.name, mime: file.type || 'application/octet-stream', size: file.size };
+
+  if (kind === 'image') {
+    const prepared = await sanitizeImageFile(file);
+    return { ...base, kind: 'image', mime: prepared.mime, size: prepared.size, data: prepared.data };
+  }
+
+  if (kind === 'pdf') {
+    return { ...base, kind: 'pdf', mime: 'application/pdf', data: await blobToBase64(file) };
+  }
+
+  if (['text', 'json', 'xml'].includes(kind)) {
+    const text = trimExtract(await readFileAsText(file));
+    return { ...base, extractedText: text };
+  }
+
+  if (kind === 'csv') {
+    const raw = await readFileAsText(file);
+    return { ...base, extractedText: trimExtract(summarizeCsvText(raw, file.name)) };
+  }
+
+  if (kind === 'stl') {
+    return { ...base, summary: await summarizeStl(file) };
+  }
+
+  if (kind === 'word') {
+    const ext = getFileExt(file.name);
+    try {
+      if (ext === 'docx' || ext === 'docm') {
+        return { ...base, extractedText: await extractDocxText(file) };
+      }
+      const buffer = await readFileAsArrayBuffer(file);
+      return { ...base, extractedText: extractPrintableStringsFromBuffer(buffer, file.name, 'word') };
+    } catch (e) {
+      console.warn('Word extraction failed:', e);
+      return { ...base, note: 'Word файл прийнято, але текст не вдалось витягнути: ' + e.message };
+    }
+  }
+
+  if (kind === 'spreadsheet') {
+    const ext = getFileExt(file.name);
+    try {
+      if (ext === 'xlsx' || ext === 'xlsm') {
+        return { ...base, extractedText: await extractXlsxText(file) };
+      }
+      const buffer = await readFileAsArrayBuffer(file);
+      return { ...base, extractedText: extractPrintableStringsFromBuffer(buffer, file.name, 'spreadsheet') };
+    } catch (e) {
+      console.warn('Spreadsheet extraction failed:', e);
+      return { ...base, note: 'Excel файл прийнято, але текст/таблиці не вдалось витягнути: ' + e.message };
+    }
+  }
+
+  return { ...base, note: 'Файл прийнято як вкладення, але його вміст не передається AI у frontend-only режимі.' };
+}
+
+async function handleFiles(files) {
+  for (const file of files) {
+    if (!isAllowedAttachment(file)) {
+      flash(`${file.name}: тип файлу не дозволений`, true);
+      continue;
+    }
+    if (file.size > SECURITY.maxFileBytes) {
+      flash(`${file.name} > ${Math.round(SECURITY.maxFileBytes / 1024 / 1024)} МБ`, true);
+      continue;
+    }
+    try {
+      const prepared = await prepareAttachment(file);
+      state.pendingAttachments.push(prepared);
+      updateAttachmentsUI();
+    } catch (e) {
+      console.error('Attachment error:', e);
+      flash(`${file.name}: не вдалось підготувати файл`, true);
+    }
+  }
+}
+
 
 function updateAttachmentsUI() {
   const wrap = document.getElementById('attachmentsPreview');
@@ -1293,9 +1985,9 @@ function updateAttachmentsUI() {
   wrap.classList.add('show');
   btn.classList.add('has-files');
   wrap.innerHTML = state.pendingAttachments.map(a => {
-    const thumb = a.kind === 'image'
+    const thumb = a.kind === 'image' && a.data
       ? `<img src="data:${a.mime};base64,${a.data}" alt="">`
-      : `<div style="width:30px;height:30px;background:var(--bg-3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;">${a.kind === 'pdf' ? '📄' : '📎'}</div>`;
+      : `<div style="width:30px;height:30px;background:var(--bg-3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;">${fileIcon(a.kind)}</div>`;
     return `<div class="attach-chip">
       ${thumb}
       <span class="chip-name">${escapeHtml(a.name)}</span>
@@ -1365,24 +2057,57 @@ async function callClaude(messages, opts = {}) {
   return { text: texts.join('\n\n'), model };
 }
 
-async function callOpenAI(messages, opts = {}) {
-  const key = state.keys.openai;
-  if (!key) throw new Error('Немає OpenAI ключа');
-  const model = opts.model || 'gpt-5.4-mini';
-  const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
+// v5.1: Build input format for OpenAI Responses API (different from chat completions)
+function openAIResponseInput(messages) {
+  return messages.map(m => {
+    const role = m.role === 'assistant' ? 'assistant' : 'user';
+    if (typeof m.content === 'string') {
+      return { role, content: m.content };
+    }
+    if (Array.isArray(m.content)) {
+      const content = [];
+      for (const part of m.content) {
+        if (part.type === 'text' && part.text) {
+          content.push({ type: 'input_text', text: part.text });
+        } else if (part.type === 'image_url' && part.image_url?.url) {
+          content.push({ type: 'input_image', image_url: part.image_url.url });
+        } else if (part.type === 'input_file' && part.file_data) {
+          content.push({ type: 'input_file', filename: part.filename || 'file.pdf', file_data: part.file_data });
+        } else if (part.text) {
+          content.push({ type: 'input_text', text: part.text });
+        }
+      }
+      return { role, content: content.length ? content : [{ type: 'input_text', text: '' }] };
+    }
+    return { role, content: String(m.content || '') };
+  });
+}
 
-  // GPT-5.x models require max_completion_tokens, older models use max_tokens
-  const isGPT5 = model.startsWith('gpt-5');
-  const body = {
-    model,
-    messages: msgs
-  };
-  if (isGPT5) {
+// v5.1: Extract text from Responses API output
+function extractOpenAIResponseText(data) {
+  if (data.output_text) return data.output_text;
+  if (Array.isArray(data.output)) {
+    return data.output
+      .flatMap(item => item.content || [])
+      .map(part => part.text || part.output_text || '')
+      .filter(Boolean)
+      .join('\n')
+      .trim();
+  }
+  return '';
+}
+
+// v5.1: Legacy chat completions path (for older non-GPT-5 models)
+async function callOpenAIChatCompletions(messages, opts, model) {
+  const key = state.keys.openai;
+  const instructionRole = (model.startsWith('gpt-5') || model.startsWith('o')) ? 'developer' : 'system';
+  const msgs = opts.system ? [{ role: instructionRole, content: opts.system }, ...messages] : messages;
+  const body = { model, messages: msgs };
+  if (model.startsWith('gpt-5') || model.startsWith('o')) {
     body.max_completion_tokens = 4096;
   } else {
     body.max_tokens = 4096;
   }
-
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
@@ -1390,7 +2115,54 @@ async function callOpenAI(messages, opts = {}) {
   });
   if (!resp.ok) throw new Error('OpenAI ' + sanitizeApiError(resp.status, await resp.text()));
   const data = await resp.json();
-  return { text: data.choices[0].message.content, model };
+  const msg = data.choices?.[0]?.message;
+  let text = '';
+  if (typeof msg?.content === 'string') text = msg.content;
+  else if (Array.isArray(msg?.content)) text = msg.content.map(p => p.text || '').filter(Boolean).join('\n');
+  if (!text && msg?.refusal) text = msg.refusal;
+  if (!text) throw new Error('OpenAI повернув порожню відповідь');
+  return { text, model };
+}
+
+async function callOpenAI(messages, opts = {}) {
+  const key = state.keys.openai;
+  if (!key) throw new Error('Немає OpenAI ключа');
+  let model = opts.model || 'gpt-5.4-mini';
+
+  // v5.1: GPT-5+ and o-series go through Responses API for best results.
+  // Older models (legacy gpt-4, gpt-3.5) still use chat completions.
+  const useResponses = model.startsWith('gpt-5') || model.startsWith('o');
+  if (!useResponses) {
+    return callOpenAIChatCompletions(messages, opts, model);
+  }
+
+  const body = {
+    model,
+    input: openAIResponseInput(messages),
+    max_output_tokens: 4096
+  };
+  if (opts.system) body.instructions = opts.system;
+
+  const resp = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    const raw = await resp.text();
+    // Fallback: if GPT-5.5 isn't yet enabled on user's account, downgrade to gpt-5.4
+    if (resp.status === 404 && model === 'gpt-5.5') {
+      console.warn('GPT-5.5 unavailable on this account, falling back to gpt-5.4');
+      return callOpenAI(messages, { ...opts, model: 'gpt-5.4' });
+    }
+    throw new Error('OpenAI ' + sanitizeApiError(resp.status, raw));
+  }
+
+  const data = await resp.json();
+  const text = extractOpenAIResponseText(data);
+  if (!text) throw new Error('OpenAI повернув порожню відповідь');
+  return { text, model };
 }
 
 async function callGemini(messages, opts = {}) {
@@ -1412,10 +2184,13 @@ async function callGemini(messages, opts = {}) {
   const body = { contents };
   if (opts.system) body.systemInstruction = { parts: [{ text: opts.system }] };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const resp = await fetch(url, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      'x-goog-api-key': key
+    },
     body: JSON.stringify(body)
   });
   if (!resp.ok) throw new Error('Gemini ' + sanitizeApiError(resp.status, await resp.text()));
@@ -1570,7 +2345,7 @@ function renderContributionBlock(meta) {
 // ==================== BUILD MESSAGE WITH ATTACHMENTS ====================
 // ==================== MEMORY PROMPT ====================
 // Builds the system prompt that carries the user's profile + saved facts to every AI call
-function buildMemoryPrompt(chatContext) {
+function buildMemoryPrompt(chatContext, currentAI) {
   const parts = [];
   if (state.memory.profile && state.memory.profile.trim()) {
     parts.push('ПРО КОРИСТУВАЧА:\n' + state.memory.profile.trim());
@@ -1594,6 +2369,10 @@ function buildMemoryPrompt(chatContext) {
   // v4.5: Template system addition (if this chat was started from a template)
   if (chatContext && chatContext.templateSystemAddition) {
     parts.push('СПЕЦІАЛІЗАЦІЯ ЧАТУ:\n' + chatContext.templateSystemAddition);
+  }
+  // v5.0: Per-AI persona from template (if any)
+  if (chatContext && chatContext.templatePersonas && currentAI && chatContext.templatePersonas[currentAI]) {
+    parts.push('ТВОЯ РОЛЬ У ЦІЙ РАДІ:\n' + chatContext.templatePersonas[currentAI]);
   }
   if (parts.length === 0) return '';
   return parts.join('\n\n') + '\n\nВикористовуй цю інформацію якщо вона доречна. Не згадуй її явно якщо про це не запитують.';
@@ -1619,8 +2398,12 @@ function buildCouncilHistory(c, currentAI, currentUserText) {
         // This AI's own past answer
         history.push({ role: 'assistant', content: m.content });
       } else if (m.source === 'council-synth') {
-        // Council synthesis — show to every AI as context
-        history.push({ role: 'assistant', content: `[Попередній висновок Ради]: ${m.content}` });
+        // v5.1: Pass synthesis as user-context message to avoid voice confusion
+        // (each AI shouldn't think Council's verdict is its own past answer)
+        history.push({
+          role: 'user',
+          content: `[Контекст: попередній висновок Ради AI]\n${m.content}`
+        });
       }
       // Other AIs' raw answers are NOT included to avoid voice confusion
     }
@@ -1630,7 +2413,7 @@ function buildCouncilHistory(c, currentAI, currentUserText) {
 
 function buildMessagesForAI(aiName, history, userText, attachments) {
   // Different AIs format attachments differently
-  const supportsPdf = aiName === 'claude' || aiName === 'gemini';
+  const supportsPdf = aiName === 'claude' || aiName === 'gemini' || aiName === 'openai';
   const supportsImage = true;
 
   const userContent = [];
@@ -1638,7 +2421,7 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
 
   if (attachments && attachments.length > 0) {
     for (const a of attachments) {
-      if (a.kind === 'image' && supportsImage) {
+      if (a.kind === 'image' && supportsImage && a.data) {
         if (aiName === 'claude') {
           userContent.push({ type: 'image', source: { type: 'base64', media_type: a.mime, data: a.data } });
         } else if (aiName === 'openai') {
@@ -1648,15 +2431,24 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
         } else if (aiName === 'perplexity') {
           userContent.push({ type: 'image_url', image_url: { url: `data:${a.mime};base64,${a.data}` } });
         }
-      } else if (a.kind === 'pdf' && supportsPdf) {
+      } else if (a.kind === 'pdf' && supportsPdf && a.data) {
         if (aiName === 'claude') {
           userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: a.data }});
         } else if (aiName === 'gemini') {
           userContent.push({ type: 'document', source: { media_type: 'application/pdf', data: a.data }});
+        } else if (aiName === 'openai') {
+          userContent.push({ type: 'input_file', filename: a.name || 'document.pdf', file_data: `data:application/pdf;base64,${a.data}` });
         }
+      } else if (a.extractedText) {
+        userContent[0].text += `\n\n---\nВкладений файл: ${a.name}\nТип: ${a.kind}\n\n${a.extractedText}\n---`;
+      } else if (a.summary) {
+        userContent[0].text += `\n\n---\nВкладений файл: ${a.name}\nТип: ${a.kind}\n\n${a.summary}\n---`;
+      } else if (a.note) {
+        userContent[0].text += `\n\n[Вкладений файл "${a.name}" (${a.kind}): ${a.note}]`;
       } else if (a.kind === 'pdf') {
-        // Not supported, prepend note to text
-        userContent[0].text += `\n\n[Прикріплений PDF "${a.name}" — ${aiName} не підтримує PDF, надішли до Claude або Gemini]`;
+        userContent[0].text += `\n\n[Прикріплений PDF "${a.name}" — ${aiName} не підтримує PDF у цьому режимі, надішли до Claude або Gemini]`;
+      } else {
+        userContent[0].text += `\n\n[Вкладений файл "${a.name}" (${a.mime || a.kind}) — вміст не передано AI]`;
       }
     }
   }
@@ -1694,6 +2486,87 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
   return msgs;
 }
 
+// ==================== PRE-SEND SAFETY ====================
+function estimateChatRequestCost(c, userText = '', attachments = []) {
+  if (!c || !Array.isArray(c.participants)) return 0;
+  const selected = c.participants.filter(p => state.keys[p.ai]);
+  if (selected.length === 0) return 0;
+  const textTokens = Math.max(800, estimateTokens(userText) + 300);
+  const attachmentTokens = (attachments || []).reduce((sum, a) => {
+    if (a.kind === 'image') return sum + 1200;
+    if (a.kind === 'pdf') return sum + Math.ceil((a.size || 0) / 1500);
+    if (a.extractedText) return sum + estimateTokens(a.extractedText);
+    if (a.summary) return sum + estimateTokens(a.summary);
+    return sum + 200;
+  }, 0);
+  const inputTok = textTokens + attachmentTokens;
+  const outputTok = 1200;
+  let runs = 1;
+  let synth = 0;
+  if (selected.length > 1) {
+    if (c.mode === 'debate') runs = c.debateRounds || 2;
+    if (c.mode === 'synthesis' || c.mode === 'vote' || c.mode === 'debate') synth = 1;
+  }
+  if (c.research) runs += 3;
+  let total = 0;
+  selected.forEach(p => {
+    const m = MODELS[p.ai]?.[p.level];
+    if (!m) return;
+    total += runs * (inputTok * m.inPrice + outputTok * m.outPrice) / 1_000_000;
+  });
+  if (synth > 0) {
+    const synthAI = state.keys.claude ? 'claude' : selected[0].ai;
+    const m = MODELS[synthAI]?.[3];
+    if (m) total += (inputTok * 2 * m.inPrice + outputTok * m.outPrice) / 1_000_000;
+  }
+  return total;
+}
+
+function detectPotentialPII(text) {
+  const s = String(text || '');
+  const patterns = [
+    /\b\d{2,6}\/?\d{3,4}\b/,
+    /\b\d{8,12}\b/,
+    /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+    /(?:\+?420|\+?421|\+?380)?[\s.-]*(?:\d[\s.-]*){9,}/,
+    /\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/,
+    /\b(?:pacient|patient|rodné číslo|r\.č\.|pojištěn|pojišťovna|VZP|jméno|příjmení|adresa)\b/i
+  ];
+  return patterns.some(re => re.test(s));
+}
+function confirmBeforeSend(text, attachments, c) {
+  const warnings = [];
+  const filesText = (attachments || []).map(a => a.name || '').join(' ');
+  const maybePII = detectPotentialPII(text + ' ' + filesText);
+  const cost = estimateChatRequestCost(c, text, attachments);
+  if (cost >= SECURITY.hardCostAboveUsd) {
+    flash(`Запит заблоковано: оцінка ${formatCost(cost)} > ліміт ${formatCost(SECURITY.hardCostAboveUsd)}`, true);
+    return false;
+  }
+  if (cost >= SECURITY.confirmCostAboveUsd) warnings.push(`💸 Орієнтовна ціна запиту: ${formatCost(cost)}.`);
+  if (SECURITY.requireConfirmationForAttachments && attachments && attachments.length > 0) {
+    warnings.push('📎 Є вкладення. Фото очищаються від EXIF/metadata, але PDF/Word/Excel/STL/назви файлів можуть містити ПІБ, rodné číslo, дату народження або інші персональні дані.');
+  }
+  if (SECURITY.requireConfirmationForPotentialPII && maybePII) {
+    warnings.push('🛡️ Текст або назви файлів схожі на персональні/клінічні дані. Перед відправкою потрібно анонімізувати ПІБ, rodné číslo, номер страхівки, дату народження, телефон, email, адресу.');
+  }
+  if (warnings.length === 0) return true;
+  return confirm(warnings.join('\n\n') + '\n\nПідтверджую, що дані анонімізовані, і хочу продовжити.');
+}
+
+async function wipeAllData() {
+  localStorage.clear();
+  if ('caches' in window) {
+    const names = await caches.keys();
+    await Promise.all(names.map(name => caches.delete(name)));
+  }
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(reg => reg.unregister()));
+  }
+  location.reload();
+}
+
 // ==================== SEND ====================
 async function handleSend() {
   // Prevent double-send race condition
@@ -1705,6 +2578,8 @@ async function handleSend() {
 
   const c = state.chats[state.activeChatId];
   if (!c) return;
+
+  if (!confirmBeforeSend(text, state.pendingAttachments, c)) return;
 
   state.sendInProgress = true;
   const sendBtn = document.getElementById('sendBtn');
@@ -1749,10 +2624,13 @@ async function handleSend() {
   renderMessages();
   state.chatOrder = [c.id, ...state.chatOrder.filter(id => id !== c.id)];
 
-  // Auto-generate chat name after first successful exchange (only if still default)
+  // v5.1: Auto-generate chat name after first successful exchange (only if still default)
+  // Filter by isPrimary so Council mode (which has many hidden messages) also triggers correctly
   const hasDefault = /^(Чат з |Рада:)/i.test(c.name || '');
-  const aiMessages = (c.messages || []).filter(m => m.role === 'assistant' && !m.loading && !m.error && m.content);
-  if (hasDefault && aiMessages.length === 1) {
+  const primaryAiMessages = (c.messages || []).filter(m =>
+    m.role === 'assistant' && m.isPrimary && !m.loading && !m.error && m.content
+  );
+  if (hasDefault && primaryAiMessages.length === 1) {
     // Fire and forget — don't await
     generateChatName(c.id).catch(() => {});
   }
@@ -1779,7 +2657,7 @@ async function handleSingleAI(c, text, attachments) {
     .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : '' }));
 
   const msgs = buildMessagesForAI(p.ai, history, text, attachments);
-  const memorySystem = buildMemoryPrompt(c);
+  const memorySystem = buildMemoryPrompt(c, p.ai);
   const opts = {
     model: model.id,
     webSearch: c.webSearch && p.ai === 'claude',
@@ -1792,9 +2670,9 @@ async function handleSingleAI(c, text, attachments) {
     if (c.research) {
       finalText = await runResearch(p.ai, msgs, opts, loadingId, c);
     } else {
-      const { text: reply } = await CALLERS[p.ai](msgs, opts);
+      const { text: reply, model: usedModel } = await CALLERS[p.ai](msgs, opts);
       finalText = reply;
-      trackUsage(p.ai, model.id, msgs, reply, c.id);
+      trackUsage(p.ai, usedModel || model.id, msgs, reply, c.id);
     }
     // Replace loading
     const idx = c.messages.findIndex(m => m.id === loadingId);
@@ -1855,12 +2733,13 @@ async function runParallel(c, text, attachments, active, mode) {
   }
   renderMessages();
 
-  const memorySystem = buildMemoryPrompt(c);
   const results = await Promise.all(active.map(async p => {
     const model = MODELS[p.ai][p.level];
     // v4.5: Each AI gets its own history with prior turns
     const history = buildCouncilHistory(c, p.ai, text);
     const msgs = buildMessagesForAI(p.ai, history, text, attachments);
+    // v5.0: Per-AI persona from template
+    const memorySystem = buildMemoryPrompt(c, p.ai);
     const opts = {
       model: model.id,
       webSearch: c.webSearch && p.ai === 'claude',
@@ -1868,8 +2747,8 @@ async function runParallel(c, text, attachments, active, mode) {
       system: memorySystem || undefined
     };
     try {
-      const { text: reply } = await CALLERS[p.ai](msgs, opts);
-      trackUsage(p.ai, model.id, msgs, reply, c.id);
+      const { text: reply, model: usedModel } = await CALLERS[p.ai](msgs, opts);
+      trackUsage(p.ai, usedModel || model.id, msgs, reply, c.id);
       const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
       c.messages[idx] = {
         id: loadings[p.ai], role: 'assistant', source: p.ai,
@@ -1912,8 +2791,8 @@ async function runParallel(c, text, attachments, active, mode) {
 
     try {
       const synthMsgs = [{role:'user', content: synthPrompt}];
-      const { text: reply } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
-      trackUsage(synthesizerAI, synthModel.id, synthMsgs, reply, c.id);
+      const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+      trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
       const { cleanedText, meta } = parseSynthMeta(reply);
       const idx = c.messages.findIndex(m => m.id === synthId);
       c.messages[idx] = {
@@ -1991,12 +2870,13 @@ async function runDebate(c, text, attachments, active) {
       // v4.5: In R1 pass conversation history; in R2+ the prompt already contains all prior round answers
       const history = r === 1 ? buildCouncilHistory(c, p.ai, text) : [];
       const msgs = buildMessagesForAI(p.ai, history, prompt, r === 1 ? attachments : []);
-      const memorySystem = buildMemoryPrompt(c);
+      // v5.0: Per-AI persona
+      const memorySystem = buildMemoryPrompt(c, p.ai);
       const opts = { model: model.id, webSearch: c.webSearch && p.ai === 'claude', system: memorySystem || undefined };
 
       try {
-        const { text: reply } = await CALLERS[p.ai](msgs, opts);
-        trackUsage(p.ai, model.id, msgs, reply, c.id);
+        const { text: reply, model: usedModel } = await CALLERS[p.ai](msgs, opts);
+        trackUsage(p.ai, usedModel || model.id, msgs, reply, c.id);
         allAnswers[p.ai].push(reply);
         const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
         c.messages[idx] = {
@@ -2032,6 +2912,17 @@ async function runDebate(c, text, attachments, active) {
     ok: !!allAnswers[p.ai][allAnswers[p.ai].length - 1],
     roundsAnswered: allAnswers[p.ai].filter(x => x).length
   })).filter(x => x.ok);
+
+  if (finalAnswers.length === 0) {
+    const idx = c.messages.findIndex(m => m.id === synthId);
+    c.messages[idx] = {
+      id: synthId, role: 'assistant', source: 'council-synth',
+      error: true, content: 'Фінальний синтез неможливий: жоден AI не дав успішної відповіді в дебаті.',
+      isPrimary: true, time: Date.now()
+    };
+    renderMessages();
+    return;
+  }
 
   // Check if any AI failed to complete all rounds
   const incompleteAI = active.filter(p => {
@@ -2069,8 +2960,8 @@ ${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.ro
     const synthesizerAI = state.keys.claude ? 'claude' : finalAnswers[0].ai;
     const synthModel = MODELS[synthesizerAI][3];
     const synthMsgs = [{role:'user', content: synthPrompt}];
-    const { text: reply } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
-    trackUsage(synthesizerAI, synthModel.id, synthMsgs, reply, c.id);
+    const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+    trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
     const { cleanedText, meta } = parseSynthMeta(reply);
     const idx = c.messages.findIndex(m => m.id === synthId);
     c.messages[idx] = {
@@ -2109,7 +3000,9 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
     const iterMsgs = [...context];
     iterMsgs.push({ role: 'user', content: it.prompt });
 
-    const { text: reply } = await CALLERS[aiName](iterMsgs, opts);
+    const { text: reply, model: usedModel } = await CALLERS[aiName](iterMsgs, opts);
+    // v5.1: Track usage for each research iteration (was missing — caused undercount)
+    trackUsage(aiName, usedModel || opts.model, iterMsgs, reply, c?.id);
     lastReply = reply;
     context.push({ role: 'user', content: it.prompt });
     context.push({ role: 'assistant', content: reply });
@@ -2329,6 +3222,28 @@ function deleteCase(id) {
   state.cases = (state.cases || []).filter(c => c.id !== id);
   saveCases();
   renderCasesList();
+}
+
+// ==================== CHANGELOG (v5.0) ====================
+function openChangelog() {
+  const el = document.getElementById('changelogContent');
+  if (!el) return;
+  el.innerHTML = CHANGELOG.map((entry, idx) => {
+    const isCurrent = entry.version === APP_VERSION;
+    return `
+      <div class="changelog-entry ${isCurrent ? 'current' : ''}">
+        <div class="changelog-version-row">
+          <span class="changelog-version">v${escapeHtml(entry.version)}</span>
+          ${isCurrent ? '<span class="changelog-current-badge">поточна</span>' : ''}
+          <span class="changelog-date">${escapeHtml(entry.date)}</span>
+        </div>
+        <ul class="changelog-highlights">
+          ${(entry.highlights || []).map(h => `<li>${escapeHtml(h)}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }).join('');
+  openOverlay('changelogOverlay');
 }
 
 
@@ -2592,11 +3507,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
 function init() {
   load();
 
-  // Set version in UI (settings footer + header pill)
+  // Set version in UI (settings footer + header pill + author line)
   const vFooter = document.getElementById('appVersion');
   if (vFooter) vFooter.textContent = `AI Council · v${APP_VERSION} · ${APP_VERSION_DATE}`;
   const vPill = document.getElementById('headerVersion');
   if (vPill) vPill.textContent = `v${APP_VERSION}`;
+  const vAuthor = document.getElementById('headerAuthor');
+  if (vAuthor) vAuthor.textContent = `by ${APP_AUTHOR}`;
 
   // List screen
   document.getElementById('newChatBtn').addEventListener('click', () => goScreen('new'));
@@ -2679,9 +3596,8 @@ function init() {
   // Settings save
   document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
   document.getElementById('wipeDataBtn').addEventListener('click', () => {
-    if (confirm('Видалити ВСЕ: ключі, чати, історію, пам\'ять?')) {
-      localStorage.clear();
-      location.reload();
+    if (confirm('Видалити ВСЕ: ключі, чати, історію, пам\'ять, кеш і Service Worker?')) {
+      wipeAllData().catch(() => { localStorage.clear(); location.reload(); });
     }
   });
 
@@ -2694,6 +3610,10 @@ function init() {
   if (openCasesBtn) openCasesBtn.addEventListener('click', openCases);
   const addCaseBtn = document.getElementById('addCaseBtn');
   if (addCaseBtn) addCaseBtn.addEventListener('click', addCase);
+
+  // v5.0: Changelog
+  const openChangelogBtn = document.getElementById('openChangelogBtn');
+  if (openChangelogBtn) openChangelogBtn.addEventListener('click', openChangelog);
 
   // Global close-button handler for all overlays (replaces inline onclick which CSP blocks)
   document.addEventListener('click', (e) => {
