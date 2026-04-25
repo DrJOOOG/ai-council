@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.0.0-beta';
+const CACHE = 'ai-council-v6.0.5-beta';
 const ASSETS = [
   './',
   './index.html',

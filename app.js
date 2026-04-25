@@ -1,17 +1,44 @@
 // ================================================================
-// AI Council v6.0.0-beta — localization UA/CS/EN
+// AI Council v6.0.5-beta — One-tap OPG workflow + radiology auto-prompt
 // ================================================================
 
-const APP_VERSION = '6.0.0-beta';
+const APP_VERSION = '6.0.5-beta';
 const APP_VERSION_DATE = '2026-04-25';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
   {
-    version: '6.0.0-beta',
+    version: '6.0.5-beta',
     date: '2026-04-25',
     highlights: [
+      '🩻 Додано one-tap OPG workflow: кнопка OPG в чаті → вибір знімка → автоматичний опис без ручного prompt',
+      '🤖 Автопромпт для рентген-опису активується у OPG-шаблоні, якщо відправити знімок без тексту'
+    ]
+  },
+  {
+    version: '6.0.4-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🩻 Додано шаблон “OPG / рентген-опис” для зубних знімків',
+      '🦷 Prompt для опису по FDI-зубах: видимо / підозра / не оцінюється',
+      '🛡️ Антигалюцинаційні правила: не вигадувати карієс/періодонтит, позначати що треба перевірити клінічно'
+    ]
+  },
+  {
+    version: '6.0.3-beta',
+    date: '2026-04-25',
+    highlights: [
+      '🧯 Людські пояснення API-помилок замість сирого тексту',
+      '🔎 Клік по помилці відкриває деталі: HTTP статус, код, тип, модель, raw response, documentation URL',
+      '🧼 API-ключі санітизуються у деталях помилок'
+    ]
+  },
+  {
+    version: '6.0.2-beta',
+    date: '2026-04-25',
+    highlights: [
+      '📎 Виправлено Android file picker: окремо Камера / Фото / Файли',
       '🌐 Додано локалізацію інтерфейсу UA / CS / EN',
       '🧠 AI-side language instruction для відповідей, TL;DR, автоназв і синтезу',
       '🧪 Додано i18n Playwright smoke tests'
@@ -397,6 +424,38 @@ const DEFAULT_TEMPLATES = [
       gemini: 'Ти — експерт з візуалізації. Радиш які RTG/CBCT/МРТ потрібні, як інтерпретувати знахідки, коли направити до ЛОР або невролога.',
       openai: 'Ти — скептик-перевіряч. Запитуй "а якщо це не зуб?", змушуй думати про синусит, міофасціальний біль, психогенні причини.'
     }
+  },
+  {
+    id: 'opg-report',
+    icon: '🩻',
+    name: 'OPG / рентген-опис',
+    description: 'Структурований опис OPG/зубного рентгену для карти пацієнта без вигадувань',
+    systemAddition: `Користувач потребує радіологічний опис стоматологічного знімка (OPG / панорамний знімок / intraoral PA / bitewing) для медичної карти пацієнта. Працюй як асистент лікаря-стоматолога, не як самостійний діагност.
+
+ЖОРСТКІ ПРАВИЛА БЕЗПЕКИ:
+- Описуй тільки те, що реально видно на знімку.
+- Не вигадуй карієс, періодонтит, тріщини, резорбції, переломи або стан каналів, якщо цього не видно.
+- Якщо якість/проекція/накладання не дозволяють оцінити — прямо пиши: “не оцінюється на цьому знімку” або “потрібна клінічна перевірка / BW / PA / CBCT”.
+- Для OPG не став остаточний діагноз карієсу на апроксимальних поверхнях без підтвердження bitewing/клініки; використовуй “підозра” тільки якщо ознака видима.
+- Розділяй: “видимо”, “підозра”, “потребує перевірки”.
+- Не пиши зайвих загальних фраз. Формат має бути придатний для копіювання в карту пацієнта.
+
+ОБОВʼЯЗКОВА СТРУКТУРА ВІДПОВІДІ:
+1. Тип знімка і якість: OPG/PA/BW, діагностична якість, обмеження.
+2. Загальний огляд: відсутні зуби, ретиновані/імпактовані зуби, імпланти, коронки, ендо, великі реставрації, генералізована кісткова втрата.
+3. Опис по зубах у FDI: 18 → 11, 21 → 28, 38 → 31, 41 → 48. Для кожного зуба коротко: статус / карієс-підозра / реставрація / ендо / periapical finding / periodontal bone level / інше / “без явних патологічних змін на цьому знімку”.
+4. Патологічні або сумнівні ділянки окремим списком: зуб/ділянка → що видно → рівень впевненості → що перевірити.
+5. Готовий короткий текст для карти пацієнта.
+6. Список “перевірити лікарю”: клінічний огляд, перкусія, vitality test, periodontal probing, BW/PA/CBCT.`,
+    suggestedAI: ['claude', 'openai', 'gemini'],
+    suggestedLevel: 3,
+    autoPromptType: 'radiology',
+    personas: {
+      claude: 'Ти — досвідчений стоматолог-рентгенолог і клінічний аудитор. Даєш структурований опис для медичної карти, обережно формулюєш висновки і чітко вказуєш обмеження OPG.',
+      openai: 'Ти — критичний ревʼюер рентген-опису. Твоя задача — не допустити галюцинацій: розділяй “точно видно”, “підозра”, “не можна оцінити”. Пиши по FDI-зубах.',
+      gemini: 'Ти — візуальний асистент для аналізу стоматологічних знімків. Фокус на якості зображення, анатомії, видимих реставраціях, ендо, періапікальних і пародонтальних ознаках. Не став остаточні діагнози без клініки.',
+      perplexity: 'Ти — evidence checker. Якщо тебе використовують у цьому шаблоні, не аналізуй зображення напряму, а нагадуй про обмеження OPG, показання до BW/PA/CBCT і стандарти документування.'
+    }
   }
 ];
 
@@ -416,11 +475,6 @@ const CZECH_CONTEXT_BLOCKS = {
     name: 'Шаблони інформованої згоди',
     description: 'Чеські формулювання для письмової згоди',
     text: 'При обговоренні інвазивних процедур (імплантація, хірургічне видалення, ендо з ускладненнями) — пропонуй структуру informovaného souhlasu чеською: popis výkonu, možné komplikace, alternativy léčby, rizika odmítnutí, následná péče.'
-  },
-  local: {
-    name: 'Локальна практика',
-    description: 'Особливості роботи у ProfiDentist s.r.o.',
-    text: 'Практика: ProfiDentist s.r.o. в Остраві, Чехія. Non-VAT payer (neplátce DPH) — враховуй при калькуляціях витрат. Обладнання: Acteon X-Mind Trium для OPG, планується Planmeca CBCT Viso G3/G5. Для імплант-планування використовується зовнішнє ПО.'
   }
 };
 
@@ -433,6 +487,7 @@ let state = {
   currentScreen: 'list',
   newChatDraft: null,
   pendingAttachments: [],
+  pendingAutoSendMode: null,
   showFullLog: false,
   sendInProgress: false,
   settings: { language: 'uk' },
@@ -473,6 +528,10 @@ function load() {
     state.memory.czechContextEnabled = mem.czechContextEnabled || {};
     const templates = JSON.parse(localStorage.getItem(STORAGE.templates) || 'null');
     state.templates = templates || [...DEFAULT_TEMPLATES];
+    // v6.0.4: merge newly shipped default templates into older localStorage without overwriting user templates
+    for (const def of DEFAULT_TEMPLATES) {
+      if (!state.templates.some(t => t.id === def.id)) state.templates.push(def);
+    }
     state.cases = JSON.parse(localStorage.getItem(STORAGE.cases) || '[]');
     const stats = JSON.parse(localStorage.getItem(STORAGE.stats) || '{}');
     state.stats.byAI = stats.byAI || {};
@@ -704,6 +763,220 @@ function flash(text, err) {
   el.textContent = text;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2200);
+}
+
+
+// ==================== HUMAN-FRIENDLY ERROR DETAILS ====================
+class ApiError extends Error {
+  constructor(info) {
+    super(info.summary || info.message || 'API error');
+    this.name = 'ApiError';
+    this.info = info;
+  }
+}
+
+function sanitizeSecrets(text, maxLen = 1600) {
+  return String(text || '')
+    .replace(/sk-ant-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
+    .replace(/sk-[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
+    .replace(/AIza[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
+    .replace(/pplx-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
+    .slice(0, maxLen);
+}
+
+function parseApiPayload(rawText) {
+  try { return JSON.parse(rawText); }
+  catch { return null; }
+}
+
+function extractApiMessage(parsed, rawText) {
+  if (!parsed) return sanitizeSecrets(rawText, 700);
+  const err = parsed.error || parsed;
+  if (typeof err === 'string') return sanitizeSecrets(err, 700);
+  return sanitizeSecrets(err.message || parsed.message || JSON.stringify(parsed), 700);
+}
+
+function extractApiCode(parsed) {
+  if (!parsed) return '';
+  const err = parsed.error || parsed;
+  return String(err.code || err.status || err.reason || '').slice(0, 120);
+}
+
+function extractApiType(parsed) {
+  if (!parsed) return '';
+  const err = parsed.error || parsed;
+  return String(err.type || err.status || '').slice(0, 120);
+}
+
+function classifyApiError(provider, status, message, code, type) {
+  const p = String(provider || '').toLowerCase();
+  const txt = `${message || ''} ${code || ''} ${type || ''}`.toLowerCase();
+  if (status === 401 || txt.includes('invalid api key') || txt.includes('api key not valid') || txt.includes('unauthorized')) return 'auth';
+  if (status === 403 || txt.includes('permission') || txt.includes('forbidden')) return 'auth';
+  if (status === 402 || txt.includes('billing') || txt.includes('payment') || txt.includes('credit')) return 'billing';
+  if (status === 404 || txt.includes('model_not_found') || txt.includes('not found') || txt.includes('does not exist')) return 'model';
+  if (status === 429 && (txt.includes('quota') || txt.includes('exceeded') || p.includes('gemini'))) return 'quota';
+  if (status === 429 || txt.includes('rate limit')) return 'rate';
+  if (status === 503 || status === 529 || txt.includes('overload') || txt.includes('high demand') || txt.includes('temporarily unavailable')) return 'overloaded';
+  if (status === 400 || txt.includes('bad request') || txt.includes('invalid_request')) return 'request';
+  if ([500, 502, 504].includes(status)) return 'server';
+  return 'unknown';
+}
+
+function apiDocsUrl(provider, status, category) {
+  const p = String(provider || '').toLowerCase();
+  if (p.includes('gemini') && (status === 429 || category === 'quota' || category === 'rate')) return 'https://ai.google.dev/gemini-api/docs/rate-limits';
+  if (p.includes('gemini')) return 'https://ai.google.dev/gemini-api/docs/troubleshooting';
+  if (p.includes('openai') && (status === 429 || category === 'quota' || category === 'rate')) return 'https://platform.openai.com/docs/guides/rate-limits';
+  if (p.includes('openai')) return 'https://platform.openai.com/docs/guides/error-codes';
+  if (p.includes('claude') || p.includes('anthropic')) return 'https://docs.anthropic.com/en/api/errors';
+  if (p.includes('perplexity')) return 'https://docs.perplexity.ai/guides/errors';
+  return '';
+}
+
+function makeApiError(provider, status, rawText, extra = {}) {
+  const parsed = parseApiPayload(rawText);
+  const message = extractApiMessage(parsed, rawText);
+  const code = extractApiCode(parsed);
+  const type = extractApiType(parsed);
+  const category = classifyApiError(provider, status, message, code, type);
+  const info = {
+    provider,
+    status,
+    category,
+    code,
+    type,
+    model: extra.model || '',
+    retryable: ['rate', 'overloaded', 'server'].includes(category),
+    summary: t(`apiError.${category}.summary`, { provider }),
+    action: t(`apiError.${category}.action`, { provider }),
+    message,
+    raw: sanitizeSecrets(rawText, 1600),
+    docsUrl: apiDocsUrl(provider, status, category),
+    time: new Date().toISOString()
+  };
+  return new ApiError(info);
+}
+
+function normalizeErrorInfo(err, fallbackProvider = '') {
+  if (err?.info) return err.info;
+  return {
+    provider: fallbackProvider ? (AI_CONFIG[fallbackProvider]?.name || fallbackProvider) : '',
+    status: '',
+    category: 'local',
+    code: '',
+    type: err?.name || '',
+    model: '',
+    retryable: false,
+    summary: err?.message || t('chat.unknownError'),
+    action: t('apiError.local.action'),
+    message: err?.message || '',
+    raw: sanitizeSecrets(err?.stack || err?.message || '', 1200),
+    docsUrl: '',
+    time: new Date().toISOString()
+  };
+}
+
+function renderErrorCard(info, msgId) {
+  const retry = info.retryable ? `<span class="error-pill">${t('apiError.retryable')}</span>` : '';
+  return `
+    <button class="error-card" data-error-msg-id="${escapeHtml(msgId || '')}" type="button">
+      <div class="error-card-main">✕ ${escapeHtml(info.summary || t('chat.unknownError'))}</div>
+      ${info.action ? `<div class="error-card-action">${escapeHtml(info.action)}</div>` : ''}
+      <div class="error-card-foot">
+        ${info.status ? `<span class="error-pill">HTTP ${escapeHtml(info.status)}</span>` : ''}
+        ${info.code ? `<span class="error-pill">${escapeHtml(info.code)}</span>` : ''}
+        ${retry}
+        <span class="error-details-hint">${escapeHtml(t('apiError.tapForDetails'))}</span>
+      </div>
+    </button>`;
+}
+
+function errorDetailsText(info) {
+  return [
+    `${t('apiError.summary')}: ${info.summary || ''}`,
+    `${t('apiError.provider')}: ${info.provider || '-'}`,
+    `${t('apiError.status')}: ${info.status || '-'}`,
+    `${t('apiError.category')}: ${info.category || '-'}`,
+    `${t('apiError.code')}: ${info.code || '-'}`,
+    `${t('apiError.type')}: ${info.type || '-'}`,
+    `${t('apiError.model')}: ${info.model || '-'}`,
+    `${t('apiError.retryable')}: ${info.retryable ? t('apiError.yes') : t('apiError.no')}`,
+    `${t('apiError.action')}: ${info.action || '-'}`,
+    `${t('apiError.message')}: ${info.message || '-'}`,
+    `${t('apiError.docs')}: ${info.docsUrl || '-'}`,
+    `${t('apiError.time')}: ${info.time || '-'}`,
+    '',
+    `${t('apiError.raw')}:`,
+    info.raw || '-'
+  ].join('\n');
+}
+
+function openErrorDetails(msg) {
+  const info = msg?.errorInfo || normalizeErrorInfo({ message: msg?.content || t('chat.unknownError') }, msg?.source);
+  document.getElementById('apiErrorOverlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'apiErrorOverlay';
+  overlay.className = 'overlay open';
+  const docs = info.docsUrl
+    ? `<a class="api-error-link" href="${escapeHtml(info.docsUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(info.docsUrl)}</a>`
+    : `<span class="api-error-muted">—</span>`;
+  overlay.innerHTML = `
+    <div class="sheet api-error-sheet">
+      <div class="sheet-header">
+        <h2>${escapeHtml(t('apiError.detailsTitle'))}</h2>
+        <button class="header-btn" data-api-error-close type="button" aria-label="${escapeHtml(t('common.close'))}">×</button>
+      </div>
+      <div class="api-error-summary">${escapeHtml(info.summary || '')}</div>
+      ${info.action ? `<div class="api-error-action">${escapeHtml(info.action)}</div>` : ''}
+      <div class="api-error-grid">
+        <div><strong>${escapeHtml(t('apiError.provider'))}</strong><span>${escapeHtml(info.provider || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.status'))}</strong><span>${escapeHtml(info.status || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.category'))}</strong><span>${escapeHtml(info.category || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.code'))}</strong><span>${escapeHtml(info.code || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.type'))}</strong><span>${escapeHtml(info.type || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.model'))}</strong><span>${escapeHtml(info.model || '—')}</span></div>
+        <div><strong>${escapeHtml(t('apiError.retryable'))}</strong><span>${info.retryable ? escapeHtml(t('apiError.yes')) : escapeHtml(t('apiError.no'))}</span></div>
+      </div>
+      <div class="api-error-section">
+        <div class="api-error-label">${escapeHtml(t('apiError.message'))}</div>
+        <pre>${escapeHtml(info.message || '—')}</pre>
+      </div>
+      <div class="api-error-section">
+        <div class="api-error-label">${escapeHtml(t('apiError.docs'))}</div>
+        ${docs}
+      </div>
+      <div class="api-error-section">
+        <div class="api-error-label">${escapeHtml(t('apiError.raw'))}</div>
+        <pre>${escapeHtml(info.raw || '—')}</pre>
+      </div>
+      <button class="settings-btn primary" id="copyApiErrorDetails" type="button">${escapeHtml(t('apiError.copy'))}</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.closest('[data-api-error-close]')) overlay.remove();
+  });
+  overlay.querySelector('#copyApiErrorDetails')?.addEventListener('click', () => {
+    const txt = errorDetailsText(info);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(txt).then(() => flash(t('apiError.copied')));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); flash(t('apiError.copied')); } catch {}
+      ta.remove();
+    }
+  });
+}
+
+function applyMessageError(msg, err, fallbackProvider) {
+  const info = normalizeErrorInfo(err, fallbackProvider);
+  msg.error = true;
+  msg.content = info.summary;
+  msg.errorInfo = info;
+  return msg;
 }
 
 // ==================== SCREEN NAV ====================
@@ -1057,7 +1330,9 @@ function initNewChatScreen() {
     webSearch: false,
     research: false,
     templateSystemAddition: null,
-    templatePersonas: null  // v5.0
+    templatePersonas: null,  // v5.0
+    templateId: null,
+    autoPromptType: null
   };
 
   document.getElementById('chatNameInput').value = '';
@@ -1113,6 +1388,8 @@ function applyTemplate(templateId) {
   d.templateSystemAddition = templateText(t, 'systemAddition');
   d.templateName = templateText(t, 'name');
   d.templatePersonas = t.personas ? Object.fromEntries(Object.keys(t.personas).map(ai => [ai, templatePersonaText(t, ai)])) : null; // v6.0: localized per-AI personas when available
+  d.templateId = t.id;
+  d.autoPromptType = t.autoPromptType || (t.id === 'opg-report' ? 'radiology' : null);
 
   renderAICards();
   renderModePicker();
@@ -1305,6 +1582,8 @@ function createChat() {
     templateSystemAddition: d.templateSystemAddition || null,  // v4.5
     templateName: d.templateName || null,
     templatePersonas: d.templatePersonas || null,  // v5.0
+    templateId: d.templateId || null,
+    autoPromptType: d.autoPromptType || null,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     messages: []
@@ -1493,6 +1772,16 @@ function renderMessages() {
     });
   });
 
+  // Error detail cards
+  wrap.querySelectorAll('.error-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const msgId = card.dataset.errorMsgId;
+      const msg = (state.chats[state.activeChatId]?.messages || []).find(m => m.id === msgId);
+      if (msg) openErrorDetails(msg);
+    });
+  });
+
   // TL;DR button handler (Пункт 5)
   wrap.querySelectorAll('.tldr-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
@@ -1560,7 +1849,7 @@ function renderMessage(m) {
   if (m.loading) {
     bodyContent = `<div class="thinking"><span></span><span></span><span></span>${m.loadingLabel ? `<span class="thinking-label">${escapeHtml(m.loadingLabel)}</span>` : ''}</div>`;
   } else if (m.error) {
-    bodyContent = `<div class="error-msg">✕ ${escapeHtml(m.content || t('chat.unknownError'))}</div>`;
+    bodyContent = renderErrorCard(m.errorInfo || normalizeErrorInfo({ message: m.content || t('chat.unknownError') }, m.source), m.id);
   } else {
     bodyContent = renderMd(m.content || '');
     if (m.attachments && m.attachments.length > 0) {
@@ -2087,9 +2376,10 @@ async function prepareAttachment(file) {
 }
 
 async function handleFiles(files) {
+  let added = 0;
   for (const file of files) {
     if (!isAllowedAttachment(file)) {
-      flash(`${file.name}: тип файлу не дозволений`, true);
+      flash(t('error.fileTypeNotAllowed', { name: file.name }), true);
       continue;
     }
     if (file.size > SECURITY.maxFileBytes) {
@@ -2099,11 +2389,20 @@ async function handleFiles(files) {
     try {
       const prepared = await prepareAttachment(file);
       state.pendingAttachments.push(prepared);
+      added += 1;
       updateAttachmentsUI();
     } catch (e) {
       console.error('Attachment error:', e);
-      flash(`${file.name}: не вдалось підготувати файл`, true);
+      flash(t('error.filePrepareFailed', { name: file.name }), true);
     }
+  }
+
+  if (added > 0 && state.pendingAutoSendMode === 'radiology') {
+    state.pendingAutoSendMode = null;
+    const c = state.chats[state.activeChatId];
+    if (c) applyRadiologyDefaultsToChat(c, true);
+    flash(t('radiology.autoPrompt.sending'));
+    setTimeout(() => handleSend(), 250);
   }
 }
 
@@ -2140,24 +2439,9 @@ function updateAttachmentsUI() {
 // All support images for AI that handle them. PDFs for Claude/Gemini.
 
 // ==================== API ERROR SANITIZER ====================
-// Filters out any accidental key exposure and limits error details
+// Compatibility wrapper: detailed handling is implemented above with makeApiError().
 function sanitizeApiError(status, rawText) {
-  // Extract only safe parts of the error
-  let message = '';
-  try {
-    const parsed = JSON.parse(rawText);
-    message = parsed.error?.message || parsed.message || parsed.error || '';
-  } catch {
-    message = rawText;
-  }
-  // Remove any patterns that look like API keys
-  message = String(message)
-    .replace(/sk-ant-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
-    .replace(/sk-[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
-    .replace(/AIza[a-zA-Z0-9_-]{20,}/g, '[KEY_HIDDEN]')
-    .replace(/pplx-[a-zA-Z0-9_-]+/g, '[KEY_HIDDEN]')
-    .slice(0, 200);
-  return `${status}: ${message}`;
+  return `${status}: ${sanitizeSecrets(extractApiMessage(parseApiPayload(rawText), rawText), 220)}`;
 }
 
 async function callClaude(messages, opts = {}) {
@@ -2185,7 +2469,7 @@ async function callClaude(messages, opts = {}) {
     },
     body: JSON.stringify(body)
   });
-  if (!resp.ok) throw new Error('Claude ' + sanitizeApiError(resp.status, await resp.text()));
+  if (!resp.ok) throw makeApiError('Claude', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const texts = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
   return { text: texts.join('\n\n'), model };
@@ -2247,7 +2531,7 @@ async function callOpenAIChatCompletions(messages, opts, model) {
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify(body)
   });
-  if (!resp.ok) throw new Error('OpenAI ' + sanitizeApiError(resp.status, await resp.text()));
+  if (!resp.ok) throw makeApiError('OpenAI', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const msg = data.choices?.[0]?.message;
   let text = '';
@@ -2290,7 +2574,7 @@ async function callOpenAI(messages, opts = {}) {
       console.warn('GPT-5.5 unavailable on this account, falling back to gpt-5.4');
       return callOpenAI(messages, { ...opts, model: 'gpt-5.4' });
     }
-    throw new Error('OpenAI ' + sanitizeApiError(resp.status, raw));
+    throw makeApiError('OpenAI', resp.status, raw, { model });
   }
 
   const data = await resp.json();
@@ -2327,7 +2611,7 @@ async function callGemini(messages, opts = {}) {
     },
     body: JSON.stringify(body)
   });
-  if (!resp.ok) throw new Error('Gemini ' + sanitizeApiError(resp.status, await resp.text()));
+  if (!resp.ok) throw makeApiError('Gemini', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const text = data.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join('\n') || '';
   return { text, model };
@@ -2344,7 +2628,7 @@ async function callPerplexity(messages, opts = {}) {
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify({ model, messages: msgs })
   });
-  if (!resp.ok) throw new Error('Perplexity ' + sanitizeApiError(resp.status, await resp.text()));
+  if (!resp.ok) throw makeApiError('Perplexity', resp.status, await resp.text(), { model });
   const data = await resp.json();
   let text = data.choices[0].message.content || '';
   // Reasoning models (sonar-reasoning, sonar-reasoning-pro) include <think>...</think> blocks with internal CoT
@@ -2700,19 +2984,74 @@ async function wipeAllData() {
   location.reload();
 }
 
+
+// ==================== RADIOLOGY AUTO WORKFLOW ====================
+function findDefaultTemplate(id) {
+  return (DEFAULT_TEMPLATES || []).find(t => t.id === id) || null;
+}
+
+function isRadiologyChat(c) {
+  if (!c) return false;
+  return c.autoPromptType === 'radiology' || c.templateId === 'opg-report' || /OPG|RTG|рентген|X-ray/i.test(c.templateName || '');
+}
+
+function applyRadiologyDefaultsToChat(c, silent = false) {
+  if (!c) return;
+  const tpl = findDefaultTemplate('opg-report');
+  c.templateId = 'opg-report';
+  c.autoPromptType = 'radiology';
+  if (tpl) {
+    c.templateName = templateText(tpl, 'name');
+    c.templateSystemAddition = templateText(tpl, 'systemAddition');
+    c.templatePersonas = tpl.personas
+      ? Object.fromEntries(Object.keys(tpl.personas).map(ai => [ai, templatePersonaText(tpl, ai)]))
+      : c.templatePersonas || null;
+  }
+  if (/^(Чат з |Рада:|Chat with |Council:|Chat s |Rada:)/i.test(c.name || '') || !c.name) {
+    c.name = templateText(tpl, 'name') || 'OPG / рентген-опис';
+  }
+  saveChats();
+  if (!silent) flash(t('radiology.quick.enabled'));
+}
+
+function buildRadiologyAutoPrompt(attachments = []) {
+  const fileList = attachments.length
+    ? attachments.map(a => `- ${a.name || t('chat.file')} (${a.kind || 'file'}, ${a.mime || 'unknown'})`).join('\n')
+    : '- image / radiograph';
+
+  if (getLang() === 'cs') {
+    return `${getLanguageInstruction()}\n\nAutomatický režim OPG / RTG popisu. Popiš přiložený stomatologický RTG snímek pro zdravotnickou dokumentaci pacienta.\n\nPřiložené soubory:\n${fileList}\n\nPoužij FDI číslování 18–48.\n\nVelmi důležité:\n- nefantazíruj a nevymýšlej diagnózy;\n- popisuj pouze to, co je na snímku skutečně viditelné;\n- pokud nález nelze na OPG spolehlivě hodnotit, napiš „na tomto snímku nelze spolehlivě posoudit“;\n- kaz na OPG neuváděj jako jistý fakt, pouze jako podezření, pokud je patrná odpovídající radiolucence;\n- periapikální změny uváděj jen tehdy, pokud jsou zřetelné;\n- u nejistých oblastí napiš, že je nutné ověření klinicky / PA / BW / CBCT.\n\nStruktura odpovědi:\n1. Typ a kvalita snímku\n2. Celkový přehled\n3. Chybějící zuby\n4. Výplně / korunky / můstky\n5. Endodonticky ošetřené zuby\n6. Periapikální nálezy\n7. Parodontální úroveň kosti\n8. Implantáty / kostní struktury\n9. Podezřelé oblasti k ověření\n10. Krátký text připravený do dokumentace\n11. Co má lékař ověřit sám klinicky nebo doplňkovým RTG.`;
+  }
+
+  if (getLang() === 'en') {
+    return `${getLanguageInstruction()}\n\nAutomatic OPG / dental X-ray reporting mode. Describe the attached dental radiograph for the patient chart.\n\nAttached files:\n${fileList}\n\nUse FDI numbering 18–48.\n\nVery important:\n- do not hallucinate or invent diagnoses;\n- describe only findings that are actually visible on the image;\n- if a finding cannot be reliably assessed on OPG, state “not reliably assessable on this image”;\n- do not diagnose approximal caries as a fact on OPG; write “suspected” only if a corresponding radiolucency is visible;\n- report periapical changes only when clearly visible;\n- for uncertain areas, recommend verification clinically / PA / bitewing / CBCT.\n\nAnswer structure:\n1. Image type and diagnostic quality\n2. General overview\n3. Missing teeth\n4. Restorations / crowns / bridges\n5. Endodontically treated teeth\n6. Periapical findings\n7. Periodontal bone level\n8. Implants / bony structures\n9. Suspicious areas requiring verification\n10. Short chart-ready note\n11. What the dentist must verify clinically or with additional imaging.`;
+  }
+
+  return `${getLanguageInstruction()}\n\nАвтоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.\n\nПрикріплені файли:\n${fileList}\n\nВикористовуй FDI-нумерацію 18–48.\n\nДуже важливо:\n- не вигадуй діагнози;\n- описуй тільки те, що реально видно на знімку;\n- якщо ознака не оцінюється на OPG — прямо пиши “не оцінюється на цьому знімку”;\n- карієс на OPG не став як факт, тільки як “підозра”, якщо справді видно рентгенпрозору ділянку;\n- періапікальні зміни описуй тільки якщо видно чітко;\n- для сумнівних місць пиши “потребує перевірки PA/BW/CBCT/клінічно”.\n\nФормат відповіді:\n1. Тип знімка і якість\n2. Загальний огляд\n3. Відсутні зуби\n4. Реставрації / коронки / мости\n5. Ендодонтично ліковані зуби\n6. Періапікальні знахідки\n7. Пародонтальний рівень кістки\n8. Імпланти / кісткові структури\n9. Підозрілі ділянки, які треба перевірити\n10. Готовий короткий текст для карти пацієнта\n11. Що лікар має перевірити сам клінічно або додатковим RTG.`;
+}
+
 // ==================== SEND ====================
 async function handleSend() {
   // Prevent double-send race condition
   if (state.sendInProgress) return;
 
   const input = document.getElementById('input');
-  const text = input.value.trim();
-  if (!text && state.pendingAttachments.length === 0) return;
+  const originalText = input.value.trim();
+  if (!originalText && state.pendingAttachments.length === 0) return;
 
   const c = state.chats[state.activeChatId];
   if (!c) return;
 
-  if (!confirmBeforeSend(text, state.pendingAttachments, c)) return;
+  const attachmentsPreview = [...state.pendingAttachments];
+  let textForAI = originalText;
+  let userVisibleText = originalText;
+
+  if (!textForAI && attachmentsPreview.length > 0 && isRadiologyChat(c)) {
+    textForAI = buildRadiologyAutoPrompt(attachmentsPreview);
+    userVisibleText = t('radiology.autoPrompt.visible', { count: attachmentsPreview.length });
+  }
+
+  if (!confirmBeforeSend(textForAI || userVisibleText, state.pendingAttachments, c)) return;
 
   state.sendInProgress = true;
   const sendBtn = document.getElementById('sendBtn');
@@ -2728,7 +3067,7 @@ async function handleSend() {
   const userMsg = {
     id: uid(),
     role: 'user',
-    content: text,
+    content: userVisibleText,
     attachments: attachments.length > 0 ? attachments : undefined,
     time: Date.now(),
     isPrimary: true
@@ -2742,9 +3081,9 @@ async function handleSend() {
 
   try {
     if (!isMulti) {
-      await handleSingleAI(c, text, attachments);
+      await handleSingleAI(c, textForAI, attachments);
     } else {
-      await handleCouncil(c, text, attachments);
+      await handleCouncil(c, textForAI, attachments);
     }
   } catch (e) {
     console.error(e);
@@ -2817,10 +3156,10 @@ async function handleSingleAI(c, text, attachments) {
     };
   } catch (err) {
     const idx = c.messages.findIndex(m => m.id === loadingId);
-    c.messages[idx] = {
+    c.messages[idx] = applyMessageError({
       id: loadingId, role: 'assistant', source: p.ai,
-      error: true, content: err.message, isPrimary: true, time: Date.now()
-    };
+      isPrimary: true, time: Date.now()
+    }, err, p.ai);
   }
   renderMessages();
 }
@@ -2828,10 +3167,10 @@ async function handleSingleAI(c, text, attachments) {
 async function handleCouncil(c, text, attachments) {
   const active = c.participants.filter(p => state.keys[p.ai]);
   if (active.length === 0) {
-    c.messages.push({
+    c.messages.push(applyMessageError({
       id: uid(), role: 'assistant', source: 'council-synth',
-      error: true, content: t('error.noActiveAI'), isPrimary: true, time: Date.now()
-    });
+      isPrimary: true, time: Date.now()
+    }, new Error(t('error.noActiveAI')), 'council'));
     return;
   }
 
@@ -2894,13 +3233,12 @@ async function runParallel(c, text, attachments, active, mode) {
       return { ai: p.ai, text: reply, ok: true };
     } catch (err) {
       const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
-      c.messages[idx] = {
+      c.messages[idx] = applyMessageError({
         id: loadings[p.ai], role: 'assistant', source: p.ai,
-        error: true, content: err.message,
         isPrimary: true, // errors are ALWAYS primary so user sees what went wrong
         modelShort: model.short, levelColor: LEVEL_COLORS[p.level],
         time: Date.now()
-      };
+      }, err, p.ai);
       renderMessages();
       return { ai: p.ai, text: err.message, ok: false };
     }
@@ -2939,10 +3277,10 @@ async function runParallel(c, text, attachments, active, mode) {
     } catch (err) {
       // Synthesis failed — promote individual answers to primary
       const idx = c.messages.findIndex(m => m.id === synthId);
-      c.messages[idx] = {
+      c.messages[idx] = applyMessageError({
         id: synthId, role: 'assistant', source: 'council-synth',
-        error: true, content: t('error.synthesisFailed', {error: err.message}), isPrimary: true, time: Date.now()
-      };
+        isPrimary: true, time: Date.now()
+      }, err, synthesizerAI);
       // Upgrade successful answers to primary since synthesis died
       c.messages.forEach(m => {
         if (m.source && good.some(g => g.ai === m.source) && !m.error) {
@@ -3021,10 +3359,10 @@ async function runDebate(c, text, attachments, active) {
       } catch (err) {
         allAnswers[p.ai].push('');
         const idx = c.messages.findIndex(m => m.id === loadings[p.ai]);
-        c.messages[idx] = {
+        c.messages[idx] = applyMessageError({
           id: loadings[p.ai], role: 'assistant', source: p.ai,
-          error: true, content: err.message, round: r, time: Date.now()
-        };
+          round: r, time: Date.now()
+        }, err, p.ai);
       }
       renderMessages();
     }));
@@ -3048,11 +3386,10 @@ async function runDebate(c, text, attachments, active) {
 
   if (finalAnswers.length === 0) {
     const idx = c.messages.findIndex(m => m.id === synthId);
-    c.messages[idx] = {
+    c.messages[idx] = applyMessageError({
       id: synthId, role: 'assistant', source: 'council-synth',
-      error: true, content: 'Фінальний синтез неможливий: жоден AI не дав успішної відповіді в дебаті.',
       isPrimary: true, time: Date.now()
-    };
+    }, new Error(t('error.debateNoAnswers')), 'council');
     renderMessages();
     return;
   }
@@ -3107,10 +3444,10 @@ ${finalAnswers.map(a => `=== ${AI_CONFIG[a.ai].fullName} (раундів: ${a.ro
     };
   } catch (err) {
     const idx = c.messages.findIndex(m => m.id === synthId);
-    c.messages[idx] = {
+    c.messages[idx] = applyMessageError({
       id: synthId, role: 'assistant', source: 'council-synth',
-      error: true, content: err.message, isPrimary: true, time: Date.now()
-    };
+      isPrimary: true, time: Date.now()
+    }, err, synthesizerAI);
   }
   renderMessages();
 }
@@ -3695,12 +4032,41 @@ function init() {
   });
 
   // Attachments
+  const cameraInput = document.getElementById('cameraInput');
+  const mediaInput = document.getElementById('mediaInput');
+  const fileInput = document.getElementById('fileInput');
+
   document.getElementById('attachBtn').addEventListener('click', () => {
-    document.getElementById('fileInput').click();
+    openOverlay('attachOptionsOverlay');
   });
-  document.getElementById('fileInput').addEventListener('change', (e) => {
-    handleFiles(e.target.files);
-    e.target.value = ''; // allow re-selecting same file
+
+  document.getElementById('opgQuickBtn')?.addEventListener('click', () => {
+    const c = state.chats[state.activeChatId];
+    if (c) applyRadiologyDefaultsToChat(c);
+    state.pendingAutoSendMode = 'radiology';
+    openOverlay('attachOptionsOverlay');
+  });
+
+  document.getElementById('attachCameraOption')?.addEventListener('click', () => {
+    closeOverlay('attachOptionsOverlay');
+    cameraInput?.click();
+  });
+
+  document.getElementById('attachMediaOption')?.addEventListener('click', () => {
+    closeOverlay('attachOptionsOverlay');
+    mediaInput?.click();
+  });
+
+  document.getElementById('attachFilesOption')?.addEventListener('click', () => {
+    closeOverlay('attachOptionsOverlay');
+    fileInput?.click();
+  });
+
+  [cameraInput, mediaInput, fileInput].filter(Boolean).forEach(inputEl => {
+    inputEl.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      e.target.value = ''; // allow re-selecting same file
+    });
   });
 
   // Menu
@@ -3739,7 +4105,7 @@ function init() {
   // Settings save
   document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
   document.getElementById('wipeDataBtn').addEventListener('click', () => {
-    if (confirm('Видалити ВСЕ: ключі, чати, історію, пам\'ять, кеш і Service Worker?')) {
+    if (confirm(t('confirm.wipeAll'))) {
       wipeAllData().catch(() => { localStorage.clear(); location.reload(); });
     }
   });

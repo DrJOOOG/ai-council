@@ -205,6 +205,8 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
 .composer { padding: 10px 12px calc(12px + var(--safe-bot)); background: rgba(10,10,15,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; gap: 6px; align-items: flex-end; flex-shrink: 0; position: relative; z-index: 5; }
 .attach-btn { width: 42px; height: 42px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .attach-btn:active { transform: scale(0.94); }
+.opg-btn { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, rgba(212,255,58,0.18), rgba(66,133,244,0.10)); border: 1px solid rgba(212,255,58,0.45); color: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; box-shadow: 0 0 14px rgba(212,255,58,0.08); }
+.opg-btn:active { transform: scale(0.94); }
 .attach-btn.has-files { color: var(--accent); border-color: var(--accent); }
 .input-wrap { flex: 1; background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; transition: border-color 0.15s; min-width: 0; }
 .input-wrap:focus-within { border-color: var(--border-hi); }
@@ -885,3 +887,35 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: conta
   box-shadow: 0 0 14px rgba(212,255,58,0.18);
 }
 .language-option:active { transform: scale(0.97); }
+
+/* ==================== v6.0.3 API error UX ==================== */
+.error-card {
+  width: 100%;
+  text-align: left;
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 12px 14px;
+  background: rgba(255,85,112,0.06);
+  border: 1px solid rgba(255,85,112,0.3);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.error-card:active { transform: scale(0.99); background: rgba(255,85,112,0.10); }
+.error-card-main { font-weight: 700; line-height: 1.45; }
+.error-card-action { margin-top: 6px; color: var(--text-dim); line-height: 1.45; font-family: var(--sans); font-size: 13px; }
+.error-card-foot { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+.error-pill { color: var(--danger); border: 1px solid rgba(255,85,112,0.35); background: rgba(255,85,112,0.08); padding: 2px 6px; border-radius: 999px; font-size: 10px; }
+.error-details-hint { color: var(--text-mute); margin-left: auto; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.api-error-summary { color: var(--danger); font-weight: 700; font-size: 15px; line-height: 1.5; margin-bottom: 8px; }
+.api-error-action { background: rgba(212,255,58,0.08); border-left: 2px solid var(--accent); padding: 10px 12px; border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.45; margin-bottom: 14px; }
+.api-error-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+.api-error-grid > div { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+.api-error-grid strong { display: block; color: var(--text-mute); font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.api-error-grid span { display: block; color: var(--text); font-size: 12px; overflow-wrap: anywhere; }
+.api-error-section { margin: 12px 0; }
+.api-error-label { font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.api-error-section pre { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text-dim); font-family: var(--mono); font-size: 11px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+.api-error-link { color: var(--accent); overflow-wrap: anywhere; font-size: 12px; }
+.api-error-muted { color: var(--text-mute); }
+@media (max-width: 420px) { .api-error-grid { grid-template-columns: 1fr; } }
