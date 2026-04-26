@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.1.0-beta';
+const CACHE = 'ai-council-v6.5.1-beta';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,11 @@ const ASSETS = [
   './icon.svg',
   './icon-96.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './maskable-icon-512.png',
+  './splash-logo.png',
+  './header-logo.png',
+  './splash-tooth.png'
 ];
 
 // v5.1: Use Promise.allSettled — if one optional asset fails (icon missing),

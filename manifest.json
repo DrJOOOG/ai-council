@@ -1,12 +1,12 @@
 {
   "name": "AI Council",
   "short_name": "AI Council",
-  "description": "Рада AI — паралельні запити до Claude, ChatGPT, Gemini і Perplexity",
+  "description": "AI Council — clinical AI council for dentistry",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
+  "background_color": "#f8f7f4",
+  "theme_color": "#4b1e64",
   "lang": "uk",
   "icons": [
     {
@@ -28,7 +28,7 @@
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "maskable-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -36,7 +36,8 @@
     {
       "src": "icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

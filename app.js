@@ -1,13 +1,35 @@
 // ================================================================
-// AI Council v6.1.0-beta — ProfiDentist UI refresh
+// AI Council v6.5.1-beta — Stability & Safety patch
 // ================================================================
 
-const APP_VERSION = '6.1.0-beta';
-const APP_VERSION_DATE = '2026-04-25';
+const APP_VERSION = '6.5.1-beta';
+const APP_VERSION_DATE = '2026-04-26';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.5.1-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🛡️ Obsidian export: YAML-safe frontmatter + URLSearchParams для Advanced URI',
+      '🔊 TTS stability: chunked speech queue з retained utterances для Android/Chrome',
+      '💾 Backup/Obsidian PII warnings перед експортом',
+      '📊 Storage monitor: localStorage estimate, projected save warning, origin storage estimate'
+    ]
+  },
+  {
+    version: '6.5.0-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🦷 Нове ProfiDentist AI-tooth лого та PWA icons',
+      '🔊 Browser TTS: прослуховування відповідей голосом телефону',
+      '🧾 TL;DR перейменовано на Підсумок / Shrnutí / Summary',
+      '📦 Ліміт файлів збільшено до 25 MB з попередженням для великих файлів',
+      '📓 Експорт повідомлень і чатів в Obsidian через Advanced URI',
+      '💾 Початковий Backup / Restore без API-ключів'
+    ]
+  },
   {
     version: '6.1.0-beta',
     date: '2026-04-25',
@@ -329,7 +351,8 @@ const SECURITY = {
     'txt', 'md', 'markdown', 'csv', 'tsv', 'json', 'xml',
     'doc', 'docx', 'docm', 'xls', 'xlsx', 'xlsm', 'stl'
   ],
-  maxFileBytes: 15 * 1024 * 1024,
+  maxFileBytes: 25 * 1024 * 1024,
+  largeFileWarningBytes: 15 * 1024 * 1024,
   maxTextExtractChars: 180000,
   maxStlTrianglesForSummary: 250000,
   confirmCostAboveUsd: 0.10,
@@ -546,6 +569,8 @@ let state = {
   },
   templates: [],  // loaded from storage, fallback to DEFAULT_TEMPLATES
   cases: [],      // [{id, title, tags, description, createdAt, updatedAt}]
+  tts: { speaking: false, paused: false, msgId: null, chunkIndex: 0, chunkTotal: 0 },
+  storageWarningShown: false,
   stats: {
     // Per-AI cumulative usage since reset
     // { claude: {requests: 0, inputTokens: 0, outputTokens: 0, estCost: 0}, ... }
@@ -566,7 +591,17 @@ function load() {
     state.chatOrder = saved.order || [];
     state.archivedChatIds = saved.archived || [];
     const appSettings = JSON.parse(localStorage.getItem(STORAGE.settings) || '{}');
-    state.settings = { language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : 'uk' };
+    state.settings = {
+      language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : 'uk',
+      obsidian: {
+        enabled: !!appSettings.obsidian?.enabled,
+        vault: appSettings.obsidian?.vault || '',
+        folder: appSettings.obsidian?.folder || 'AI Council'
+      },
+      tts: {
+        enabled: appSettings.tts?.enabled !== false
+      }
+    };
     const mem = JSON.parse(localStorage.getItem(STORAGE.memory) || '{}');
     state.memory.profile = mem.profile || '';
     state.memory.facts = mem.facts || [];
@@ -635,10 +670,9 @@ function saveChats() {
   }
   try {
     const data = JSON.stringify({ chats: cleaned, order: state.chatOrder, archived: state.archivedChatIds });
-    if (data.length > 4 * 1024 * 1024) {
-      console.warn('Chat storage is getting large:', Math.round(data.length / 1024), 'KB');
-    }
+    warnIfProjectedStorageLarge(STORAGE.chats, data);
     localStorage.setItem(STORAGE.chats, data);
+    updateStorageIndicator();
   } catch (e) {
     flash(t('flash.storageFull'), true);
   }
@@ -671,6 +705,106 @@ function t(key, params = {}) {
 function hasTranslation(key, lang = getLang()) {
   const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : { uk: {} };
   return Boolean(dict[lang]?.[key] || dict.uk?.[key]);
+}
+
+function bytesToMB(bytes) {
+  return bytes / (1024 * 1024);
+}
+
+function estimateLocalStorageBytes() {
+  let total = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) || '';
+      const value = localStorage.getItem(key) || '';
+      total += (key.length + value.length) * 2;
+    }
+  } catch (e) {
+    console.warn('localStorage estimate failed:', e);
+  }
+  return total;
+}
+
+function estimateLocalStorageBytesAfterSet(targetKey, targetValue) {
+  let total = 0;
+  const target = String(targetKey || '');
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) || '';
+      if (key === target) continue;
+      const value = localStorage.getItem(key) || '';
+      total += (key.length + value.length) * 2;
+    }
+  } catch (e) {
+    console.warn('projected localStorage estimate failed:', e);
+  }
+  total += (target.length + String(targetValue || '').length) * 2;
+  return total;
+}
+
+function getLocalStorageHealth(bytes = estimateLocalStorageBytes()) {
+  const mb = bytesToMB(bytes);
+  let level = 'ok';
+  if (mb >= 3.5) level = 'warning';
+  if (mb >= 4.3) level = 'danger';
+  return { bytes, mb, level };
+}
+
+async function getOriginStorageEstimate() {
+  if (!navigator.storage || !navigator.storage.estimate) return null;
+  try {
+    const estimate = await navigator.storage.estimate();
+    const usage = estimate.usage || 0;
+    const quota = estimate.quota || 0;
+    return {
+      usage,
+      quota,
+      usageMB: bytesToMB(usage),
+      quotaMB: bytesToMB(quota),
+      percent: quota ? Math.round((usage / quota) * 100) : null
+    };
+  } catch (e) {
+    console.warn('origin storage estimate failed:', e);
+    return null;
+  }
+}
+
+async function updateStorageIndicator() {
+  const box = document.getElementById('storageStatusBox');
+  if (!box) return;
+
+  const local = getLocalStorageHealth();
+  const origin = await getOriginStorageEstimate();
+  const statusKey = local.level === 'danger' ? 'settings.storage.danger' : (local.level === 'warning' ? 'settings.storage.warning' : 'settings.storage.ok');
+
+  let originText = t('settings.storage.originUnavailable');
+  if (origin) {
+    originText = `${origin.usageMB.toFixed(1)} MB / ${origin.quotaMB.toFixed(0)} MB${origin.percent !== null ? ` (${origin.percent}%)` : ''}`;
+  }
+
+  box.className = `storage-status-card ${local.level}`;
+  box.innerHTML = `
+    <div class="storage-status-row">
+      <span>${escapeHtml(t('settings.storage.local'))}</span>
+      <strong>${local.mb.toFixed(2)} MB / ~5 MB</strong>
+    </div>
+    <div class="storage-status-row">
+      <span>${escapeHtml(t('settings.storage.origin'))}</span>
+      <strong>${escapeHtml(originText)}</strong>
+    </div>
+    <div class="storage-status-note ${local.level}">${escapeHtml(t(statusKey))}</div>
+  `;
+}
+
+function warnIfProjectedStorageLarge(targetKey, targetValue) {
+  const projected = getLocalStorageHealth(estimateLocalStorageBytesAfterSet(targetKey, targetValue));
+  if (projected.level === 'danger') {
+    flash(t('flash.storageDanger', { mb: projected.mb.toFixed(2) }), true);
+  } else if (projected.level === 'warning' && !state.storageWarningShown) {
+    state.storageWarningShown = true;
+    flash(t('flash.storageWarning', { mb: projected.mb.toFixed(2) }), true);
+  }
+  return projected;
 }
 
 function plural(count, forms) {
@@ -1817,6 +1951,8 @@ function renderMessages() {
       if (!msg || !msg.content) return;
       if (action === 'copy') copyMessageText(msg.content);
       else if (action === 'memory') saveFactFromMessage(msg.content);
+      else if (action === 'speak') speakMessage(msg);
+      else if (action === 'obsidian') exportMessageToObsidian(msg);
     });
   });
 
@@ -1926,6 +2062,8 @@ function renderMessage(m) {
   // Action buttons — only for non-user, non-loading, non-error AI responses with content
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
+         <button class="msg-action-btn" data-action="speak" data-msg-id="${m.id}">${t('action.listen')}</button>
+         <button class="msg-action-btn" data-action="obsidian" data-msg-id="${m.id}">${t('action.obsidian')}</button>
          <button class="msg-action-btn" data-action="copy" data-msg-id="${m.id}">${t('action.copy')}</button>
          <button class="msg-action-btn" data-action="memory" data-msg-id="${m.id}">${t('action.memory')}</button>
        </div>`
@@ -2431,8 +2569,12 @@ async function handleFiles(files) {
       continue;
     }
     if (file.size > SECURITY.maxFileBytes) {
-      flash(`${file.name} > ${Math.round(SECURITY.maxFileBytes / 1024 / 1024)} МБ`, true);
+      flash(t('error.fileTooLarge', { name: file.name, max: Math.round(SECURITY.maxFileBytes / 1024 / 1024) }), true);
       continue;
+    }
+    if (file.size > SECURITY.largeFileWarningBytes) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      if (!confirm(t('confirm.largeFile', { name: file.name, mb }))) continue;
     }
     try {
       const prepared = await prepareAttachment(file);
@@ -3650,6 +3792,14 @@ function openSettings() {
   const casesCountEl = document.getElementById('casesCount');
   if (casesCountEl) casesCountEl.textContent = (state.cases || []).length;
 
+  const obsidianEnabled = document.getElementById('obsidianEnabled');
+  const obsidianVault = document.getElementById('obsidianVault');
+  const obsidianFolder = document.getElementById('obsidianFolder');
+  if (obsidianEnabled) obsidianEnabled.checked = !!state.settings?.obsidian?.enabled;
+  if (obsidianVault) obsidianVault.value = state.settings?.obsidian?.vault || '';
+  if (obsidianFolder) obsidianFolder.value = state.settings?.obsidian?.folder || 'AI Council';
+  updateStorageIndicator();
+
   openOverlay('settingsOverlay');
 }
 
@@ -3666,6 +3816,15 @@ function saveSettings() {
     state.memory.profile = profileEl.value.trim();
     saveMemory();
   }
+  const obsidianEnabled = document.getElementById('obsidianEnabled');
+  const obsidianVault = document.getElementById('obsidianVault');
+  const obsidianFolder = document.getElementById('obsidianFolder');
+  state.settings.obsidian = {
+    enabled: !!obsidianEnabled?.checked,
+    vault: (obsidianVault?.value || '').trim(),
+    folder: (obsidianFolder?.value || 'AI Council').trim() || 'AI Council'
+  };
+  saveSettingsState();
   closeOverlay('settingsOverlay');
   flash(t('flash.settingsSaved'));
 }
@@ -3858,6 +4017,305 @@ function copyMessageText(text) {
     catch { flash(t('flash.copyFailed'), true); }
     document.body.removeChild(ta);
   }
+}
+
+
+// ==================== DAILY UX: TTS + Obsidian + Backup ====================
+function stripForSpeech(text) {
+  return String(text || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/[#>*_`\[\]()]/g, ' ')
+    .replace(/https?:\/\/\S+/g, ' link ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const TTS_PLAYER = {
+  queue: [],
+  index: 0,
+  current: null,
+  retainedUtterances: [],
+  playing: false,
+  paused: false,
+  msgId: null,
+
+  chunkText(text, maxLen = 260) {
+    const clean = stripForSpeech(text);
+    if (!clean) return [];
+    const sentences = clean.match(/[^.!?。！？]+[.!?。！？]+|[^.!?。！？]+$/g) || [clean];
+    const chunks = [];
+    let buffer = '';
+    for (const sentence of sentences) {
+      const s = sentence.trim();
+      if (!s) continue;
+      const candidate = (buffer + ' ' + s).trim();
+      if (candidate.length <= maxLen) {
+        buffer = candidate;
+      } else {
+        if (buffer) chunks.push(buffer);
+        if (s.length <= maxLen) {
+          buffer = s;
+        } else {
+          for (let i = 0; i < s.length; i += maxLen) chunks.push(s.slice(i, i + maxLen));
+          buffer = '';
+        }
+      }
+    }
+    if (buffer) chunks.push(buffer);
+    return chunks;
+  },
+
+  speak(text, msgId = null) {
+    if (!('speechSynthesis' in window)) {
+      flash(t('flash.ttsUnsupported'), true);
+      return;
+    }
+    this.stop(false);
+    this.queue = this.chunkText(text);
+    if (this.queue.length === 0) return;
+    this.index = 0;
+    this.playing = true;
+    this.paused = false;
+    this.msgId = msgId;
+    state.tts = { speaking: true, paused: false, msgId, chunkIndex: 0, chunkTotal: this.queue.length };
+    this.speakNext();
+  },
+
+  speakNext() {
+    if (!this.playing || this.paused) return;
+    if (this.index >= this.queue.length) {
+      this.cleanup();
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(this.queue[this.index]);
+    utter.lang = locale();
+    utter.rate = 1.0;
+    utter.pitch = 1.0;
+    utter.volume = 1.0;
+    this.current = utter;
+    this.retainedUtterances.push(utter); // keep reference so Android/Chrome GC does not kill onend/onerror
+    state.tts = { speaking: true, paused: false, msgId: this.msgId, chunkIndex: this.index + 1, chunkTotal: this.queue.length };
+    utter.onend = () => {
+      this.retainedUtterances = this.retainedUtterances.filter(u => u !== utter);
+      this.current = null;
+      this.index += 1;
+      setTimeout(() => this.speakNext(), 60);
+    };
+    utter.onerror = () => {
+      this.retainedUtterances = this.retainedUtterances.filter(u => u !== utter);
+      this.current = null;
+      this.index += 1;
+      if (this.index >= this.queue.length) flash(t('flash.ttsFailed'), true);
+      setTimeout(() => this.speakNext(), 60);
+    };
+    window.speechSynthesis.speak(utter);
+  },
+
+  pause() {
+    if (!this.playing) return;
+    this.paused = true;
+    state.tts = { ...state.tts, paused: true };
+    window.speechSynthesis.pause();
+  },
+
+  resume() {
+    if (!this.playing) return;
+    this.paused = false;
+    state.tts = { ...state.tts, paused: false };
+    window.speechSynthesis.resume();
+    if (!window.speechSynthesis.speaking && !this.current) this.speakNext();
+  },
+
+  stop(cancel = true) {
+    this.playing = false;
+    this.paused = false;
+    this.queue = [];
+    this.index = 0;
+    this.current = null;
+    this.retainedUtterances = [];
+    this.msgId = null;
+    if (cancel && window.speechSynthesis) window.speechSynthesis.cancel();
+    state.tts = { speaking: false, paused: false, msgId: null, chunkIndex: 0, chunkTotal: 0 };
+  },
+
+  cleanup() {
+    this.stop(false);
+  }
+};
+
+function speakMessage(msg) {
+  if (!msg || !msg.content) return;
+  TTS_PLAYER.speak(msg.tldr || msg.content, msg.id);
+}
+
+function stopTts() {
+  TTS_PLAYER.stop(true);
+}
+
+function yamlString(value) {
+  return `"${String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, '\\n')
+    .trim()}"`;
+}
+
+function yamlArray(values) {
+  if (!Array.isArray(values)) return '[]';
+  return `[${values.map(v => yamlString(v)).join(', ')}]`;
+}
+
+function safeObsidianFileName(name) {
+  return String(name || 'AI Council note')
+    .replace(/[\\/:*?"<>|#^\[\]]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80) || 'AI Council note';
+}
+
+function buildFrontmatter({ title, type, language, tags = [], source = 'AI Council' }) {
+  return [
+    '---',
+    `source: ${yamlString(source)}`,
+    `type: ${yamlString(type || 'chat')}`,
+    `title: ${yamlString(title || 'Untitled')}`,
+    `language: ${yamlString(language || getLang())}`,
+    `created: ${yamlString(new Date().toISOString())}`,
+    `tags: ${yamlArray(tags)}`,
+    '---',
+    ''
+  ].join('\n');
+}
+
+function buildMessageMarkdown(msg, chat) {
+  const title = chat?.name || t('chat.noTitle');
+  const source = msg.source === 'council-synth' ? t('chat.council') : (msg.role === 'user' ? t('chat.you') : (AI_CONFIG[msg.source]?.name || msg.source || 'AI'));
+  const fm = buildFrontmatter({ title, type: 'message', language: getLang(), tags: ['ai-council', 'message'] });
+  return `${fm}\n# ${title}\n\n## ${source}\n\n${msg.content || ''}\n`;
+}
+
+function buildChatMarkdown(c) {
+  if (!c) return '';
+  const participants = (c.participants || []).map(p => {
+    const ai = AI_CONFIG[p.ai]?.name || p.ai;
+    const m = MODELS[p.ai]?.[p.level];
+    return `${ai} (${m?.name || 'unknown'})`;
+  }).join(', ');
+  const mode = c.participants?.length > 1 && c.mode ? modeName(c.mode) : 'Single chat';
+  const fm = buildFrontmatter({ title: c.name || t('chat.noTitle'), type: 'chat', language: getLang(), tags: ['ai-council', 'chat'] });
+  let md = `${fm}\n# ${c.name || t('chat.noTitle')}\n\n`;
+  md += `**Participants:** ${participants}\n\n**Mode:** ${mode}\n\n---\n\n`;
+  (c.messages || []).forEach(m => {
+    if (m.loading) return;
+    const time = m.time ? new Date(m.time).toLocaleString(locale()) : '';
+    const author = m.role === 'user' ? t('chat.you') : (m.source === 'council-synth' ? t('chat.council') : (AI_CONFIG[m.source]?.name || m.source || 'AI'));
+    md += `## ${author} · ${time}\n\n${m.error ? '❌ ' : ''}${m.content || ''}\n\n---\n\n`;
+  });
+  return md;
+}
+
+function confirmObsidianPiiOnce() {
+  const key = 'aic_obsidian_pii_ack';
+  if (localStorage.getItem(key) === '1') return true;
+  const ok = confirm(t('confirm.obsidianPii'));
+  if (ok) localStorage.setItem(key, '1');
+  return ok;
+}
+
+function openObsidianMarkdown(markdown, title) {
+  const cfg = state.settings?.obsidian || {};
+  if (!cfg.enabled) {
+    flash(t('flash.obsidianDisabled'), true);
+    openSettings();
+    return;
+  }
+  if (!cfg.vault) {
+    flash(t('flash.obsidianVaultMissing'), true);
+    openSettings();
+    return;
+  }
+  if (!confirmObsidianPiiOnce()) return;
+  const folder = String(cfg.folder || 'AI Council').replace(/^\/+|\/+$/g, '') || 'AI Council';
+  const fileName = `${new Date().toISOString().slice(0,10)}-${safeObsidianFileName(title)}.md`;
+  const filepath = `${folder}/${fileName}`;
+  const params = new URLSearchParams({
+    vault: String(cfg.vault || '').trim(),
+    filepath,
+    mode: 'new',
+    data: markdown
+  });
+  window.location.href = `obsidian://advanced-uri?${params.toString()}`;
+  flash(t('flash.obsidianOpened'));
+}
+
+function exportMessageToObsidian(msg) {
+  const c = state.chats[state.activeChatId];
+  openObsidianMarkdown(buildMessageMarkdown(msg, c), `${c?.name || 'message'}-${msg.source || msg.role}`);
+}
+
+function exportChatToObsidian(chatId) {
+  const c = state.chats[chatId];
+  if (!c) return;
+  openObsidianMarkdown(buildChatMarkdown(c), c.name || 'chat');
+}
+
+function exportBackup() {
+  if (!confirm(t('confirm.backupPii'))) return;
+  const cleanChats = {};
+  for (const id in state.chats) {
+    const c = { ...state.chats[id] };
+    c.messages = (c.messages || []).filter(m => !m.loading).map(stripMessageForStorage);
+    cleanChats[id] = c;
+  }
+  const backup = {
+    app: 'AI Council',
+    version: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    note: 'API keys are intentionally not included. Backup may contain personal or medical data if chats/cases contain them. Attachment binary/base64 data is stripped.',
+    data: {
+      settings: state.settings,
+      chats: { chats: cleanChats, order: state.chatOrder, archived: state.archivedChatIds },
+      memory: state.memory,
+      templates: state.templates,
+      cases: state.cases,
+      stats: state.stats
+    }
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ai-council-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  flash(t('flash.backupExported'));
+}
+
+async function importBackupFile(file) {
+  if (!file) return;
+  const text = await file.text();
+  const backup = JSON.parse(text);
+  if (!backup || backup.app !== 'AI Council' || !backup.data) throw new Error('Invalid backup');
+  if (!confirm(t('confirm.restoreBackup'))) return;
+  localStorage.setItem(STORAGE.settings, JSON.stringify(backup.data.settings || {}));
+  localStorage.setItem(STORAGE.chats, JSON.stringify(backup.data.chats || { chats: {}, order: [], archived: [] }));
+  localStorage.setItem(STORAGE.memory, JSON.stringify(backup.data.memory || {}));
+  localStorage.setItem(STORAGE.templates, JSON.stringify(backup.data.templates || []));
+  localStorage.setItem(STORAGE.cases, JSON.stringify(backup.data.cases || []));
+  localStorage.setItem(STORAGE.stats, JSON.stringify(backup.data.stats || {}));
+  flash(t('flash.backupImported'));
+  setTimeout(() => location.reload(), 700);
+}
+
+async function requestPersistentStorage() {
+  if (!navigator.storage || !navigator.storage.persist) {
+    flash(t('flash.persistUnsupported'), true);
+    return;
+  }
+  const ok = await navigator.storage.persist();
+  flash(ok ? t('flash.persistEnabled') : t('flash.persistDenied'), !ok);
 }
 
 // ==================== CHAT EXPORT (Пункт 6) ====================
@@ -4152,9 +4610,21 @@ function init() {
     exportChatAsMarkdown(state.activeChatId);
     closeOverlay('chatMenuOverlay');
   });
+  document.getElementById('menuObsidianChat')?.addEventListener('click', () => {
+    exportChatToObsidian(state.activeChatId);
+    closeOverlay('chatMenuOverlay');
+  });
 
   // Settings save
   document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+  document.getElementById('exportBackupBtn')?.addEventListener('click', exportBackup);
+  document.getElementById('importBackupBtn')?.addEventListener('click', () => document.getElementById('backupImportInput')?.click());
+  document.getElementById('backupImportInput')?.addEventListener('change', async (e) => {
+    try { await importBackupFile(e.target.files?.[0]); }
+    catch (err) { flash(t('flash.backupImportFailed', { error: err.message }), true); }
+    e.target.value = '';
+  });
+  document.getElementById('persistStorageBtn')?.addEventListener('click', requestPersistentStorage);
   document.getElementById('wipeDataBtn').addEventListener('click', () => {
     if (confirm(t('confirm.wipeAll'))) {
       wipeAllData().catch(() => { localStorage.clear(); location.reload(); });

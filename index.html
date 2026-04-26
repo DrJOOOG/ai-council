@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <title>AI Council</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -19,6 +19,7 @@
 <!-- SCREEN: LIST -->
 <div class="screen active" id="screenList">
   <header>
+    <img class="app-brand-logo" src="icon-96.png" alt="AI Council">
     <div class="header-title">
       <div class="main">AI Council</div>
       <div class="sub"><span class="brand-dot"></span><span data-i18n="app.tagline">ТВОЯ РАДА AI</span> <span class="version-pill" id="headerVersion"></span></div>
@@ -198,6 +199,13 @@
         <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.export.desc">Для Obsidian, нотаток</div>
       </div>
     </div>
+    <div class="menu-item" id="menuObsidianChat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      <div>
+        <div data-i18n="menu.obsidian">📓 Експорт в Obsidian</div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.obsidian.desc">Через Advanced URI</div>
+      </div>
+    </div>
     <div class="menu-item" id="menuClearChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
       <div data-i18n="menu.clear">Очистити історію</div>
@@ -226,6 +234,33 @@
         <button type="button" class="language-option" data-lang-option="cs">🇨🇿 Čeština</button>
         <button type="button" class="language-option" data-lang-option="en">🇬🇧 English</button>
       </div>
+    </div>
+
+    <div class="settings-section">
+      <h3 data-i18n="settings.obsidian.title">📓 Obsidian</h3>
+      <div class="info-text" data-i18n="settings.obsidian.desc">Експорт вибраних повідомлень або чату в Obsidian через Advanced URI plugin.</div>
+      <label class="extra-row compact-row">
+        <div class="extra-info"><div class="extra-name" data-i18n="settings.obsidian.enabled">Увімкнути Obsidian export</div></div>
+        <input type="checkbox" class="checkbox" id="obsidianEnabled">
+      </label>
+      <label class="memory-label" data-i18n="settings.obsidian.vault">Vault name</label>
+      <input type="text" id="obsidianVault" class="chat-name-input" placeholder="ProfiDentist">
+      <label class="memory-label" data-i18n="settings.obsidian.folder">Base folder</label>
+      <input type="text" id="obsidianFolder" class="chat-name-input" placeholder="AI Council">
+    </div>
+
+    <div class="settings-section">
+      <h3 data-i18n="settings.backup.title">💾 Backup / Restore</h3>
+      <div class="info-text" data-i18n="settings.backup.desc">Експорт включає чати, памʼять, кейси, шаблони й налаштування. API-ключі не включаються.</div>
+      <div class="storage-status-card ok" id="storageStatusBox" aria-live="polite">
+        <div class="storage-status-row"><span data-i18n="settings.storage.local">Памʼять чатів</span><strong>—</strong></div>
+        <div class="storage-status-row"><span data-i18n="settings.storage.origin">Загальне сховище</span><strong>—</strong></div>
+        <div class="storage-status-note ok" data-i18n="settings.storage.ok">OK</div>
+      </div>
+      <button class="settings-btn" id="persistStorageBtn" data-i18n="settings.backup.persist">🔒 Захистити памʼять додатку</button>
+      <button class="settings-btn" id="exportBackupBtn" data-i18n="settings.backup.export">💾 Експорт backup</button>
+      <button class="settings-btn" id="importBackupBtn" data-i18n="settings.backup.import">📥 Імпорт backup</button>
+      <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none;">
     </div>
 
     <div class="settings-section">
