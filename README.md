@@ -1,344 +1,371 @@
 # AI Council
 
-**AI Council** is a personal multilingual PWA for AI-assisted clinical reasoning, built for a dental workflow. It lets one user consult several AI providers in parallel, compare their answers, run a structured “council” discussion, attach clinical files, and keep lightweight local memory/context.
+**AI Council** is a privacy-first PWA for multi-model AI consultation, clinical reasoning, dental workflows, and structured case analysis.
 
-Current version: **v6.0.1-beta**  
-Author: **Dr. Parkhoma**
+The app can run several AI providers side by side, let them answer independently, synthesize a final “Council” conclusion, or run debate-style rounds between models.
 
-> Status: beta / personal tool. This project is not a certified medical device and should not be used as a substitute for professional clinical judgment.
-
----
-
-## Highlights
-
-- **4 AI providers**: Claude, OpenAI / ChatGPT, Gemini, Perplexity.
-- **AI Council modes**: single AI, parallel answers, synthesis, debate, voting.
-- **Multilingual interface**: Ukrainian, Czech, English.
-- **AI-side localization**: AI answers, TL;DR, chat names, and syntheses follow the selected interface language unless the user clearly asks in another language.
-- **Dental templates**: Endodontics, Implantology, Periodontology, Urgent case, Differential diagnosis of pain.
-- **Per-AI personas**: each model can receive a different role inside a clinical template.
-- **File attachments**: images, PDF, Word, Excel, text, CSV/TSV, JSON/XML, STL.
-- **Local file extraction**: DOCX/DOCM text, XLSX/XLSM sheet previews, legacy DOC/XLS heuristic text extraction, STL summary.
-- **Security mitigations**: SVG upload blocked, image metadata stripped, attachment base64 not stored in chat history, cost limits, PII warning.
-- **PWA**: installable, cached static assets, offline shell.
-- **Testing**: Playwright smoke/i18n tests and GitHub Actions workflows.
+Current focus: **clinical dental workflows**, especially OPG / dental X-ray description, safe chart notes, AI role presets, Obsidian export, and local-first data handling.
 
 ---
 
-## What it does
+## Current Version
 
-AI Council is designed around a clinical/dental consultation flow:
+**v6.7.0-beta**
 
-1. Create a chat.
-2. Select one or more AI participants.
-3. Choose the reasoning level for each model.
-4. Optionally pick a dental template.
-5. Ask a question or attach files.
-6. Receive either separate answers or a structured Council output.
-7. Save useful facts to memory, export the chat, or continue the case.
+This beta focuses on:
 
-The app is intentionally built as a **frontend-only static PWA**: `index.html`, `app.js`, `style.css`, `translations.js`, `sw.js`, and assets. There is no production build step and no backend.
-
----
-
-## AI providers and model levels
-
-Each AI has four selectable levels: fast / medium / smart / maximum. The levels are used for UI, cost estimation, and model selection.
-
-### Claude
-
-- `claude-haiku-4-5`
-- `claude-sonnet-4-5`
-- `claude-sonnet-4-6`
-- `claude-opus-4-7`
-
-### OpenAI / ChatGPT
-
-- `gpt-5.4-nano`
-- `gpt-5.4-mini`
-- `gpt-5.4`
-- `gpt-5.5`
-
-OpenAI GPT-5+ models use the **Responses API**. The app also includes a fallback from `gpt-5.5` to `gpt-5.4` if the selected model is not available for the API account.
-
-### Gemini
-
-- `gemini-2.5-flash-lite`
-- `gemini-2.5-flash`
-- `gemini-2.5-pro`
-- `gemini-3-pro-preview`
-
-### Perplexity
-
-- `sonar`
-- `sonar-pro`
-- `sonar-reasoning`
-- `sonar-reasoning-pro`
-
-Reasoning `<think>` blocks from Perplexity are filtered before rendering.
+- clinical workflow improvements;
+- safer OPG / FDI reporting;
+- Smart Model Routing;
+- Settings Hub redesign;
+- Browser TTS;
+- Obsidian export;
+- backup / restore;
+- privacy-first BYOK usage;
+- ProfiDentist visual identity.
 
 ---
 
-## Council modes
+## Key Features
 
-### Single AI
+### Multi-AI Council
 
-A normal one-on-one chat with a selected provider.
+AI Council supports several AI providers:
 
-### Parallel
+- Claude / Anthropic
+- OpenAI / ChatGPT
+- Google Gemini
+- Perplexity
 
-All selected AI models answer independently. Their responses are shown as primary outputs.
+Supported modes:
 
-### Synthesis
-
-All selected AI models answer first. Then a synthesizer creates one final Council answer summarizing:
-
-- consensus;
-- disagreements;
-- final recommendation;
-- confidence level;
-- contribution summary.
-
-### Debate
-
-Selected AI models answer across multiple rounds. Later rounds can consider previous positions. A final Council synthesis is generated from the last successful answers.
-
-### Vote
-
-The app asks the synthesizer to rank the AI answers and choose the strongest response.
+- Single AI chat
+- Parallel answers
+- Council synthesis
+- Debate mode
+- Vote / ranking mode
+- Research-style workflow
 
 ---
 
-## Dental templates
+## Smart Model Routing
 
-The current built-in templates are:
+The app supports routing presets to reduce cost and improve predictability:
 
-- **Endodontics** — root canal treatment, pulpitis, modern endodontic protocols.
-- **Implantology** — implant planning, system choice, surgical/prosthetic risks.
-- **Periodontology** — staging/grading, treatment planning, supportive therapy.
-- **Urgent case** — short practical answer for acute pain or trauma.
-- **Differential diagnosis of pain** — odontogenic and non-odontogenic sources of pain.
+- **Economy** — cheaper models for everyday use
+- **Balanced** — compromise between cost and quality
+- **Maximum** — strongest available models for important or complex cases
 
-Templates can define:
-
-- suggested AI participants;
-- suggested model level;
-- system addition;
-- provider-specific personas.
-
-Example persona split:
-
-- Claude: conservative clinician / endodontist / implantologist.
-- Perplexity: evidence search and citation-oriented reviewer.
-- Gemini: material or imaging/market analyst.
-- OpenAI: critical reviewer / risk manager / skeptic.
+The final synthesizer can be configured separately, so expensive models do not have to be used for every step.
 
 ---
 
-## Czech dental context
+## Dental / Clinical Workflow
 
-The app includes optional Czech clinical context blocks:
+AI Council includes clinical templates and role-based workflows for dentistry.
 
-- **SÚKL** — medication context and Czech trade names.
-- **VZP** — insurance-code caution and source reminders.
-- **Informed consent** — Czech structure for invasive procedures.
+Examples:
 
-The removed “local practice” block is intentionally not included, to avoid injecting private clinic-specific context into every AI request.
-
----
-
-## Multilingual UI
-
-Supported UI languages:
-
-- 🇺🇦 Ukrainian — `uk`
-- 🇨🇿 Czech — `cs-CZ` in HTML, `cs` internally
-- 🇬🇧 English — `en`
-
-Localization is implemented through:
-
-- `translations.js`
-- `t(key, params)` helper
-- `applyTranslations()` for static HTML
-- `data-i18n`
-- `data-i18n-placeholder`
-- `data-i18n-aria-label`
-- `data-i18n-title`
-
-The selected language is stored in `localStorage` under app settings.
-
-The AI receives a language instruction in the system/context prompt. The rule is:
-
-> Reply in the selected UI language unless the user explicitly asks for another language or writes the request in another language.
+- Endodontics
+- Implantology
+- Periodontology
+- Urgent dental cases
+- Differential diagnosis of pain
+- OPG / dental X-ray reporting
 
 ---
 
-## File support
+## OPG / RTG Description Workflow
 
-The attachment system supports several clinical and technical file types.
+The OPG workflow is designed to reduce hallucinations and make AI-generated radiology notes safer.
 
-| Type | Extensions | Handling |
-|---|---|---|
-| Images | `.jpg`, `.jpeg`, `.png`, `.webp` | Re-encoded through canvas to strip EXIF/metadata, then sent as image input where supported. |
-| PDF | `.pdf` | Sent as document/file input to Claude, Gemini, and OpenAI. |
-| Text | `.txt`, `.md`, `.markdown` | Extracted as text and inserted into the prompt. |
-| Tables | `.csv`, `.tsv` | Extracted as text/table content. |
-| JSON/XML | `.json`, `.xml` | Extracted as text. |
-| Word | `.docx`, `.docm` | Local ZIP/XML extraction from document, headers, footers, footnotes, endnotes, comments. |
-| Legacy Word | `.doc` | Heuristic binary text extraction. |
-| Excel | `.xlsx`, `.xlsm` | Local sheet extraction into TSV previews using shared strings. |
-| Legacy Excel | `.xls` | Heuristic binary text extraction. |
-| STL | `.stl` | Local summary: ASCII/binary detection, triangle count, bounding box, approximate dimensions. |
+It supports:
 
-Current limits:
+- tooth-by-tooth FDI reporting;
+- OPG table extraction from `[18]`, `[17]`, `[16]` style lines;
+- mandatory FDI / orientation auditor concept;
+- doctor correction priority;
+- “safe chart note” separation;
+- warnings about what must not be written as fact.
 
-- maximum file size: **15 MB**;
-- extracted text is trimmed to prevent overly large prompts;
-- SVG upload is blocked;
-- unsupported or suspicious files are not executed.
-
----
-
-## Memory and case base
-
-The app stores lightweight local memory:
-
-- user profile;
-- saved facts;
-- Czech context toggles;
-- anonymized clinical cases.
-
-Cases can include:
-
-- title;
-- tags;
-- description;
-- creation/update timestamps.
-
-The case base is intended for anonymized clinical context only. Do not store patient names, birth numbers, insurance numbers, addresses, phone numbers, or identifiable documents.
-
----
-
-## Chat features
-
-- Search through chats.
-- Archive/unarchive chats.
-- Swipe actions on mobile.
-- Batch selection and deletion.
-- Full log toggle for Council conversations.
-- Export chat as Markdown (`.md`) for notes or Obsidian.
-- Session cost pill in the chat header.
-- Estimated request cost before sending.
-- Global usage/cost statistics.
-- Auto-generated chat names through the cheapest available AI.
-- TL;DR button for long AI responses.
-- Save AI response into memory.
-- Copy answer to clipboard.
-- Confidence badge for Council syntheses.
-- Contribution block showing unique insights per AI.
-
----
-
-## Security and privacy model
-
-This project is a **frontend-only personal PWA**. That means it has important security limitations.
-
-### What the app does locally
-
-- API keys are saved in browser `localStorage`.
-- Chats, memory, settings, cases, and stats are saved in `localStorage`.
-- Static assets are cached by the Service Worker.
-- Images are re-encoded through canvas before sending, stripping EXIF/metadata.
-- Attachment binary/base64 data is not persisted in chat history; only metadata is kept.
-- Gemini uses the `x-goog-api-key` header instead of putting the key in the URL.
-- A wipe action clears `localStorage`, `CacheStorage`, and unregisters Service Workers.
-
-### What still requires caution
-
-- Any selected AI provider receives the text and supported attachments you send.
-- A multi-AI Council request can send the same case to multiple providers.
-- API keys stored in browser storage are not safe against XSS, malicious browser extensions, compromised devices, or someone with local device access.
-- This is not GDPR-ready for real identifiable patient data.
-
-### Practical recommendation
-
-Use the app only with anonymized cases unless a backend/proxy and stronger data governance are added.
-
-For production or multi-user use, the next architectural step should be:
+Default OPG orientation rule:
 
 ```text
-Frontend → backend/proxy → AI providers
+Image upper-left: 18 → 11
+Image upper-right: 21 → 28
+Image lower-right: 31 → 38
+Image lower-left: 41 → 48
 ```
 
-The backend should hold provider keys, enforce limits, log audit events, and centralize security controls.
-
----
-
-## Cost controls
-
-The app includes client-side cost protections:
-
-- rough per-request estimate;
-- session cost tracking;
-- provider/model price table;
-- warning above approximately **$0.10**;
-- hard block above approximately **$1.00** per request;
-- correct usage tracking when OpenAI falls back from `gpt-5.5` to `gpt-5.4`.
-
-Token counting is approximate and based on local text estimation, not exact provider billing.
-
----
-
-## PWA behavior
-
-The app uses a Service Worker to cache static files:
-
-- `index.html`
-- `app.js`
-- `translations.js`
-- `style.css`
-- `manifest.json`
-- icons
-- test-independent static assets
-
-API calls to AI providers are not cached.
-
-After each deployment, update the Service Worker cache name and clear the old installed app/cache during testing if the browser keeps an older version.
-
----
-
-## Project structure
+Important distinction:
 
 ```text
-.
-├── index.html
-├── app.js
-├── translations.js
-├── style.css
-├── sw.js
-├── manifest.json
-├── icon.svg
-├── icon-96.png
-├── icon-192.png
-├── icon-512.png
-├── package.json
-├── playwright.config.js
-├── tests/
-│   ├── smoke.spec.js
-│   └── i18n.spec.js
-└── .github/
-    └── workflows/
-        ├── test.yml
-        └── codeql.yml
+Image side ≠ patient anatomical side
+```
+
+Doctor corrections override AI output inside the same thread.
+
+Example:
+
+```text
+User correction: “Implant is 36.”
+AI must treat this as ground truth and must not keep arguing for 45/46.
 ```
 
 ---
 
-## Local development
+## Clinical Action Buttons
 
-This is a static frontend app. For normal use, it can be hosted on GitHub Pages or any static host.
+AI responses can include practical follow-up actions:
 
-For local testing with Playwright:
+- **Summary** / **Shrnutí** / **Підсумок**
+- **Chart note** / **В карту**
+- **Assistant handoff** / **Для асистента**
+- **Listen** / Browser TTS
+- **Copy**
+- **Save to memory**
+- **Export to Obsidian**
+- **Evidence / open research**
+
+---
+
+## Browser TTS
+
+AI Council includes browser-based text-to-speech:
+
+- reads AI responses aloud;
+- prefers the short summary if available;
+- avoids OpenAI TTS by default;
+- no additional API cost;
+- no additional text transfer to external TTS providers.
+
+OpenAI TTS may be added later as an optional premium mode.
+
+---
+
+## Obsidian Export
+
+AI Council can export selected messages or chats to Obsidian through Advanced URI.
+
+Supported export targets:
+
+- current message;
+- Council summary;
+- OPG report;
+- whole chat.
+
+Recommended Obsidian setup:
+
+```text
+Community plugins → Advanced URI
+```
+
+Suggested vault structure:
+
+```text
+AI Council/
+  Chats/
+  OPG/
+  Summaries/
+  Cases/
+```
+
+Exports are Markdown-based and include safe frontmatter formatting.
+
+---
+
+## Backup / Restore
+
+AI Council supports local backup and restore.
+
+Backup includes:
+
+- chats;
+- memory;
+- cases;
+- settings;
+- statistics.
+
+Backup does **not** include API keys by default.
+
+Important:
+
+```text
+Backups may contain clinical or personal data.
+Treat backup files as confidential.
+```
+
+---
+
+## Privacy Model
+
+AI Council is designed as a **BYOK / local-first** app.
+
+BYOK means:
+
+```text
+Bring Your Own Key
+```
+
+API keys are entered by the user and used directly from the browser.
+
+The app does not require a custom backend.
+
+### Important Privacy Warning
+
+When using Council mode, the same prompt may be sent to several AI providers.
+
+Before sending patient-related content, remove:
+
+- patient name;
+- birth number / rodné číslo;
+- insurance number;
+- exact address;
+- phone number;
+- email;
+- any directly identifying data.
+
+For clinical use, prefer anonymized case descriptions.
+
+---
+
+## Security Notes
+
+Current security design includes:
+
+- local-first architecture;
+- API keys stored locally;
+- no server-side database;
+- Obsidian URI encoding;
+- YAML/frontmatter escaping;
+- file name escaping;
+- backup warning;
+- PII warnings;
+- markdown rendering safety pass.
+
+Planned security improvements:
+
+- stricter Markdown sanitizer / DOMPurify-level protection;
+- encrypted API keys at rest;
+- encrypted backup;
+- stronger multi-provider PII controls.
+
+---
+
+## Storage
+
+Current beta still uses browser storage for app state.
+
+The app includes:
+
+- localStorage size monitoring;
+- warning near storage limits;
+- backup recommendation;
+- stripped binary/base64 file data from saved chats.
+
+Planned next major storage milestone:
+
+```text
+IndexedDB migration
+```
+
+This will allow larger chat history, better recovery, and future sync/export features.
+
+---
+
+## File Uploads
+
+Supported file categories depend on provider capabilities.
+
+Common supported workflows:
+
+- images;
+- OPG screenshots;
+- PNG / JPG / WEBP;
+- PDF;
+- DOCX / Word;
+- XLSX / Excel;
+- STL metadata / upload handling.
+
+Current file limit:
+
+```text
+25 MB
+```
+
+Large files may be slower and may not be accepted by every AI provider.
+
+---
+
+## Install as PWA
+
+AI Council is a Progressive Web App.
+
+It can be installed from a browser on:
+
+- Android
+- desktop Chrome / Edge
+- partially on iOS Safari
+
+Recommended deployment:
+
+```text
+GitHub Pages
+HTTPS enabled
+```
+
+After updating the app, the PWA cache may need to be refreshed.
+
+If the old version remains visible:
+
+```text
+1. Clear browser cache
+2. Reopen the app
+3. Or uninstall/reinstall the PWA
+```
+
+---
+
+## GitHub Pages Deployment
+
+Upload the project files to your GitHub repository root:
+
+```text
+index.html
+app.js
+style.css
+translations.js
+manifest.json
+sw.js
+package.json
+playwright.config.js
+icons / png assets
+```
+
+Optional but recommended:
+
+```text
+tests/
+```
+
+Do **not** upload:
+
+```text
+node_modules/
+.env
+API keys
+patient files
+real OPG images
+backup files with clinical data
+```
+
+---
+
+## Testing
+
+The project includes Playwright test scaffolding.
+
+Recommended local test commands:
 
 ```bash
 npm install
@@ -346,114 +373,124 @@ npx playwright install
 npm test
 ```
 
-Run only syntax tests:
+Current test areas:
 
-```bash
-npm run test:syntax
+- smoke test;
+- i18n / localization checks.
+
+Planned test expansion:
+
+- storage;
+- Council mode;
+- debate mode;
+- file parsing;
+- session recovery;
+- cost calculator;
+- OPG workflow.
+
+---
+
+## Roadmap
+
+### v6.5.x / v6.7.x — Safety + UX Polish
+
+- Settings Hub
+- Splash polish
+- animated in-app splash
+- browser TTS
+- Obsidian export
+- backup / restore
+- 25 MB upload limit
+- PII warnings
+- Smart Model Routing
+- cost estimate
+- OPG workflow polish
+- chart-note and assistant handoff actions
+
+### v7.0 — Storage Foundation
+
+- IndexedDB migration
+- localStorage importer
+- schema versioning
+- stable backup format
+- session recovery v2
+- larger case and chat history
+
+### v7.2 — Cost Control
+
+- better Smart Routing
+- Economy / Balanced / Maximum presets
+- synthesizer override
+- pre-send budget warnings
+- daily/session cost limits
+
+### v7.5 — Clinical Intelligence
+
+- full Clinical Roles UI
+- mandatory FDI auditor for OPG
+- side-by-side view on tablet/desktop
+- doctor correction freeze
+- branching / forking prototype
+- improved chart-note generation
+
+### v8.0 — Architecture + Sync
+
+- ES Modules / Vite
+- split app.js into modules
+- encrypted backup
+- BYOS sync research:
+  - Synology WebDAV
+  - Obsidian vault
+  - Google Drive
+- conflict resolution
+- optional Preact/Alpine evaluation
+
+---
+
+## Design
+
+AI Council uses a ProfiDentist-inspired visual style:
+
+- purple accents;
+- white clinical UI;
+- light concrete background feel;
+- premium dental branding;
+- geometric AI-tooth logo.
+
+Logo concept:
+
+```text
+geometric purple tooth mesh + central AI mark
 ```
 
-Run Playwright tests:
+---
 
-```bash
-npm run test:e2e
+## Disclaimer
+
+AI Council is an experimental clinical AI assistant.
+
+It is **not** a medical device.
+
+AI outputs must be reviewed by a qualified clinician before being used in diagnosis, documentation, treatment planning, or patient communication.
+
+For radiology / OPG interpretation:
+
+```text
+AI output is assistive only.
+Final responsibility remains with the clinician.
 ```
 
-Open Playwright UI:
-
-```bash
-npm run test:e2e:ui
-```
-
-Show the test report:
-
-```bash
-npm run test:report
-```
-
 ---
 
-## GitHub Actions
+## Author
 
-The repository includes workflows for:
-
-- Playwright/smoke testing;
-- CodeQL security scanning.
-
-These are development-time checks. Passing tests does not make the app clinically validated or production-secure.
-
----
-
-## Deployment
-
-Recommended simple deployment:
-
-1. Push files to GitHub.
-2. Enable GitHub Pages for the repository.
-3. Open the app through the GitHub Pages URL.
-4. Add provider API keys in Settings.
-5. Install as PWA on the device.
-
-During beta testing, clear the PWA/cache after replacing files:
-
-- Android Chrome: Site settings → Storage → Clear data;
-- or uninstall/reinstall the PWA;
-- or unregister the Service Worker from DevTools.
-
----
-
-## API keys
-
-The app can store keys for:
-
-- Anthropic Claude;
-- OpenAI;
-- Google Gemini;
-- Perplexity.
-
-Keys are stored only in the local browser, but browser storage is not a high-security secret store. Use restricted/test keys and set provider-side spending limits.
-
----
-
-## Important clinical disclaimer
-
-AI Council is a reasoning and documentation support tool. It is not a diagnostic device, not a medical device, and not a replacement for a licensed clinician.
-
-All outputs must be checked by a qualified professional. For medications, dosages, insurance codes, informed consent, radiological findings, and treatment plans, verify against current local regulations, official documentation, and clinical guidelines.
-
----
-
-## Current limitations
-
-- No backend/proxy.
-- API keys are stored in browser `localStorage`.
-- No user accounts or role-based access.
-- No encrypted database.
-- No true audit log.
-- No server-side file parsing.
-- Legacy `.doc` / `.xls` extraction is heuristic.
-- Large or complex spreadsheets are only previewed/truncated.
-- File parsing is client-side and browser-dependent.
-- Not suitable for identifiable patient data without additional safeguards.
-
----
-
-## Roadmap ideas
-
-Possible next steps:
-
-- Backend proxy for AI provider keys.
-- IndexedDB storage for larger local data.
-- Optional client-side encryption.
-- Better anonymization workflow for clinical cases.
-- Structured case schema.
-- More robust DOC/XLS parsing through backend.
-- Audit log of what was sent to which provider.
-- Prompt/version management.
-- More Playwright tests for files, Council mode, and PWA updates.
-- Clinical mode with stricter safety templates.
+Created by **Dr. Parkhoma**  
+ProfiDentist / AI Council project
 
 ---
 
 ## License
 
-No license specified yet. Add a license before public reuse or external collaboration.
+Private / internal development unless otherwise specified.
+
+If this repository is made public, add a proper license before distribution.
