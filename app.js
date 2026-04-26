@@ -1,13 +1,48 @@
 // ================================================================
-// AI Council v6.5.1-beta — Stability & Safety patch
+// AI Council v6.7.0-beta — Current plan completion: UX, clinical workflow, safety
 // ================================================================
 
-const APP_VERSION = '6.5.1-beta';
+const APP_VERSION = '6.7.0-beta';
 const APP_VERSION_DATE = '2026-04-26';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.7.0-beta',
+    date: '2026-04-26',
+    highlights: [
+      '✅ Закрито поточний план: Settings Hub підменю, OPG table UI, клінічні ролі, В карту / Для асистента',
+      '🦷 OPG: FDI-аудитор як обовʼязкова роль + doctor correction freeze у промптах',
+      '📄 Smart actions: Chart note, Assistant handoff, Evidence/Perplexity shortcut',
+      '⚙️ Settings Hub тепер працює як справжнє меню з підрозділами, а не один довгий лист',
+      '🧩 Додано Clinical Roles UI з рекомендованими пресетами для шаблонів',
+      '🛡️ Посилено markdown/HTML safety та клінічні попередження'
+    ]
+  },
+  {
+    version: '6.6.0-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🛡️ Controlled build: безпека + ціна + стабільність без паузи в розробці',
+      '💸 Smart Model Routing v1: Economy / Balanced / Maximum presets',
+      '🧠 Synthesizer override: окремий вибір AI і рівня для фінального синтезу',
+      '🔁 Session Recovery v1: pending-запит зберігається перед довгим AI-запитом',
+      '🧼 Додатковий safety-pass для Markdown renderer',
+      '⚕️ Multi-provider PII warning для режиму Ради',
+      '✨ Animated in-app splash + splash/manifest polish',
+      '⚙️ Settings Hub redesign як підменю-картки'
+    ]
+  },
+  {
+    version: '6.5.2-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🌐 Перший запуск автоматично бере мову інтерфейсу з мови браузера/телефону',
+      '🦷 Очищено header-logo: більший tooth-mark без зайвої білої плитки',
+      '📋 Версія в header стала кнопкою — відкриває журнал версій'
+    ]
+  },
   {
     version: '6.5.1-beta',
     date: '2026-04-26',
@@ -406,6 +441,37 @@ const MODES = {
   vote:      { name: 'Голосування', desc: 'Ранжування відповідей, обрання переможця' }
 };
 
+const ROUTING_PRESETS = {
+  economy: { label: 'Economy', icon: '⚡', defaultLevel: 0, synthLevel: 1, costWarn: 0.05, desc: 'Дешевші моделі для щоденних питань, Sonnet/середній рівень для синтезу.' },
+  balanced: { label: 'Balanced', icon: '⚖️', defaultLevel: 1, synthLevel: 1, costWarn: 0.10, desc: 'Оптимальний баланс ціни та якості для більшості клінічних задач.' },
+  maximum: { label: 'Maximum', icon: '🧠', defaultLevel: 3, synthLevel: 3, costWarn: 0.35, desc: 'Найсильніші моделі для складних або юридично важливих кейсів.' }
+};
+
+// ==================== CLINICAL ROLES ====================
+const CLINICAL_ROLES = {
+  implant_surgeon: { icon: '🔩', label: { uk: 'Хірург-імплантолог', cs: 'Implantolog-chirurg', en: 'Implant surgeon' }, prompt: 'Ти — досвідчений хірург-імплантолог. Мислиш через CBCT/анатомію/ризики/протезне планування. Не пропонуй агресивні втручання без показань і альтернатив.' },
+  conservative_dentist: { icon: '🦷', label: { uk: 'Терапевт-консерватор', cs: 'Konzervativní stomatolog', en: 'Conservative dentist' }, prompt: 'Ти — консервативний стоматолог. Твоя роль — шукати найменш інвазивне, біологічно обґрунтоване рішення та вказувати, коли зуб варто зберігати.' },
+  evidence_reviewer: { icon: '🔬', label: { uk: 'Evidence reviewer', cs: 'Evidence reviewer', en: 'Evidence reviewer' }, prompt: 'Ти — evidence reviewer. Відділяй доказові твердження від думок, проси перевіряти джерела, не вигадуй PubMed-цитати. Якщо джерело невідоме — скажи прямо.' },
+  skeptic_auditor: { icon: '🛡️', label: { uk: 'Скептик / ризик-аудитор', cs: 'Skeptik / auditor rizik', en: 'Skeptic / risk auditor' }, prompt: 'Ти — скептик і ризик-аудитор. Шукай слабкі місця плану, помилки нумерації, приховані ризики, юридично небезпечні формулювання, надмірну впевненість.' },
+  chart_synthesizer: { icon: '📄', label: { uk: 'Синтезатор для карти', cs: 'Zápis do dokumentace', en: 'Chart-note synthesizer' }, prompt: 'Ти — синтезатор запису в медичну документацію. Формулюй коротко, юридично обережно, без вигадок, без неперевірених діагнозів.' },
+  fdi_auditor: { icon: '🧭', label: { uk: 'FDI-аудитор OPG', cs: 'FDI auditor OPG', en: 'FDI OPG auditor' }, prompt: 'Ти — FDI/орієнтаційний аудитор для OPG. Твоя головна задача — перевірити нумерацію зубів, сторону на знімку vs сторону пацієнта, позиції імплантів, ретеновані/відсутні зуби. Корекція лікаря має абсолютний пріоритет.' }
+};
+const ROLE_PRESETS = {
+  general: ['conservative_dentist', 'skeptic_auditor', 'chart_synthesizer'],
+  implants: ['implant_surgeon', 'conservative_dentist', 'skeptic_auditor', 'evidence_reviewer', 'chart_synthesizer'],
+  endo: ['conservative_dentist', 'evidence_reviewer', 'skeptic_auditor', 'chart_synthesizer'],
+  perio: ['conservative_dentist', 'evidence_reviewer', 'skeptic_auditor', 'chart_synthesizer'],
+  urgent: ['conservative_dentist', 'skeptic_auditor', 'chart_synthesizer'],
+  'diff-pain': ['conservative_dentist', 'skeptic_auditor', 'evidence_reviewer'],
+  'opg-report': ['fdi_auditor', 'skeptic_auditor', 'chart_synthesizer']
+};
+function roleLabel(roleId) {
+  const role = CLINICAL_ROLES[roleId];
+  if (!role) return roleId;
+  return role.label?.[getLang?.() || 'uk'] || role.label?.uk || roleId;
+}
+
+
 // ==================== STATE ====================
 const STORAGE = {
   keys: 'aic3_keys',
@@ -415,7 +481,8 @@ const STORAGE = {
   memory: 'aic3_memory',
   templates: 'aic4_templates',    // v4.0
   cases: 'aic4_cases',            // v4.0
-  stats: 'aic4_stats'             // v4.0
+  stats: 'aic4_stats',             // v4.0
+  pending: 'aic5_pending_request'     // v6.6
 };
 
 // Default templates for dental context
@@ -558,7 +625,7 @@ let state = {
   pendingAutoSendMode: null,
   showFullLog: false,
   sendInProgress: false,
-  settings: { language: 'uk' },
+  settings: { language: null },
   chatSearchQuery: '',
   selectionMode: false,
   selectedChatIds: new Set(),
@@ -592,7 +659,7 @@ function load() {
     state.archivedChatIds = saved.archived || [];
     const appSettings = JSON.parse(localStorage.getItem(STORAGE.settings) || '{}');
     state.settings = {
-      language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : 'uk',
+      language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : detectDefaultLanguage(),
       obsidian: {
         enabled: !!appSettings.obsidian?.enabled,
         vault: appSettings.obsidian?.vault || '',
@@ -683,9 +750,20 @@ const SUPPORTED_LANGS = ['uk', 'cs', 'en'];
 const HTML_LANG = { uk: 'uk', cs: 'cs-CZ', en: 'en' };
 const LOCALES = { uk: 'uk-UA', cs: 'cs-CZ', en: 'en-US' };
 
+function detectDefaultLanguage() {
+  const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+  for (const raw of langs) {
+    const lang = String(raw || '').toLowerCase();
+    if (lang.startsWith('uk')) return 'uk';
+    if (lang.startsWith('cs') || lang.startsWith('cz')) return 'cs';
+    if (lang.startsWith('en')) return 'en';
+  }
+  return 'en';
+}
+
 function getLang() {
-  const lang = state.settings?.language || 'uk';
-  return SUPPORTED_LANGS.includes(lang) ? lang : 'uk';
+  const lang = state.settings?.language || detectDefaultLanguage();
+  return SUPPORTED_LANGS.includes(lang) ? lang : 'en';
 }
 
 function locale() {
@@ -912,6 +990,38 @@ function fmtDate(ts) {
   if (diff < 7) return d.toLocaleDateString(locale(), { weekday: 'short' });
   return d.toLocaleDateString(locale(), { day: '2-digit', month: '2-digit' });
 }
+function sanitizeRenderedHtml(html) {
+  // Defense-in-depth: renderMd escapes source text first, then creates a small allowlisted HTML subset.
+  // This pass removes any accidental dangerous nodes/attributes if future code changes add raw HTML.
+  const template = document.createElement('template');
+  template.innerHTML = String(html || '');
+  const allowedTags = new Set(['P','BR','STRONG','EM','CODE','PRE','H1','H2','H3','UL','OL','LI','A','DIV','SPAN']);
+  const allowedClasses = new Set(['finding-line','finding-red','finding-yellow','finding-neutral']);
+  const walk = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT);
+  const toRemove = [];
+  while (walk.nextNode()) {
+    const el = walk.currentNode;
+    if (!allowedTags.has(el.tagName)) { toRemove.push(el); continue; }
+    [...el.attributes].forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const val = attr.value || '';
+      if (name.startsWith('on') || name === 'style') el.removeAttribute(attr.name);
+      else if (el.tagName === 'A' && name === 'href') {
+        if (!/^https?:\/\//i.test(val)) el.removeAttribute(attr.name);
+      } else if (el.tagName === 'A' && ['target','rel'].includes(name)) {
+        // allowed
+      } else if (name === 'class') {
+        const safe = val.split(/\s+/).filter(c => allowedClasses.has(c)).join(' ');
+        if (safe) el.setAttribute('class', safe); else el.removeAttribute('class');
+      } else {
+        el.removeAttribute(attr.name);
+      }
+    });
+  }
+  toRemove.forEach(el => el.replaceWith(document.createTextNode(el.textContent || '')));
+  return template.innerHTML;
+}
+
 function renderMd(text) {
   if (!text) return '';
   let s = escapeHtml(text);
@@ -937,7 +1047,7 @@ function renderMd(text) {
     if (/^<(h\d|ul|ol|pre|li|div)/.test(p)) return p;
     return `<p>${p.replace(/\n/g,'<br>')}</p>`;
   }).join('\n');
-  return s;
+  return sanitizeRenderedHtml(s);
 }
 function flash(text, err) {
   const el = document.createElement('div');
@@ -1419,6 +1529,7 @@ function toggleChatSelection(chatId) {
     state.selectedChatIds.add(chatId);
   }
   renderChatList();
+  checkPendingRequestOnStartup();
 }
 
 function deleteChat(chatId, rerender = true) {
@@ -1513,14 +1624,20 @@ function initNewChatScreen() {
     research: false,
     templateSystemAddition: null,
     templatePersonas: null,  // v5.0
+    clinicalRoles: [...(ROLE_PRESETS.general || [])],
     templateId: null,
-    autoPromptType: null
+    autoPromptType: null,
+    routingPreset: 'balanced',
+    synthesizerAI: 'auto',
+    synthesizerLevel: 1
   };
 
   document.getElementById('chatNameInput').value = '';
   renderTemplates();
   renderAICards();
   renderModePicker();
+  renderRoutingPicker();
+  renderClinicalRolesPicker();
   updateCouncilVisibility();
   updateCostEstimate();
   updateCreateButton();
@@ -1570,11 +1687,13 @@ function applyTemplate(templateId) {
   d.templateSystemAddition = templateText(t, 'systemAddition');
   d.templateName = templateText(t, 'name');
   d.templatePersonas = t.personas ? Object.fromEntries(Object.keys(t.personas).map(ai => [ai, templatePersonaText(t, ai)])) : null; // v6.0: localized per-AI personas when available
+  d.clinicalRoles = [...(ROLE_PRESETS[t.id] || ROLE_PRESETS.general || [])];
   d.templateId = t.id;
   d.autoPromptType = t.autoPromptType || (t.id === 'opg-report' ? 'radiology' : null);
 
   renderAICards();
   renderModePicker();
+  renderClinicalRolesPicker();
   updateCouncilVisibility();
   updateCostEstimate();
   updateCreateButton();
@@ -1622,6 +1741,8 @@ function renderAICards() {
       if (!state.keys[p.ai]) { flash(t('flash.addApiKey'), true); return; }
       p.selected = !p.selected;
       renderAICards();
+      renderRoutingPicker();
+      renderClinicalRolesPicker();
       updateCouncilVisibility();
       updateCostEstimate();
       updateCreateButton();
@@ -1634,6 +1755,8 @@ function renderAICards() {
       const idx = +el.dataset.level;
       state.newChatDraft.participants[idx].level = +e.target.value;
       renderAICards();
+      renderRoutingPicker();
+      renderClinicalRolesPicker();
       updateCostEstimate();
     });
   });
@@ -1670,6 +1793,92 @@ function renderModePicker() {
   document.getElementById('debateRoundsWrap').style.display = state.newChatDraft.mode === 'debate' ? 'block' : 'none';
 }
 
+function applyRoutingPreset(presetKey, updateLevels = true) {
+  const d = state.newChatDraft;
+  const preset = ROUTING_PRESETS[presetKey] || ROUTING_PRESETS.balanced;
+  d.routingPreset = presetKey;
+  d.synthesizerLevel = preset.synthLevel;
+  if (updateLevels && d.participants) {
+    d.participants.forEach(p => { if (p.selected) p.level = preset.defaultLevel; });
+  }
+  renderAICards();
+  renderRoutingPicker();
+  renderClinicalRolesPicker();
+  updateCostEstimate();
+}
+
+function renderRoutingPicker() {
+  const wrap = document.getElementById('routingPicker');
+  if (!wrap || !state.newChatDraft) return;
+  const d = state.newChatDraft;
+  const selected = d.participants.filter(p => p.selected);
+  if (selected.length < 2) { wrap.innerHTML = ''; return; }
+  const preset = d.routingPreset || 'balanced';
+  const synthAI = d.synthesizerAI || 'auto';
+  const synthLevel = d.synthesizerLevel ?? (ROUTING_PRESETS[preset]?.synthLevel || 1);
+  const buttons = Object.entries(ROUTING_PRESETS).map(([key, cfg]) => `
+    <button type="button" class="routing-card ${preset === key ? 'active' : ''}" data-routing-preset="${key}">
+      <span class="routing-icon">${cfg.icon}</span>
+      <span class="routing-title">${cfg.label}</span>
+      <span class="routing-desc">${escapeHtml(cfg.desc)}</span>
+    </button>
+  `).join('');
+  const aiOptions = ['auto', ...selected.map(p => p.ai)].map(ai => {
+    const label = ai === 'auto' ? 'Auto' : AI_CONFIG[ai]?.name || ai;
+    return `<option value="${ai}" ${synthAI === ai ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+  }).join('');
+  const levelOptions = [0,1,2,3].map(lvl => {
+    const label = `${LEVEL_NAMES[lvl]} · ${lvl === 3 ? 'Max' : lvl === 2 ? 'Smart' : lvl === 1 ? 'Balanced' : 'Fast'}`;
+    return `<option value="${lvl}" ${Number(synthLevel) === lvl ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+  }).join('');
+  wrap.innerHTML = `
+    <div class="routing-grid">${buttons}</div>
+    <div class="routing-synth">
+      <label>🧠 Synthesizer</label>
+      <select id="synthesizerAISelect" class="settings-select">${aiOptions}</select>
+      <select id="synthesizerLevelSelect" class="settings-select">${levelOptions}</select>
+    </div>
+    <div class="hint-text">Economy — дешевше для щоденного використання. Maximum — тільки для складних кейсів.</div>
+  `;
+  wrap.querySelectorAll('[data-routing-preset]').forEach(btn => {
+    btn.addEventListener('click', () => applyRoutingPreset(btn.dataset.routingPreset, true));
+  });
+  wrap.querySelector('#synthesizerAISelect')?.addEventListener('change', e => {
+    d.synthesizerAI = e.target.value;
+    updateCostEstimate();
+  });
+  wrap.querySelector('#synthesizerLevelSelect')?.addEventListener('change', e => {
+    d.synthesizerLevel = Number(e.target.value);
+    updateCostEstimate();
+  });
+}
+
+function renderClinicalRolesPicker() {
+  const wrap = document.getElementById('clinicalRolesWrap');
+  if (!wrap || !state.newChatDraft) return;
+  const d = state.newChatDraft;
+  const selected = d.participants.filter(p => p.selected);
+  if (selected.length === 0) { wrap.innerHTML = ''; return; }
+  const roles = d.clinicalRoles || [];
+  const cards = Object.entries(CLINICAL_ROLES).map(([id, role]) => {
+    const active = roles.includes(id);
+    return '<button type="button" class="role-card ' + (active ? 'active' : '') + '" data-role-id="' + id + '"><span class="role-icon">' + role.icon + '</span><span class="role-title">' + escapeHtml(roleLabel(id)) + '</span></button>';
+  }).join('');
+  const hint = isRadiologyDraft(d) ? 'OPG режим: FDI-аудитор рекомендований і буде примусово доданий при створенні чату.' : 'Ролі додають різні кути мислення до системного prompt. Вони не привʼязані жорстко до конкретного провайдера.';
+  wrap.innerHTML = '<div class="section-label spaced">🎭 Clinical roles</div><div class="roles-grid">' + cards + '</div><div class="hint-text">' + escapeHtml(hint) + '</div>';
+  wrap.querySelectorAll('[data-role-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.roleId;
+      const set = new Set(d.clinicalRoles || []);
+      if (set.has(id)) set.delete(id); else set.add(id);
+      d.clinicalRoles = [...set];
+      renderClinicalRolesPicker();
+    });
+  });
+}
+function isRadiologyDraft(d) { return d?.autoPromptType === 'radiology' || d?.templateId === 'opg-report' || d?.templateName === 'OPG / рентген-опис'; }
+function ensureMandatoryRolesForChat(chat) { const set = new Set(chat.clinicalRoles || []); if (isRadiologyChat(chat)) set.add('fdi_auditor'); chat.clinicalRoles = [...set]; }
+
 function updateCouncilVisibility() {
   const selected = state.newChatDraft.participants.filter(p => p.selected);
   const isMulti = selected.length > 1;
@@ -1692,6 +1901,19 @@ function autoName() {
     el.value = `${t('chat.council')}: ${selected.map(p => AI_CONFIG[p.ai].name).join(' · ')}`;
   }
   el.dataset.auto = '1';
+}
+
+function getSynthesizerConfig(cOrDraft, selected = []) {
+  const source = cOrDraft || {};
+  const first = selected[0]?.ai || source.participants?.[0]?.ai || 'claude';
+  let ai = source.synthesizerAI || 'auto';
+  if (ai === 'auto' || !state.keys[ai]) {
+    if (state.keys.claude) ai = 'claude';
+    else ai = first;
+  }
+  const preset = ROUTING_PRESETS[source.routingPreset || 'balanced'] || ROUTING_PRESETS.balanced;
+  const level = Math.max(0, Math.min(3, Number(source.synthesizerLevel ?? preset.synthLevel ?? 1)));
+  return { ai, level, model: MODELS[ai]?.[level] || MODELS[first]?.[level] || MODELS[first]?.[0] };
 }
 
 // ==================== COST ESTIMATE ====================
@@ -1725,12 +1947,11 @@ function updateCostEstimate() {
     total += cost;
   });
 
-  // Synthesizer uses Claude Opus-level or top of first selected
+  // Synthesizer is configurable in Smart Routing (default: cheaper Balanced/Sonnet-level, not always maximum).
   if (synth > 0) {
-    const synthAI = state.keys.claude ? 'claude' : selected[0].ai;
-    const synthLevel = 3; // assume highest for synthesis
-    const m = MODELS[synthAI][synthLevel];
-    total += synth * (INPUT_TOK * 2 * m.inPrice + OUTPUT_TOK * m.outPrice) / 1_000_000;
+    const synthCfg = getSynthesizerConfig(d, selected);
+    const m = synthCfg.model;
+    if (m) total += synth * (INPUT_TOK * 2 * m.inPrice + OUTPUT_TOK * m.outPrice) / 1_000_000;
   }
 
   let cls = '';
@@ -1764,8 +1985,12 @@ function createChat() {
     templateSystemAddition: d.templateSystemAddition || null,  // v4.5
     templateName: d.templateName || null,
     templatePersonas: d.templatePersonas || null,  // v5.0
+    clinicalRoles: [...new Set([...(d.clinicalRoles || []), ...(isRadiologyDraft(d) ? ['fdi_auditor'] : [])])],
     templateId: d.templateId || null,
     autoPromptType: d.autoPromptType || null,
+    routingPreset: d.routingPreset || 'balanced',
+    synthesizerAI: d.synthesizerAI || 'auto',
+    synthesizerLevel: d.synthesizerLevel ?? 1,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     messages: []
@@ -1953,6 +2178,9 @@ function renderMessages() {
       else if (action === 'memory') saveFactFromMessage(msg.content);
       else if (action === 'speak') speakMessage(msg);
       else if (action === 'obsidian') exportMessageToObsidian(msg);
+      else if (action === 'chart-note') generateMessageDerivative(msg, 'chartNote');
+      else if (action === 'handoff') generateMessageDerivative(msg, 'assistantHandoff');
+      else if (action === 'evidence') openEvidenceSearch(msg);
     });
   });
 
@@ -2010,6 +2238,34 @@ function renderMessages() {
   });
 }
 
+function parseFdiLines(text) {
+  const order = ['18','17','16','15','14','13','12','11','21','22','23','24','25','26','27','28','38','37','36','35','34','33','32','31','41','42','43','44','45','46','47','48'];
+  const map = new Map();
+  const re = /(?:^|\n)\s*([🔴🟡⚪])?\s*\[\s*(18|17|16|15|14|13|12|11|21|22|23|24|25|26|27|28|38|37|36|35|34|33|32|31|41|42|43|44|45|46|47|48)\s*\]\s*[–—-]\s*([^\n]+)/g;
+  let m;
+  while ((m = re.exec(String(text || '')))) {
+    const icon = m[1] || '';
+    const tooth = m[2];
+    const desc = m[3].trim();
+    const sev = icon === '🔴' ? 'red' : icon === '🟡' ? 'yellow' : icon === '⚪' ? 'neutral' : (/підоз|suspekt|verify|ověřit|ризик|risk/i.test(desc) ? 'yellow' : 'neutral');
+    if (!map.has(tooth)) map.set(tooth, { tooth, icon, desc, sev });
+  }
+  return order.filter(t => map.has(t)).map(t => map.get(t));
+}
+
+function renderFdiTable(text) {
+  const rows = parseFdiLines(text);
+  if (rows.length < 6) return '';
+  const html = rows.map(r => '<tr class="fdi-' + r.sev + '"><td>[' + r.tooth + ']</td><td>' + (r.icon || '') + '</td><td>' + escapeHtml(r.desc) + '</td></tr>').join('');
+  return '<details class="fdi-table-block" open><summary>🦷 FDI / Tooth-by-tooth table (' + rows.length + ')</summary><table class="fdi-table"><tbody>' + html + '</tbody></table></details>';
+}
+function renderDerivedBlocks(m) {
+  let out = '';
+  if (m.chartNote) out += '<div class="derived-block"><div class="derived-title">📄 ' + t('action.chartNote') + '</div>' + renderMd(m.chartNote) + '</div>';
+  if (m.assistantHandoff) out += '<div class="derived-block"><div class="derived-title">👩‍⚕️ ' + t('action.handoff') + '</div>' + renderMd(m.assistantHandoff) + '</div>';
+  return out;
+}
+
 function renderMessage(m) {
   if (!m) return '';
   const isUser = m.role === 'user';
@@ -2041,6 +2297,9 @@ function renderMessage(m) {
     }
   }
 
+  const fdiTableHtml = (!isUser && !m.loading && !m.error) ? renderFdiTable(m.content || '') : '';
+  const derivedHtml = (!isUser && !m.loading && !m.error) ? renderDerivedBlocks(m) : '';
+
   const modelTag = m.modelShort ? `<span class="model-tag" style="--level-color: ${m.levelColor || 'var(--text-mute)'};">${escapeHtml(m.modelShort)}</span>` : '';
   const roundTag = m.round ? `<span class="round-tag">R${m.round}</span>` : '';
   const compactClass = (state.showFullLog && !m.isPrimary && !isUser) ? 'compact' : '';
@@ -2063,6 +2322,9 @@ function renderMessage(m) {
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
          <button class="msg-action-btn" data-action="speak" data-msg-id="${m.id}">${t('action.listen')}</button>
+         <button class="msg-action-btn" data-action="chart-note" data-msg-id="${m.id}">${t('action.chartNote')}</button>
+         <button class="msg-action-btn" data-action="handoff" data-msg-id="${m.id}">${t('action.handoff')}</button>
+         <button class="msg-action-btn" data-action="evidence" data-msg-id="${m.id}">${t('action.evidence')}</button>
          <button class="msg-action-btn" data-action="obsidian" data-msg-id="${m.id}">${t('action.obsidian')}</button>
          <button class="msg-action-btn" data-action="copy" data-msg-id="${m.id}">${t('action.copy')}</button>
          <button class="msg-action-btn" data-action="memory" data-msg-id="${m.id}">${t('action.memory')}</button>
@@ -2080,6 +2342,8 @@ function renderMessage(m) {
         <span class="time">${fmtTime(m.time)}</span>
       </div>
       <div class="msg-body">${bodyContent}</div>
+      ${fdiTableHtml}
+      ${derivedHtml}
       ${tldrBtnHtml}
       ${contributionHtml}
       ${actionsHtml}
@@ -2955,13 +3219,36 @@ function renderContributionBlock(meta) {
 
 function radiologySystemSafetyAddition() {
   if (getLang() === 'cs') {
-    return "RADIOLOGICKÝ BEZPEČNOSTNÍ REŽIM:\n- Výchozí orientace OPG, pokud uživatel neuvede jinak: levý horní roh obrázku = 1. kvadrant (18→11), pravý horní = 2. kvadrant (21→28), pravý dolní = 3. kvadrant (38→31), levý dolní = 4. kvadrant (41→48).\n- Pokud je na snímku viditelný R/L marker a odporuje výchozí orientaci, prioritu má marker. Pokud uživatel/lékař opraví pozici, prioritu má jeho korekce.\n- U implantátů, retinovaných a chybějících zubů vždy uveď nejistotu, pokud je číslování nejasné nebo je konflikt mezi AI.\n- Nález jedné AI nikdy nepřepisuj do dokumentace jako fakt.\n- Gemini používej jen jako visual scout, nikoli jako zdroj definitivních zubních čísel.";
+    return "RADIOLOGICKÝ BEZPEČNOSTNÍ REŽIM:\n- Výchozí orientace OPG, pokud uživatel neuvede jinak: levý horní roh obrázku = 1. kvadrant (18→11), pravý horní = 2. kvadrant (21→28), pravý dolní = 3. kvadrant (38→31), levý dolní = 4. kvadrant (41→48).\n- Pokud je na snímku viditelný R/L marker a odporuje výchozí orientaci, prioritu má marker. Pokud uživatel/lékař opraví pozici, prioritu má jeho korekce.\n- U implantátů, retinovaných a chybějících zubů vždy uveď nejistotu, pokud je číslování nejasné nebo je konflikt mezi AI.\n- Nález jedné AI nikdy nepřepisuj do dokumentace jako fakt.\n- Gemini používej jen jako visual scout, nikoli jako zdroj definitivních zubních čísel.\n- FDI auditor je povinný: před zápisem do dokumentace znovu ověř stranu snímku, FDI mapu, implantáty, retinované a chybějící zuby.\n- Pokud lékař opravil nález, tato korekce je ground truth pro tento chat.";
   }
   if (getLang() === 'en') {
-    return "RADIOLOGY SAFETY MODE:\n- Default OPG orientation unless the user states otherwise: image upper-left = quadrant 1 (18→11), image upper-right = quadrant 2 (21→28), image lower-right = quadrant 3 (38→31), image lower-left = quadrant 4 (41→48).\n- If a visible R/L marker contradicts the default orientation, the marker wins. If the user/clinician corrects a position, the correction wins.\n- For implants, impacted teeth, and missing teeth, explicitly state uncertainty whenever numbering is unclear or AI reports conflict.\n- A finding from only one AI must never be copied into the chart as fact.\n- Treat Gemini as visual scout only, not as a source of definitive tooth numbering.";
+    return "RADIOLOGY SAFETY MODE:\n- Default OPG orientation unless the user states otherwise: image upper-left = quadrant 1 (18→11), image upper-right = quadrant 2 (21→28), image lower-right = quadrant 3 (38→31), image lower-left = quadrant 4 (41→48).\n- If a visible R/L marker contradicts the default orientation, the marker wins. If the user/clinician corrects a position, the correction wins.\n- For implants, impacted teeth, and missing teeth, explicitly state uncertainty whenever numbering is unclear or AI reports conflict.\n- A finding from only one AI must never be copied into the chart as fact.\n- Treat Gemini as visual scout only, not as a source of definitive tooth numbering.\n- FDI auditor is mandatory: before chart-ready output, re-check image side, FDI map, implants, impacted/missing teeth.\n- If the clinician corrected a finding, freeze that correction as ground truth for this chat.";
   }
-  return "РАДІОЛОГІЧНИЙ РЕЖИМ БЕЗПЕКИ:\n- Орієнтація OPG за замовчуванням, якщо користувач не вказав інше: лівий верхній кут картинки = 1-й квадрант (18→11), правий верхній = 2-й квадрант (21→28), нижній правий = 3-й квадрант (38→31), нижній лівий = 4-й квадрант (41→48).\n- Якщо на знімку видно R/L-маркер і він суперечить default-мапі — пріоритет має маркер. Якщо користувач/лікар виправив позицію — пріоритет має його корекція.\n- Для імплантів, ретенованих і відсутніх зубів завжди вказуй невизначеність, якщо нумерація нечітка або AI між собою конфліктують.\n- Знахідку лише однієї AI ніколи не переносити в карту як факт.\n- Gemini використовувати тільки як visual scout, не як джерело остаточної нумерації зубів.";
+  return "РАДІОЛОГІЧНИЙ РЕЖИМ БЕЗПЕКИ:\n- Орієнтація OPG за замовчуванням, якщо користувач не вказав інше: лівий верхній кут картинки = 1-й квадрант (18→11), правий верхній = 2-й квадрант (21→28), нижній правий = 3-й квадрант (38→31), нижній лівий = 4-й квадрант (41→48).\n- Якщо на знімку видно R/L-маркер і він суперечить default-мапі — пріоритет має маркер. Якщо користувач/лікар виправив позицію — пріоритет має його корекція.\n- Для імплантів, ретенованих і відсутніх зубів завжди вказуй невизначеність, якщо нумерація нечітка або AI між собою конфліктують.\n- Знахідку лише однієї AI ніколи не переносити в карту як факт.\n- Gemini використовувати тільки як visual scout, не як джерело остаточної нумерації зубів.\n- FDI-аудитор є обовʼязковим: перед фінальним записом перевір сторону, FDI-мапу і всі імпланти/ретеновані/відсутні зуби.\n- Якщо лікар виправив знахідку (наприклад “імплант 36”), ця корекція заморожується як ground truth у цьому чаті.";
 }
+function getAssignedClinicalRolePrompt(chatContext, currentAI) {
+  if (!chatContext || !currentAI) return '';
+  ensureMandatoryRolesForChat(chatContext);
+  const roles = chatContext.clinicalRoles || [];
+  if (!roles.length) return '';
+  const participants = chatContext.participants || [];
+  const idx = Math.max(0, participants.findIndex(p => p.ai === currentAI));
+  let roleId = roles[idx % roles.length];
+  if (isRadiologyChat(chatContext)) {
+    if (currentAI === 'openai' || (!participants.some(p => p.ai === 'openai') && currentAI === participants[0]?.ai)) roleId = 'fdi_auditor';
+    if (currentAI === 'gemini') roleId = 'skeptic_auditor';
+  }
+  const role = CLINICAL_ROLES[roleId];
+  if (!role) return '';
+  return role.icon + ' ' + roleLabel(roleId) + '\n' + role.prompt;
+}
+function extractDoctorCorrections(chatContext) {
+  if (!chatContext || !Array.isArray(chatContext.messages)) return '';
+  const correctionRe = /(неs+d{2}|замістьs+d{2}|імплантS*s+d{2}|implantS*s+d{2}|правильноs+d{2}|цеs+d{2}|корекц|виправ|помил|nots+d{2}|insteads+ofs+d{2})/i;
+  const rows = chatContext.messages.filter(m => m.role === 'user' && typeof m.content === 'string' && correctionRe.test(m.content)).slice(-6).map(m => '- ' + m.content.trim().slice(0, 500));
+  return rows.join('\n');
+}
+
 function buildMemoryPrompt(chatContext, currentAI) {
   const parts = [getLanguageInstruction()];
   if (state.memory.profile && state.memory.profile.trim()) {
@@ -3134,8 +3421,8 @@ function estimateChatRequestCost(c, userText = '', attachments = []) {
     total += runs * (inputTok * m.inPrice + outputTok * m.outPrice) / 1_000_000;
   });
   if (synth > 0) {
-    const synthAI = state.keys.claude ? 'claude' : selected[0].ai;
-    const m = MODELS[synthAI]?.[3];
+    const synthCfg = getSynthesizerConfig(c, selected);
+    const m = synthCfg.model;
     if (m) total += (inputTok * 2 * m.inPrice + outputTok * m.outPrice) / 1_000_000;
   }
   return total;
@@ -3153,6 +3440,20 @@ function detectPotentialPII(text) {
   ];
   return patterns.some(re => re.test(s));
 }
+function confirmCouncilProviderWarningOnce(c) {
+  if (!c || !Array.isArray(c.participants) || c.participants.length < 2) return true;
+  const key = 'aic_council_provider_warning_seen_v1';
+  if (localStorage.getItem(key) === '1') return true;
+  const providers = c.participants
+    .filter(p => state.keys[p.ai])
+    .map(p => AI_CONFIG[p.ai]?.fullName || p.ai)
+    .join(', ');
+  const message = `⚕️ Council mode надсилає ваш запит до кількох AI-провайдерів: ${providers}.\n\nНе вставляйте ПІБ, rodné číslo, номер страхування, адресу, телефон, email або інші ідентифікатори пацієнта. Для клінічних кейсів використовуйте анонімний опис.\n\nПродовжити?`;
+  const ok = confirm(message);
+  if (ok) localStorage.setItem(key, '1');
+  return ok;
+}
+
 function confirmBeforeSend(text, attachments, c) {
   const warnings = [];
   const filesText = (attachments || []).map(a => a.name || '').join(' ');
@@ -3238,6 +3539,54 @@ function buildRadiologyAutoPrompt(attachments = []) {
   return `${getLanguageInstruction()}\n\nАвтоматичний режим OPG / рентген-опису. Опиши прикріплений стоматологічний рентген-знімок для карти пацієнта.\n\n${shared}\n\nНАЙВАЖЛИВІШІ ПРАВИЛА:\n- Не галюцинуй. Не вигадуй карієс, періапікальні зміни, резорбції, ендодонтичне лікування, кальцифікати, відсутні зуби або позиції зубів, якщо це прямо не видно.\n- Усе сумнівне йде тільки в “уточнити”, не в текст карти.\n- OPG є оглядовим знімком. Апроксимальний карієс, краї пломб, дрібні періапікальні зміни і точний рівень кістки біля імплантів часто не оцінюються достовірно.\n- Не пиши по кожному зубу “періапікальна ділянка в нормі”. Краще: “без очевидної грубої апікальної патології на OPG”.\n- Знахідки Gemini/visual scout самі по собі не є достатніми для карти.\n\nОБОВʼЯЗКОВИЙ ФОРМАТ:\n1. **Орієнтація і якість знімка** — підтверди використану default-мапу OPG або вкажи відхилення за R/L-маркером/вказівкою користувача.\n2. **Опис зуб за зубом за FDI**. Кожен рядок починай: [18] – ... до [48] – ...\n   Якщо номер сумнівний, пиши: [??] / [ділянка] – потребує перевірки лікарем.\n3. Пріоритети:\n   🔴 підозра/ризик/перевірити перед внесенням у карту.\n   🟡 обмежено оцінюється / велика реставрація або конструкція.\n   ⚪ орієнтовний опис / без очевидної грубої патології.\n4. В кінці:\n   A. Безпечний короткий текст у карту — тільки низькоризикові формулювання.\n   B. Тільки перевірити — НЕ переносити як факт.\n   C. Що НЕ переносити в карту.\n   D. Які додаткові знімки потрібні: BW / PA / CBCT.`;
 }
 
+function stripPendingAttachments(attachments) {
+  return (attachments || []).map(stripAttachmentForStorage);
+}
+
+function savePendingRequest(chat, text, attachments, userMsgId) {
+  try {
+    const pending = {
+      id: uid(),
+      chatId: chat.id,
+      userMsgId,
+      text: String(text || ''),
+      attachments: stripPendingAttachments(attachments),
+      mode: chat.mode || 'single',
+      participants: chat.participants || [],
+      startedAt: Date.now(),
+      status: 'running'
+    };
+    localStorage.setItem(STORAGE.pending, JSON.stringify(pending));
+  } catch (e) {
+    console.warn('Failed to save pending request:', e);
+  }
+}
+
+function clearPendingRequest() {
+  try { localStorage.removeItem(STORAGE.pending); } catch {}
+}
+
+function checkPendingRequestOnStartup() {
+  let pending = null;
+  try { pending = JSON.parse(localStorage.getItem(STORAGE.pending) || 'null'); } catch {}
+  if (!pending || !pending.chatId) return;
+  const ageHours = (Date.now() - (pending.startedAt || 0)) / 36e5;
+  if (ageHours > 48) { clearPendingRequest(); return; }
+  setTimeout(() => {
+    const c = state.chats[pending.chatId];
+    const msg = 'Попередній AI-запит міг бути перерваний закриттям PWA/браузера. Відкрити чат і відновити текст у полі вводу?';
+    if (!c || !confirm(msg)) { clearPendingRequest(); return; }
+    openChat(pending.chatId);
+    const input = document.getElementById('input');
+    if (input && pending.text) {
+      input.value = pending.text;
+      adjustInput();
+      flash('Запит відновлено в полі вводу. Перевір і надішли ще раз, якщо потрібно.');
+    }
+    clearPendingRequest();
+  }, 900);
+}
+
 // ==================== SEND ====================
 async function handleSend() {
   // Prevent double-send race condition
@@ -3259,6 +3608,7 @@ async function handleSend() {
     userVisibleText = t('radiology.autoPrompt.visible', { count: attachmentsPreview.length });
   }
 
+  if (!confirmCouncilProviderWarningOnce(c)) return;
   if (!confirmBeforeSend(textForAI || userVisibleText, state.pendingAttachments, c)) return;
 
   state.sendInProgress = true;
@@ -3285,6 +3635,7 @@ async function handleSend() {
   saveChats();
   renderMessages();
 
+  savePendingRequest(c, textForAI, attachments, userMsg.id);
   const isMulti = c.participants.length > 1;
 
   try {
@@ -3297,6 +3648,7 @@ async function handleSend() {
     console.error(e);
     flash(e.message || 'Помилка', true);
   } finally {
+    clearPendingRequest();
     state.sendInProgress = false;
     if (sendBtn) sendBtn.disabled = false;
   }
@@ -3465,8 +3817,9 @@ async function runParallel(c, text, attachments, active, mode) {
     renderMessages();
 
     const synthPrompt = isRadiologyChat(c) && mode === 'synthesis' ? buildRadiologySynthesisPrompt(text, good) : (mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good));
-    const synthesizerAI = state.keys.claude ? 'claude' : good[0].ai;
-    const synthModel = MODELS[synthesizerAI][3];
+    const synthCfg = getSynthesizerConfig(c, active);
+    const synthesizerAI = synthCfg.ai;
+    const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
 
     try {
       const synthMsgs = isRadiologyChat(c) ? buildMessagesForAI(synthesizerAI, [], synthPrompt, attachments) : [{role:'user', content: synthPrompt}];
@@ -3638,8 +3991,9 @@ At the end, add a JSON meta-analysis block in backticks:
 Available ai-id: ${aiIdList}`;
 
   try {
-    const synthesizerAI = state.keys.claude ? 'claude' : finalAnswers[0].ai;
-    const synthModel = MODELS[synthesizerAI][3];
+    const synthCfg = getSynthesizerConfig(c, active);
+    const synthesizerAI = synthCfg.ai;
+    const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
     const synthMsgs = [{role:'user', content: synthPrompt}];
     const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
     trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
@@ -3735,6 +4089,52 @@ function buildVotePrompt(question, answers) {
 }
 
 // ==================== SETTINGS ====================
+function getSettingsSections() { return Array.from(document.querySelectorAll('#settingsOverlay .settings-section')); }
+function showSettingsHub() {
+  const hub = document.querySelector('#settingsOverlay .settings-hub');
+  if (hub) hub.style.display = 'grid';
+  getSettingsSections().forEach(sec => { sec.classList.remove('settings-active-panel'); sec.style.display = 'none'; });
+}
+function showSettingsPanel(sectionId) {
+  if (sectionId === 'settingsChangelogSection') { openChangelog(); return; }
+  const related = {
+    settingsApiSection: ['settingsApiSection', 'apiKeysContainer'],
+    settingsMemorySection: ['settingsMemorySection', 'settingsCzechSection', 'settingsCasesSection'],
+    settingsObsidianSection: ['settingsObsidianSection'],
+    settingsBackupSection: ['settingsBackupSection'],
+    settingsStorageSection: ['settingsBackupSection'],
+    settingsLanguageSection: ['settingsLanguageSection'],
+    settingsDangerSection: ['settingsDangerSection']
+  };
+  const activeIds = new Set(related[sectionId] || [sectionId]);
+  const hub = document.querySelector('#settingsOverlay .settings-hub');
+  if (hub) hub.style.display = 'none';
+  getSettingsSections().forEach(sec => {
+    const active = activeIds.has(sec.id);
+    sec.style.display = active ? 'block' : 'none';
+    sec.classList.toggle('settings-active-panel', active);
+  });
+  const firstId = [...activeIds][0];
+  const target = document.getElementById(firstId);
+  if (target && !target.querySelector('.settings-back-btn')) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'settings-back-btn';
+    btn.textContent = '← Settings';
+    btn.addEventListener('click', showSettingsHub);
+    target.prepend(btn);
+  }
+  const last = [...activeIds].map(id => document.getElementById(id)).filter(Boolean).pop();
+  if (last && sectionId !== 'settingsDangerSection' && !last.querySelector('.settings-panel-save')) {
+    const save = document.createElement('button');
+    save.type = 'button';
+    save.className = 'settings-btn primary settings-panel-save';
+    save.textContent = t('settings.save');
+    save.addEventListener('click', saveSettings);
+    last.append(save);
+  }
+}
+
 function openSettings() {
   const wrap = document.getElementById('apiKeysContainer');
   wrap.innerHTML = AI_ORDER.map(ai => {
@@ -3800,6 +4200,7 @@ function openSettings() {
   if (obsidianFolder) obsidianFolder.value = state.settings?.obsidian?.folder || 'AI Council';
   updateStorageIndicator();
 
+  showSettingsHub();
   openOverlay('settingsOverlay');
 }
 
@@ -4019,6 +4420,47 @@ function copyMessageText(text) {
   }
 }
 
+
+function pickCheapestAvailableAI() {
+  if (state.keys.claude) return 'claude';
+  if (state.keys.gemini) return 'gemini';
+  if (state.keys.openai) return 'openai';
+  if (state.keys.perplexity) return 'perplexity';
+  return null;
+}
+function buildDerivativePrompt(kind, content) {
+  if (kind === 'chartNote') {
+    if (getLang() === 'cs') return getLanguageInstruction() + '\n\nPřeveď následující AI odpověď na bezpečný krátký zápis do zdravotnické dokumentace. Nepřidávej nové informace. Nepiš nejisté nálezy jako fakt. Odděl: 1) zápis do dokumentace, 2) ověřit klinicky, 3) nepřepisovat jako fakt.\n\nTEXT:\n' + content;
+    if (getLang() === 'en') return getLanguageInstruction() + '\n\nConvert the following AI answer into a safe concise chart note. Do not add new information. Do not turn uncertain findings into facts. Separate: 1) chart note, 2) verify clinically, 3) do not copy as fact.\n\nTEXT:\n' + content;
+    return getLanguageInstruction() + '\n\nПеретвори відповідь нижче на безпечний короткий запис у медичну карту. Не додавай нових фактів. Не перетворюй сумнівні знахідки на діагноз. Розділи: 1) запис у карту, 2) перевірити клінічно, 3) не переносити як факт.\n\nТЕКСТ:\n' + content;
+  }
+  if (getLang() === 'cs') return getLanguageInstruction() + '\n\nPřeveď následující AI odpověď na praktické pokyny pro asistenci/sestru před výkonem. Krátce: příprava ordinace, materiály, co říct pacientovi, otázky pro lékaře. Nepřidávej nové diagnózy.\n\nTEXT:\n' + content;
+  if (getLang() === 'en') return getLanguageInstruction() + '\n\nConvert the following AI answer into practical assistant handoff instructions: operatory preparation, materials, patient explanation, questions for the doctor. Do not add new diagnoses.\n\nTEXT:\n' + content;
+  return getLanguageInstruction() + '\n\nПеретвори відповідь нижче на практичні інструкції для асистентки/медсестри: підготовка кабінету, матеріали, що пояснити пацієнту, питання для лікаря. Не додавай нових діагнозів.\n\nТЕКСТ:\n' + content;
+}
+async function generateMessageDerivative(msg, kind) {
+  if (!msg || !msg.content) return;
+  if (msg[kind]) { renderMessages(); return; }
+  const ai = pickCheapestAvailableAI();
+  if (!ai) { flash(t('flash.addApiKey'), true); return; }
+  const model = MODELS[ai][0];
+  const btnLabel = kind === 'chartNote' ? t('action.chartNote') : t('action.handoff');
+  flash(btnLabel + '…');
+  try {
+    const prompt = buildDerivativePrompt(kind, msg.content.slice(0, 12000));
+    const msgs = [{ role: 'user', content: prompt }];
+    const { text: reply, model: usedModel } = await CALLERS[ai](msgs, { model: model.id });
+    msg[kind] = String(reply || '').trim();
+    trackUsage(ai, usedModel || model.id, msgs, reply, state.activeChatId);
+    saveChats();
+    renderMessages();
+  } catch (err) { flash((err && err.message) ? err.message : String(err), true); }
+}
+function openEvidenceSearch(msg) {
+  if (!msg || !msg.content) return;
+  const q = encodeURIComponent(String(msg.content).slice(0, 1200));
+  window.open('https://www.perplexity.ai/search?q=' + q, '_blank', 'noopener,noreferrer');
+}
 
 // ==================== DAILY UX: TTS + Obsidian + Backup ====================
 function stripForSpeech(text) {
@@ -4500,7 +4942,19 @@ function init() {
   const vFooter = document.getElementById('appVersion');
   if (vFooter) vFooter.textContent = `AI Council · v${APP_VERSION} · ${APP_VERSION_DATE}`;
   const vPill = document.getElementById('headerVersion');
-  if (vPill) vPill.textContent = `v${APP_VERSION}`;
+  if (vPill) {
+    vPill.textContent = `v${APP_VERSION}`;
+    vPill.setAttribute('role', 'button');
+    vPill.setAttribute('tabindex', '0');
+    vPill.setAttribute('title', t('settings.changelog'));
+    vPill.addEventListener('click', openChangelog);
+    vPill.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openChangelog();
+      }
+    });
+  }
   const vAuthor = document.getElementById('headerAuthor');
   if (vAuthor) vAuthor.textContent = `by ${APP_AUTHOR}`;
 
@@ -4653,6 +5107,18 @@ function init() {
       closeOverlay(id);
     }
   });
+
+  document.querySelectorAll('[data-settings-jump]').forEach(btn => {
+    btn.addEventListener('click', () => showSettingsPanel(btn.dataset.settingsJump));
+  });
+
+  setTimeout(() => {
+    const splash = document.getElementById('appSplash');
+    if (splash) {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 500);
+    }
+  }, 750);
 
   // Install banner
   document.getElementById('installBtn')?.addEventListener('click', async () => {
