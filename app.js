@@ -1,13 +1,26 @@
 // ================================================================
-// AI Council v6.7.1-beta — Hotfix: API, routing, OPG safety, mobile UX
+// AI Council v6.7.2-beta — Bugfix 1-19: UI state, Perplexity, OPG chart safety, Wake Lock
 // ================================================================
 
-const APP_VERSION = '6.7.1-beta';
+const APP_VERSION = '6.7.2-beta';
 const APP_VERSION_DATE = '2026-04-26';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.7.2-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🧩 Selectable cards/templates можна віджати повторним натисканням',
+      '🟣 Header dot круглий, quick templates компактні + info',
+      '🌙 Додано світлу/темну/системну тему в меню мови',
+      '🔘 AI toggles, mode/routing cards і Perplexity selector синхронізовано',
+      '🫧 Виправлено loading bubble, swipe snap-back, chat auto-scroll',
+      '📄 OPG: В карту заблоковано для чернеток без фінального синтезу',
+      '🔒 Wake Lock для довгих задач: OPG/Council/Debate/Research'
+    ]
+  },
   {
     version: '6.7.1-beta',
     date: '2026-04-26',
@@ -636,7 +649,7 @@ let state = {
   pendingAutoSendMode: null,
   showFullLog: false,
   sendInProgress: false,
-  settings: { language: null },
+  settings: { language: null, appearance: 'system' },
   chatSearchQuery: '',
   selectionMode: false,
   selectedChatIds: new Set(),
@@ -672,6 +685,7 @@ function load() {
     const appSettings = JSON.parse(localStorage.getItem(STORAGE.settings) || '{}');
     state.settings = {
       language: ['uk','cs','en'].includes(appSettings.language) ? appSettings.language : detectDefaultLanguage(),
+      appearance: ['light','dark','system'].includes(appSettings.appearance) ? appSettings.appearance : 'system',
       obsidian: {
         enabled: !!appSettings.obsidian?.enabled,
         vault: appSettings.obsidian?.vault || '',
@@ -933,7 +947,30 @@ function saveSettingsState() {
   catch (e) { console.warn('Settings save failed:', e); }
 }
 
+function applyAppearance() {
+  const mode = state.settings?.appearance || 'system';
+  document.documentElement.dataset.theme = mode;
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.body.classList.toggle('theme-dark', mode === 'dark' || (mode === 'system' && prefersDark));
+}
+
+function renderAppearancePicker() {
+  document.querySelectorAll('[data-theme-option]').forEach(btn => {
+    const mode = btn.dataset.themeOption;
+    btn.classList.toggle('active', (state.settings?.appearance || 'system') === mode);
+    btn.onclick = () => {
+      if (!['light','dark','system'].includes(mode)) return;
+      state.settings.appearance = mode;
+      saveSettingsState();
+      applyAppearance();
+      renderAppearancePicker();
+      flash('Вигляд інтерфейсу змінено');
+    };
+  });
+}
+
 function renderLanguagePicker() {
+  renderAppearancePicker();
   document.querySelectorAll('[data-lang-option]').forEach(btn => {
     const lang = btn.dataset.langOption;
     btn.classList.toggle('active', lang === getLang());
@@ -942,6 +979,7 @@ function renderLanguagePicker() {
       state.settings.language = lang;
       saveSettingsState();
       applyTranslations();
+      applyAppearance();
       renderLanguagePicker();
       if (state.currentScreen === 'list') renderChatList();
       if (state.currentScreen === 'new') {
@@ -1383,7 +1421,7 @@ function renderChatList() {
         return;
       }
       // v4.5: If ANY other chat has swipe open, close it and don't open this one
-      const openOne = el.querySelector('.chat-item-inner[data-swiped="1"]');
+      const openOne = el.querySelector('.chat-item-inner[data-swiped="1"], .chat-item-inner[style*="translateX"]');
       if (openOne) {
         openOne.style.transform = '';
         delete openOne.dataset.swiped;
@@ -1421,6 +1459,11 @@ function renderChatList() {
       if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
         clearTimeout(longPressTimer);
       }
+      if (Math.abs(dy) > Math.abs(dx) * 1.2) {
+        const inner = item.querySelector('.chat-item-inner');
+        if (inner && inner.dataset.swiped !== '1') inner.style.transform = '';
+        return;
+      }
       // v4.5: Swipe detection — both directions, and works from swiped position
       if (!state.selectionMode && Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.8) {
         isSwiping = true;
@@ -1442,7 +1485,7 @@ function renderChatList() {
         if (inner) {
           const finalOffset = (item._startOffset || 0) + dx;
           // Snap: if past halfway toward revealing → open; else → close
-          if (finalOffset < -96) {
+          if (finalOffset < -110) {
             inner.style.transform = 'translateX(-140px)';
             inner.dataset.swiped = '1';
             // v4.5: Close any other open swipe
@@ -1460,6 +1503,13 @@ function renderChatList() {
       }
     }, { passive: true });
   });
+
+  el.addEventListener('scroll', () => {
+    el.querySelectorAll('.chat-item-inner[data-swiped="1"], .chat-item-inner[style*="translateX"]').forEach(inner => {
+      inner.style.transform = '';
+      delete inner.dataset.swiped;
+    });
+  }, { passive: true });
 
   // Swipe action buttons
   el.querySelectorAll('.swipe-action').forEach(btn => {
@@ -1662,16 +1712,66 @@ function renderTemplates() {
   const wrap = document.getElementById('templatesGrid');
   if (!wrap) return;
   const templates = state.templates || DEFAULT_TEMPLATES;
+  const templateInfo = {
+    endo: 'Структурує біль, cold test, перкусію, ЕОД, PA/CBCT показання, дифдіагноз пульпіт/періодонтит/тріщина та план ендо.',
+    implants: 'Допомагає оцінити імплантаційні ризики, кістку, м’які тканини, шаблон, протетику та checklist перед втручанням.',
+    perio: 'Стадіювання, гігієна, SRP, пародонтальна підтримка, ризики, показання до хірургії та maintenance.',
+    urgent: 'Швидко структурує біль/набряк/травму, red flags, невідкладний план, антибіотики лише за показаннями.',
+    pain: 'Допомагає розвести ендо, паро, оклюзію, TMD, невралгію та атиповий біль через питання й перевірки.',
+    'opg-report': 'OPG workflow: FDI-опис, відділення фактів від підозр, що можна в карту, що тільки перевірити.'
+  };
   wrap.innerHTML = templates.map(t => `
-    <button class="template-card" data-template-id="${t.id}">
+    <button type="button" class="template-card ${state.newChatDraft?.templateId === t.id ? 'selected' : ''}" data-template-id="${t.id}">
+      <span class="template-info-btn" data-template-info="${t.id}" aria-label="Info">ⓘ</span>
       <div class="template-icon">${t.icon}</div>
       <div class="template-name">${escapeHtml(templateText(t, 'name'))}</div>
       <div class="template-desc">${escapeHtml(templateText(t, 'description'))}</div>
     </button>
   `).join('');
   wrap.querySelectorAll('.template-card').forEach(btn => {
-    btn.addEventListener('click', () => applyTemplate(btn.dataset.templateId));
+    btn.addEventListener('click', (e) => {
+      if (e.target.closest('.template-info-btn')) return;
+      toggleTemplate(btn.dataset.templateId);
+    });
   });
+  wrap.querySelectorAll('[data-template-info]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.templateInfo;
+      const tpl = templates.find(x => x.id === id);
+      alert((templateText(tpl, 'name') || id) + '\n\n' + (templateInfo[id] || templateText(tpl, 'description') || ''));
+    });
+  });
+}
+
+function clearSelectedTemplate() {
+  const d = state.newChatDraft;
+  if (!d) return;
+  d.templateSystemAddition = null;
+  d.templateName = null;
+  d.templatePersonas = null;
+  d.templateId = null;
+  d.autoPromptType = null;
+  d.clinicalRoles = [...(ROLE_PRESETS.general || [])];
+  const input = document.getElementById('chatNameInput');
+  if (input && input.dataset.auto === '1') input.value = '';
+  renderTemplates();
+  renderAICards();
+  renderModePicker();
+  renderRoutingPicker();
+  renderClinicalRolesPicker();
+  updateCouncilVisibility();
+  updateCostEstimate();
+  updateCreateButton();
+}
+
+function toggleTemplate(templateId) {
+  if (state.newChatDraft?.templateId === templateId) {
+    clearSelectedTemplate();
+    flash('Шаблон вимкнено');
+    return;
+  }
+  applyTemplate(templateId);
 }
 
 function applyTemplate(templateId) {
@@ -1682,7 +1782,9 @@ function applyTemplate(templateId) {
   const d = state.newChatDraft;
   // Set name if still empty
   if (!document.getElementById('chatNameInput').value) {
-    document.getElementById('chatNameInput').value = templateText(t, 'name');
+    const nameInput = document.getElementById('chatNameInput');
+    nameInput.value = templateText(t, 'name');
+    nameInput.dataset.auto = '1';
   }
   // Apply suggested AIs
   d.participants.forEach(p => {
@@ -1806,7 +1908,8 @@ function renderModePicker() {
     el.addEventListener('click', () => {
       state.newChatDraft.mode = el.dataset.mode;
       renderModePicker();
-      document.getElementById('debateRoundsWrap').style.display = state.newChatDraft.mode === 'debate' ? 'block' : 'none';
+      renderRoutingPicker();
+      renderClinicalRolesPicker();
       updateCostEstimate();
     });
   });
@@ -1864,7 +1967,7 @@ function renderRoutingPicker() {
     return `<option value="${lvl}" ${Number(synthLevel) === lvl ? 'selected' : ''}>${escapeHtml(label)}</option>`;
   }).join('');
   wrap.innerHTML = `
-    <div class="routing-help">💸 <strong>Режим витрат і якості</strong><br>Визначає, які рівні моделей використовувати. Економний — дешевше. Максимальний — для важких кейсів.</div>
+    <div class="routing-help">💸 <strong>Режим витрат і якості ⓘ</strong><br>Економний — дешевше для щоденних питань. Збалансований — стандарт. Максимальний — для складних або ризикових кейсів.</div>
     <div class="routing-grid">${buttons}</div>
     <div class="routing-synth">
       <label>🧠 Фінальний висновок</label>
@@ -2214,7 +2317,7 @@ function renderMessages() {
       const msgId = btn.dataset.msgId;
       const action = btn.dataset.action;
       const msg = (state.chats[state.activeChatId]?.messages || []).find(m => m.id === msgId);
-      if (!msg || !msg.content) return;
+      if (!msg || !msg.content || btn.disabled) return;
       if (action === 'copy') copyMessageText(msg.content);
       else if (action === 'memory') saveFactFromMessage(msg.content);
       else if (action === 'speak') speakMessage(msg);
@@ -2313,6 +2416,16 @@ function renderDerivedBlocks(m) {
   return out;
 }
 
+function canUseChartNoteAction(msg) {
+  const c = state.chats[state.activeChatId];
+  if (!c || !isRadiologyChat(c)) return true;
+  if (!msg || msg.error || msg.loading) return false;
+  if (msg.source !== 'council-synth') return false;
+  const txt = String(msg.content || '');
+  if (/Фінальний синтез Ради не виконано|не є готовим OPG-висновком|synthesis failed/i.test(txt)) return false;
+  return true;
+}
+
 function renderMessage(m) {
   if (!m) return '';
   const isUser = m.role === 'user';
@@ -2366,10 +2479,14 @@ function renderMessage(m) {
     : '';
 
   // Action buttons — only for non-user, non-loading, non-error AI responses with content
+  const chartAllowed = canUseChartNoteAction(m);
+  const chartButton = chartAllowed
+    ? `<button class="msg-action-btn" data-action="chart-note" data-msg-id="${m.id}">${t('action.chartNote')}</button>`
+    : `<button class="msg-action-btn disabled" disabled title="Для OPG чернеток запис у карту доступний тільки після фінального синтезу/перевірки">${t('action.chartNote')} 🔒</button>`;
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
          <button class="msg-action-btn" data-action="speak" data-msg-id="${m.id}">${t('action.listen')}</button>
-         <button class="msg-action-btn" data-action="chart-note" data-msg-id="${m.id}">${t('action.chartNote')}</button>
+         ${chartButton}
          <button class="msg-action-btn" data-action="handoff" data-msg-id="${m.id}">${t('action.handoff')}</button>
          <button class="msg-action-btn" data-action="evidence" data-msg-id="${m.id}">${t('action.evidence')}</button>
          <button class="msg-action-btn" data-action="obsidian" data-msg-id="${m.id}">${t('action.obsidian')}</button>
@@ -3654,6 +3771,24 @@ function checkPendingRequestOnStartup() {
   }, 900);
 }
 
+let activeWakeLock = null;
+async function requestLongTaskWakeLock(chat) {
+  const isLong = !!chat && (isRadiologyChat(chat) || (chat.participants || []).length > 1 || chat.research || chat.mode === 'debate');
+  if (!isLong || !('wakeLock' in navigator)) return null;
+  try {
+    activeWakeLock = await navigator.wakeLock.request('screen');
+    activeWakeLock.addEventListener?.('release', () => { activeWakeLock = null; });
+    return activeWakeLock;
+  } catch (e) {
+    console.warn('Wake lock unavailable:', e);
+    return null;
+  }
+}
+async function releaseLongTaskWakeLock(lock) {
+  try { if (lock && !lock.released) await lock.release(); } catch {}
+  if (activeWakeLock === lock) activeWakeLock = null;
+}
+
 // ==================== SEND ====================
 async function handleSend() {
   // Prevent double-send race condition
@@ -3678,6 +3813,8 @@ async function handleSend() {
   if (!confirmCouncilProviderWarningOnce(c)) return;
   if (!confirmBeforeSend(textForAI || userVisibleText, state.pendingAttachments, c)) return;
 
+  const wakeLock = await requestLongTaskWakeLock(c);
+  if (wakeLock) flash('Екран тимчасово утримується активним для довгого AI-запиту.');
   state.sendInProgress = true;
   const sendBtn = document.getElementById('sendBtn');
   if (sendBtn) sendBtn.disabled = true;
@@ -3715,6 +3852,7 @@ async function handleSend() {
     console.error(e);
     flash(e.message || 'Помилка', true);
   } finally {
+    await releaseLongTaskWakeLock(wakeLock);
     clearPendingRequest();
     state.sendInProgress = false;
     if (sendBtn) sendBtn.disabled = false;
@@ -5012,6 +5150,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // ==================== INIT ====================
 function init() {
   load();
+  applyAppearance();
   applyTranslations();
   renderLanguagePicker();
 
