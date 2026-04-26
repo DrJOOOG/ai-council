@@ -67,11 +67,7 @@
       <div class="section-label spaced" data-i18n="newChat.councilMode">Режим роботи ради</div>
       <div class="mode-picker" id="modePicker"></div>
 
-      <div class="section-label spaced">💸 Smart Routing / Cost control</div>
-      <div id="routingPicker" class="routing-picker"></div>
-      <div id="clinicalRolesWrap" class="clinical-roles-wrap"></div>
-
-      <div id="debateRoundsWrap" style="display:none;" class="mt-16">
+      <div id="debateRoundsWrap" style="display:none;" class="mt-16 debate-rounds-inline">
         <div class="section-label" data-i18n="newChat.debateRounds">Кількість раундів дебату</div>
         <div class="rounds-picker">
           <button class="round-btn" data-rounds="1">1</button>
@@ -82,11 +78,15 @@
         </div>
         <div class="hint-text" data-i18n="newChat.roundsHint">Більше раундів = глибший аналіз, дорожче.</div>
       </div>
+
+      <div class="section-label spaced">💸 Режим витрат і якості</div>
+      <div id="routingPicker" class="routing-picker"></div>
+      <div id="clinicalRolesWrap" class="clinical-roles-wrap"></div>
     </div>
 
     <div class="section-label spaced" data-i18n="newChat.extras">Додатково</div>
     <div class="extras">
-      <label class="extra-row" id="webSearchRow">
+      <label class="extra-row hidden-legacy-web" id="webSearchRow" hidden>
         <div class="extra-info">
           <div class="extra-name" data-i18n="newChat.webSearch.name">🌐 Веб-пошук (Claude)</div>
           <div class="extra-desc" data-i18n="newChat.webSearch.desc">Claude зможе шукати в інтернеті. Інші AI поки не підтримуються.</div>
@@ -206,14 +206,14 @@
     <div class="menu-item" id="menuExportChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <div>
-        <div data-i18n="menu.export">Експорт як .md</div>
-        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.export.desc">Для Obsidian, нотаток</div>
+        <div data-i18n="menu.export">Завантажити .md файл</div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.export.desc">Зберегти Markdown-файл на пристрій</div>
       </div>
     </div>
     <div class="menu-item" id="menuObsidianChat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       <div>
-        <div data-i18n="menu.obsidian">📓 Експорт в Obsidian</div>
+        <div data-i18n="menu.obsidian">📓 Надіслати в Obsidian</div>
         <div style="font-size:11px;color:var(--text-mute);margin-top:2px;" data-i18n="menu.obsidian.desc">Через Advanced URI</div>
       </div>
     </div>
@@ -259,7 +259,7 @@
 
     <div class="settings-section" id="settingsObsidianSection">
       <h3 data-i18n="settings.obsidian.title">📓 Obsidian</h3>
-      <div class="info-text" data-i18n="settings.obsidian.desc">Експорт вибраних повідомлень або чату в Obsidian через Advanced URI plugin.</div>
+      <div class="info-text" data-i18n="settings.obsidian.desc">Obsidian — локальна база знань у Markdown. Для автоматичного експорту потрібен Community plugin Advanced URI і правильна назва vault.</div>
       <label class="extra-row compact-row">
         <div class="extra-info"><div class="extra-name" data-i18n="settings.obsidian.enabled">Увімкнути Obsidian export</div></div>
         <input type="checkbox" class="checkbox" id="obsidianEnabled">
@@ -273,20 +273,27 @@
     <div class="settings-section" id="settingsBackupSection">
       <h3 data-i18n="settings.backup.title">💾 Backup / Restore</h3>
       <div class="info-text" data-i18n="settings.backup.desc">Експорт включає чати, памʼять, кейси, шаблони й налаштування. API-ключі не включаються.</div>
-      <div class="storage-status-card ok" id="storageStatusBox" aria-live="polite">
-        <div class="storage-status-row"><span data-i18n="settings.storage.local">Памʼять чатів</span><strong>—</strong></div>
-        <div class="storage-status-row"><span data-i18n="settings.storage.origin">Загальне сховище</span><strong>—</strong></div>
-        <div class="storage-status-note ok" data-i18n="settings.storage.ok">OK</div>
-      </div>
-      <button class="settings-btn" id="persistStorageBtn" data-i18n="settings.backup.persist">🔒 Захистити памʼять додатку</button>
+      <div class="help-text">ⓘ Backup — це JSON-файл для переносу або відновлення даних. Трактуй його як конфіденційний, бо він може містити клінічні нотатки.</div>
       <button class="settings-btn" id="exportBackupBtn" data-i18n="settings.backup.export">💾 Експорт backup</button>
       <button class="settings-btn" id="importBackupBtn" data-i18n="settings.backup.import">📥 Імпорт backup</button>
       <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none;">
     </div>
 
+    <div class="settings-section" id="settingsStorageSection">
+      <h3>📦 Памʼять додатку</h3>
+      <div class="info-text">Показує, скільки місця займають чати та чи браузер може зберігати дані довше.</div>
+      <div class="storage-status-card ok" id="storageStatusBox" aria-live="polite">
+        <div class="storage-status-row"><span data-i18n="settings.storage.local">Памʼять чатів</span><strong>—</strong></div>
+        <div class="storage-status-row"><span data-i18n="settings.storage.origin">Загальне сховище</span><strong>—</strong></div>
+        <div class="storage-status-note ok" data-i18n="settings.storage.ok">OK</div>
+      </div>
+      <div class="help-text">ⓘ “Захистити памʼять” просить браузер не очищати локальні дані app автоматично.</div>
+      <button class="settings-btn" id="persistStorageBtn" data-i18n="settings.backup.persist">🔒 Захистити памʼять додатку</button>
+    </div>
+
     <div class="settings-section" id="settingsApiSection">
       <h3 data-i18n="settings.apiKeys">API ключі</h3>
-      <div class="info-text" data-i18n="settings.apiInfo">Ключі зберігаються тільки в твоєму браузері. Надсилаються напряму до API провайдера без посередників.</div>
+      <div class="info-text" data-i18n="settings.apiInfo">API-ключ — це персональний доступ до AI-провайдера. Без ключа відповідний AI не працює. Запити можуть коштувати гроші за тарифами провайдера; не публікуй ключі на GitHub.</div>
     </div>
     <div class="settings-section" id="apiKeysContainer"></div>
 
@@ -318,9 +325,6 @@
 
     <div class="settings-section" id="settingsDangerSection">
       <button class="settings-btn primary" id="saveSettingsBtn" data-i18n="settings.save">Зберегти</button>
-      <button class="settings-btn" id="openChangelogBtn" data-settings-anchor="settingsChangelogSection">
-        <span data-i18n="settings.changelog">📋 Журнал версій</span>
-      </button>
       <button class="settings-btn danger" id="wipeDataBtn" data-i18n="settings.wipe">Очистити всі дані та ключі</button>
     </div>
 

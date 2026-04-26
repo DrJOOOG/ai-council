@@ -1,13 +1,24 @@
 // ================================================================
-// AI Council v6.7.0-beta — Current plan completion: UX, clinical workflow, safety
+// AI Council v6.7.1-beta — Hotfix: API, routing, OPG safety, mobile UX
 // ================================================================
 
-const APP_VERSION = '6.7.0-beta';
+const APP_VERSION = '6.7.1-beta';
 const APP_VERSION_DATE = '2026-04-26';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+  {
+    version: '6.7.1-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🧯 Hotfix: Perplexity актуальні model IDs + fallback на Sonar при deprecated/invalid model',
+      '📍 Chat scroll тепер веде до початку нової AI-відповіді, а не в її кінець',
+      '🦷 OPG safety: якщо фінальний синтез Ради впав — показується явне попередження',
+      '🎛️ Покращено зрозумілість Smart Routing / Clinical Roles / web-доступу AI',
+      '⚙️ Settings: розділено Backup і Storage, OFF-toggle видно, прибрано версії з Dangerous zone'
+    ]
+  },
   {
     version: '6.7.0-beta',
     date: '2026-04-26',
@@ -353,10 +364,10 @@ const MODELS = {
     { id: 'gemini-3-pro-preview',  name: 'Pro 3 Preview',  short: 'PRO3',  inPrice: 2.00, outPrice: 10.00 }
   ],
   perplexity: [
-    { id: 'sonar',           name: 'Sonar',          short: 'SONAR',  inPrice: 1.00, outPrice: 1.00 },
-    { id: 'sonar-pro',       name: 'Sonar Pro',      short: 'PRO',    inPrice: 3.00, outPrice: 15.00 },
-    { id: 'sonar-reasoning', name: 'Sonar Reasoning',short: 'REASON', inPrice: 1.00, outPrice: 5.00 },
-    { id: 'sonar-reasoning-pro', name: 'Reasoning Pro', short: 'R-PRO', inPrice: 2.00, outPrice: 8.00 }
+    { id: 'sonar',                 name: 'Sonar',               short: 'SONAR', inPrice: 1.00, outPrice: 1.00 },
+    { id: 'sonar-pro',             name: 'Sonar Pro',           short: 'PRO',   inPrice: 3.00, outPrice: 15.00 },
+    { id: 'sonar-reasoning-pro',   name: 'Sonar Reasoning Pro', short: 'R-PRO', inPrice: 2.00, outPrice: 8.00 },
+    { id: 'sonar-deep-research',   name: 'Sonar Deep Research', short: 'DEEP',  inPrice: 2.00, outPrice: 8.00 }
   ]
 };
 
@@ -442,16 +453,16 @@ const MODES = {
 };
 
 const ROUTING_PRESETS = {
-  economy: { label: 'Economy', icon: '⚡', defaultLevel: 0, synthLevel: 1, costWarn: 0.05, desc: 'Дешевші моделі для щоденних питань, Sonnet/середній рівень для синтезу.' },
-  balanced: { label: 'Balanced', icon: '⚖️', defaultLevel: 1, synthLevel: 1, costWarn: 0.10, desc: 'Оптимальний баланс ціни та якості для більшості клінічних задач.' },
-  maximum: { label: 'Maximum', icon: '🧠', defaultLevel: 3, synthLevel: 3, costWarn: 0.35, desc: 'Найсильніші моделі для складних або юридично важливих кейсів.' }
+  economy: { label: 'Економний', icon: '⚡', defaultLevel: 0, synthLevel: 1, costWarn: 0.05, desc: 'Дешевше для щоденних питань: короткі відповіді, записи в карту, підсумки.' },
+  balanced: { label: 'Збалансований', icon: '⚖️', defaultLevel: 1, synthLevel: 1, costWarn: 0.10, desc: 'Стандартний режим для більшості клінічних задач: баланс ціни, швидкості та якості.' },
+  maximum: { label: 'Максимальний', icon: '🧠', defaultLevel: 3, synthLevel: 3, costWarn: 0.35, desc: 'Найсильніші моделі для складних, ризикових або юридично важливих кейсів.' }
 };
 
 // ==================== CLINICAL ROLES ====================
 const CLINICAL_ROLES = {
   implant_surgeon: { icon: '🔩', label: { uk: 'Хірург-імплантолог', cs: 'Implantolog-chirurg', en: 'Implant surgeon' }, prompt: 'Ти — досвідчений хірург-імплантолог. Мислиш через CBCT/анатомію/ризики/протезне планування. Не пропонуй агресивні втручання без показань і альтернатив.' },
   conservative_dentist: { icon: '🦷', label: { uk: 'Терапевт-консерватор', cs: 'Konzervativní stomatolog', en: 'Conservative dentist' }, prompt: 'Ти — консервативний стоматолог. Твоя роль — шукати найменш інвазивне, біологічно обґрунтоване рішення та вказувати, коли зуб варто зберігати.' },
-  evidence_reviewer: { icon: '🔬', label: { uk: 'Evidence reviewer', cs: 'Evidence reviewer', en: 'Evidence reviewer' }, prompt: 'Ти — evidence reviewer. Відділяй доказові твердження від думок, проси перевіряти джерела, не вигадуй PubMed-цитати. Якщо джерело невідоме — скажи прямо.' },
+  evidence_reviewer: { icon: '🔬', label: { uk: 'Огляд доказів', cs: 'Kontrola důkazů', en: 'Evidence reviewer' }, prompt: 'Ти — evidence reviewer. Відділяй доказові твердження від думок, проси перевіряти джерела, не вигадуй PubMed-цитати. Якщо джерело невідоме — скажи прямо.' },
   skeptic_auditor: { icon: '🛡️', label: { uk: 'Скептик / ризик-аудитор', cs: 'Skeptik / auditor rizik', en: 'Skeptic / risk auditor' }, prompt: 'Ти — скептик і ризик-аудитор. Шукай слабкі місця плану, помилки нумерації, приховані ризики, юридично небезпечні формулювання, надмірну впевненість.' },
   chart_synthesizer: { icon: '📄', label: { uk: 'Синтезатор для карти', cs: 'Zápis do dokumentace', en: 'Chart-note synthesizer' }, prompt: 'Ти — синтезатор запису в медичну документацію. Формулюй коротко, юридично обережно, без вигадок, без неперевірених діагнозів.' },
   fdi_auditor: { icon: '🧭', label: { uk: 'FDI-аудитор OPG', cs: 'FDI auditor OPG', en: 'FDI OPG auditor' }, prompt: 'Ти — FDI/орієнтаційний аудитор для OPG. Твоя головна задача — перевірити нумерацію зубів, сторону на знімку vs сторону пацієнта, позиції імплантів, ретеновані/відсутні зуби. Корекція лікаря має абсолютний пріоритет.' }
@@ -638,6 +649,7 @@ let state = {
   cases: [],      // [{id, title, tags, description, createdAt, updatedAt}]
   tts: { speaking: false, paused: false, msgId: null, chunkIndex: 0, chunkTotal: 0 },
   storageWarningShown: false,
+  scrollTargetMsgId: null,
   stats: {
     // Per-AI cumulative usage since reset
     // { claude: {requests: 0, inputTokens: 0, outputTokens: 0, estCost: 0}, ... }
@@ -1106,7 +1118,7 @@ function classifyApiError(provider, status, message, code, type) {
   if (status === 401 || txt.includes('invalid api key') || txt.includes('api key not valid') || txt.includes('unauthorized')) return 'auth';
   if (status === 403 || txt.includes('permission') || txt.includes('forbidden')) return 'auth';
   if (status === 402 || txt.includes('billing') || txt.includes('payment') || txt.includes('credit')) return 'billing';
-  if (status === 404 || txt.includes('model_not_found') || txt.includes('not found') || txt.includes('does not exist')) return 'model';
+  if (status === 404 || txt.includes('model_not_found') || txt.includes('invalid_model') || txt.includes('deprecated') || txt.includes('no longer available') || txt.includes('not found') || txt.includes('does not exist')) return 'model';
   if (status === 429 && (txt.includes('quota') || txt.includes('exceeded') || p.includes('gemini'))) return 'quota';
   if (status === 429 || txt.includes('rate limit')) return 'rate';
   if (status === 503 || status === 529 || txt.includes('overload') || txt.includes('high demand') || txt.includes('temporarily unavailable')) return 'overloaded';
@@ -1152,19 +1164,21 @@ function makeApiError(provider, status, rawText, extra = {}) {
 
 function normalizeErrorInfo(err, fallbackProvider = '') {
   if (err?.info) return err.info;
+  const msg = err?.message || t('chat.unknownError');
+  const isFetch = /failed to fetch|networkerror|load failed/i.test(String(msg));
   return {
     provider: fallbackProvider ? (AI_CONFIG[fallbackProvider]?.name || fallbackProvider) : '',
     status: '',
-    category: 'local',
+    category: isFetch ? 'network' : 'local',
     code: '',
     type: err?.name || '',
-    model: '',
-    retryable: false,
-    summary: err?.message || t('chat.unknownError'),
-    action: t('apiError.local.action'),
-    message: err?.message || '',
+    model: err?.model || '',
+    retryable: !!isFetch,
+    summary: msg,
+    action: isFetch ? t('apiError.network.action') : t('apiError.local.action'),
+    message: isFetch ? msg + '. Запит не дійшов до API як HTTP-відповідь. Перевір інтернет, CORS/endpoint, Service Worker або блокування браузером.' : msg,
     raw: sanitizeSecrets(err?.stack || err?.message || '', 1200),
-    docsUrl: '',
+    docsUrl: fallbackProvider === 'claude' ? apiDocsUrl('Anthropic', 0, 'network') : '',
     time: new Date().toISOString()
   };
 }
@@ -1408,7 +1422,7 @@ function renderChatList() {
         clearTimeout(longPressTimer);
       }
       // v4.5: Swipe detection — both directions, and works from swiped position
-      if (!state.selectionMode && Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy) * 2) {
+      if (!state.selectionMode && Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.8) {
         isSwiping = true;
         const inner = item.querySelector('.chat-item-inner');
         if (inner) {
@@ -1428,7 +1442,7 @@ function renderChatList() {
         if (inner) {
           const finalOffset = (item._startOffset || 0) + dx;
           // Snap: if past halfway toward revealing → open; else → close
-          if (finalOffset < -70) {
+          if (finalOffset < -96) {
             inner.style.transform = 'translateX(-140px)';
             inner.dataset.swiped = '1';
             // v4.5: Close any other open swipe
@@ -1710,6 +1724,11 @@ function renderAICards() {
     const ai = AI_CONFIG[p.ai];
     const hasKey = !!state.keys[p.ai];
     const model = MODELS[p.ai][p.level];
+    const webBadge = p.ai === 'perplexity'
+      ? `<span class="web-badge on" title="Perplexity завжди відповідає з web-джерелами">🌐 завжди</span>`
+      : (p.ai === 'claude'
+          ? `<button type="button" class="web-badge ${state.newChatDraft.webSearch ? 'on' : ''}" data-web-toggle="claude" title="Claude web-search">🌐 ${state.newChatDraft.webSearch ? 'увімк' : 'вимк'}</button>`
+          : `<span class="web-badge off" title="У цій версії web-search не підключений">🌐 —</span>`);
     return `
       <div class="ai-card ${p.selected ? 'selected' : ''} ${!hasKey ? 'disabled' : ''}"
            style="--ai-color: ${ai.color}; --level-color: ${LEVEL_COLORS[p.level]};"
@@ -1720,6 +1739,7 @@ function renderAICards() {
             ${ai.name}
             ${!hasKey ? `<span class="missing">${t('label.missingKey')}</span>` : ''}
           </div>
+          ${webBadge}
           <div class="toggle" data-toggle="${idx}"></div>
         </div>
         <div class="level-slider-wrap">
@@ -1747,6 +1767,18 @@ function renderAICards() {
       updateCostEstimate();
       updateCreateButton();
       autoName();
+    });
+  });
+
+  wrap.querySelectorAll('[data-web-toggle]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!state.keys.claude) { flash(t('flash.addApiKey'), true); return; }
+      state.newChatDraft.webSearch = !state.newChatDraft.webSearch;
+      const legacy = document.getElementById('webSearchToggle');
+      if (legacy) legacy.checked = state.newChatDraft.webSearch;
+      renderAICards();
+      updateCostEstimate();
     });
   });
 
@@ -1824,21 +1856,22 @@ function renderRoutingPicker() {
     </button>
   `).join('');
   const aiOptions = ['auto', ...selected.map(p => p.ai)].map(ai => {
-    const label = ai === 'auto' ? 'Auto' : AI_CONFIG[ai]?.name || ai;
+    const label = ai === 'auto' ? 'Автоматично' : AI_CONFIG[ai]?.name || ai;
     return `<option value="${ai}" ${synthAI === ai ? 'selected' : ''}>${escapeHtml(label)}</option>`;
   }).join('');
   const levelOptions = [0,1,2,3].map(lvl => {
-    const label = `${LEVEL_NAMES[lvl]} · ${lvl === 3 ? 'Max' : lvl === 2 ? 'Smart' : lvl === 1 ? 'Balanced' : 'Fast'}`;
+    const label = levelName(lvl);
     return `<option value="${lvl}" ${Number(synthLevel) === lvl ? 'selected' : ''}>${escapeHtml(label)}</option>`;
   }).join('');
   wrap.innerHTML = `
+    <div class="routing-help">💸 <strong>Режим витрат і якості</strong><br>Визначає, які рівні моделей використовувати. Економний — дешевше. Максимальний — для важких кейсів.</div>
     <div class="routing-grid">${buttons}</div>
     <div class="routing-synth">
-      <label>🧠 Synthesizer</label>
+      <label>🧠 Фінальний висновок</label>
       <select id="synthesizerAISelect" class="settings-select">${aiOptions}</select>
       <select id="synthesizerLevelSelect" class="settings-select">${levelOptions}</select>
     </div>
-    <div class="hint-text">Economy — дешевше для щоденного використання. Maximum — тільки для складних кейсів.</div>
+    <div class="hint-text">“Фінальний висновок” — AI, який збирає відповіді Ради в один підсумок.</div>
   `;
   wrap.querySelectorAll('[data-routing-preset]').forEach(btn => {
     btn.addEventListener('click', () => applyRoutingPreset(btn.dataset.routingPreset, true));
@@ -1860,12 +1893,20 @@ function renderClinicalRolesPicker() {
   const selected = d.participants.filter(p => p.selected);
   if (selected.length === 0) { wrap.innerHTML = ''; return; }
   const roles = d.clinicalRoles || [];
+  const roleDescriptions = {
+    implant_surgeon: 'Оцінює імплантаційні ризики, кістку, м’які тканини, протетику і шаблон.',
+    conservative_dentist: 'Шукає менш інвазивні варіанти: реставрація, ендо, збереження зуба.',
+    evidence_reviewer: 'Перевіряє, чи твердження спираються на протоколи або джерела.',
+    skeptic_auditor: 'Шукає слабкі місця, галюцинації, ризики і юридично небезпечні формулювання.',
+    chart_synthesizer: 'Перетворює довгу відповідь у короткий обережний текст для карти.',
+    fdi_auditor: 'Перевіряє FDI, сторону знімка і підозри vs факти в OPG.'
+  };
   const cards = Object.entries(CLINICAL_ROLES).map(([id, role]) => {
     const active = roles.includes(id);
-    return '<button type="button" class="role-card ' + (active ? 'active' : '') + '" data-role-id="' + id + '"><span class="role-icon">' + role.icon + '</span><span class="role-title">' + escapeHtml(roleLabel(id)) + '</span></button>';
+    return '<button type="button" class="role-card ' + (active ? 'active' : '') + '" data-role-id="' + id + '"><span class="role-icon">' + role.icon + '</span><span class="role-text"><span class="role-title">' + escapeHtml(roleLabel(id)) + '</span><span class="role-desc">' + escapeHtml(roleDescriptions[id] || '') + '</span></span><span class="role-check">' + (active ? '✓' : '') + '</span></button>';
   }).join('');
-  const hint = isRadiologyDraft(d) ? 'OPG режим: FDI-аудитор рекомендований і буде примусово доданий при створенні чату.' : 'Ролі додають різні кути мислення до системного prompt. Вони не привʼязані жорстко до конкретного провайдера.';
-  wrap.innerHTML = '<div class="section-label spaced">🎭 Clinical roles</div><div class="roles-grid">' + cards + '</div><div class="hint-text">' + escapeHtml(hint) + '</div>';
+  const hint = isRadiologyDraft(d) ? 'OPG режим: FDI-аудитор рекомендований і буде примусово доданий при створенні чату.' : 'Ролі — це різні кути мислення для AI. Вартість залежить насамперед від кількості AI/раундів.';
+  wrap.innerHTML = '<div class="section-label spaced">🎭 Клінічні ролі</div><div class="roles-help">Ролі допомагають Раді дивитися на кейс з різних сторін: докази, ризики, консервативне лікування, запис у карту.</div><div class="roles-grid">' + cards + '</div><div class="hint-text">' + escapeHtml(hint) + '</div>';
   wrap.querySelectorAll('[data-role-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.roleId;
@@ -2026,7 +2067,7 @@ function renderChatScreen() {
     const m = MODELS[participants[0].ai][participants[0].level];
     sub = m.name.toUpperCase();
   } else {
-    const modeNameText = c.mode ? modeName(c.mode).toUpperCase() : t('label.council');
+    const modeNameText = c.mode === 'synthesis' ? 'Σ' : (c.mode ? modeName(c.mode).toUpperCase() : t('label.council'));
     sub = `${participants.length} AI · ${modeNameText}${c.research && participants.length === 1 ? ` · ${t('label.research').toUpperCase()}` : ''}`;
   }
 
@@ -2234,7 +2275,13 @@ function renderMessages() {
 
   requestAnimationFrame(() => {
     const main = document.querySelector('#screenChat main');
-    if (main) main.scrollTop = main.scrollHeight;
+    if (!main) return;
+    const targetId = state.scrollTargetMsgId;
+    if (targetId) {
+      const target = document.querySelector(`#messages [data-msg-id="${targetId}"]`);
+      if (target) main.scrollTo({ top: Math.max(0, target.offsetTop - 10), behavior: 'smooth' });
+      state.scrollTargetMsgId = null;
+    }
   });
 }
 
@@ -3071,30 +3118,50 @@ async function callGemini(messages, opts = {}) {
   return { text, model };
 }
 
+function stripPerplexityReasoning(text) {
+  let out = String(text || '');
+  out = out.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  const orphanStart = out.search(/<think>/i);
+  if (orphanStart !== -1) out = out.slice(0, orphanStart);
+  return out.trim();
+}
+
 async function callPerplexity(messages, opts = {}) {
   const key = state.keys.perplexity;
   if (!key) throw new Error(t('error.noKey', {ai: 'Perplexity'}));
-  const model = opts.model || 'sonar-pro';
+  const requestedModel = opts.model || 'sonar-pro';
+  const valid = new Set(['sonar', 'sonar-pro', 'sonar-reasoning-pro', 'sonar-deep-research']);
+  const model = valid.has(requestedModel) ? requestedModel : 'sonar';
   const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
 
-  const resp = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
-    body: JSON.stringify({ model, messages: msgs })
-  });
-  if (!resp.ok) throw makeApiError('Perplexity', resp.status, await resp.text(), { model });
-  const data = await resp.json();
-  let text = data.choices[0].message.content || '';
-  // Reasoning models (sonar-reasoning, sonar-reasoning-pro) include <think>...</think> blocks with internal CoT
-  // First try closed blocks, then fallback to unclosed (truncated by token limit)
-  text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
-  // If there's still an orphan opening <think> without closing tag — strip from it to end
-  const orphanStart = text.search(/<think>/i);
-  if (orphanStart !== -1) {
-    text = text.slice(0, orphanStart);
+  async function send(modelToUse) {
+    const resp = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
+      body: JSON.stringify({ model: modelToUse, messages: msgs, temperature: 0.2, max_tokens: 4096 })
+    });
+    const raw = await resp.text();
+    if (!resp.ok) throw makeApiError('Perplexity', resp.status, raw, { model: modelToUse });
+    let data; try { data = JSON.parse(raw); } catch { data = {}; }
+    let text = data.choices?.[0]?.message?.content || '';
+    text = stripPerplexityReasoning(text);
+    return { text, model: modelToUse };
   }
-  text = text.trim();
-  return { text, model };
+
+  try {
+    return await send(model);
+  } catch (err) {
+    const info = err?.info;
+    const invalid = info && (info.category === 'model' || /invalid_model|deprecated|no longer available/i.test(`${info.message} ${info.raw}`));
+    if (model !== 'sonar' && invalid) {
+      const fallback = await send('sonar');
+      fallback.text = `⚠️ Обрана модель Perplexity (${model}) недоступна або застаріла. Автоматично використано Sonar.
+
+${fallback.text}`;
+      return fallback;
+    }
+    throw err;
+  }
 }
 
 const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity };
@@ -3680,6 +3747,7 @@ async function handleSingleAI(c, text, attachments) {
     time: Date.now()
   };
   c.messages.push(loadingMsg);
+  state.scrollTargetMsgId = loadingId;
   renderMessages();
 
   // Build history (text-only for simplicity in past turns)
@@ -3763,6 +3831,7 @@ async function runParallel(c, text, attachments, active, mode) {
       time: Date.now()
     });
   }
+  state.scrollTargetMsgId = Object.values(loadings)[0] || null;
   renderMessages();
 
   const results = await Promise.all(active.map(async p => {
@@ -3811,9 +3880,10 @@ async function runParallel(c, text, attachments, active, mode) {
     const synthId = uid();
     c.messages.push({
       id: synthId, role: 'assistant', source: 'council-synth',
-      loading: true, isPrimary: true, loadingLabel: modeName('synthesis') + '...',
+      loading: true, isPrimary: true, loadingLabel: 'Σ...',
       time: Date.now()
     });
+    state.scrollTargetMsgId = synthId;
     renderMessages();
 
     const synthPrompt = isRadiologyChat(c) && mode === 'synthesis' ? buildRadiologySynthesisPrompt(text, good) : (mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good));
@@ -3836,18 +3906,24 @@ async function runParallel(c, text, attachments, active, mode) {
         time: Date.now()
       };
     } catch (err) {
-      // Synthesis failed — promote individual answers to primary
+      // Synthesis failed. For radiology/OPG do NOT silently promote drafts as a safe final answer.
       const idx = c.messages.findIndex(m => m.id === synthId);
       c.messages[idx] = applyMessageError({
         id: synthId, role: 'assistant', source: 'council-synth',
         isPrimary: true, time: Date.now()
       }, err, synthesizerAI);
-      // Upgrade successful answers to primary since synthesis died
-      c.messages.forEach(m => {
-        if (m.source && good.some(g => g.ai === m.source) && !m.error) {
-          m.isPrimary = true;
-        }
-      });
+      if (isRadiologyChat(c)) {
+        c.messages.push({
+          id: uid(), role: 'assistant', source: 'council-synth', isPrimary: true, time: Date.now(),
+          content: '⚠️ Фінальний синтез Ради не виконано. Відповіді окремих моделей залишаються лише чорновим логом і не є готовим OPG-висновком. Натисни меню → “Повний лог розмови”, щоб побачити хто що сказав. “В карту” використовуй тільки після лікарської перевірки FDI/сторони.'
+        });
+      } else {
+        c.messages.forEach(m => {
+          if (m.source && good.some(g => g.ai === m.source) && !m.error) {
+            m.isPrimary = true;
+          }
+        });
+      }
     }
     renderMessages();
   } else if ((mode === 'synthesis' || mode === 'vote') && good.length === 1) {
@@ -3936,6 +4012,7 @@ async function runDebate(c, text, attachments, active) {
     loading: true, isPrimary: true, loadingLabel: t('chat.council') + '...',
     time: Date.now()
   });
+  state.scrollTargetMsgId = synthId;
   renderMessages();
 
   const finalAnswers = active.map(p => ({
@@ -4102,7 +4179,7 @@ function showSettingsPanel(sectionId) {
     settingsMemorySection: ['settingsMemorySection', 'settingsCzechSection', 'settingsCasesSection'],
     settingsObsidianSection: ['settingsObsidianSection'],
     settingsBackupSection: ['settingsBackupSection'],
-    settingsStorageSection: ['settingsBackupSection'],
+    settingsStorageSection: ['settingsStorageSection'],
     settingsLanguageSection: ['settingsLanguageSection'],
     settingsDangerSection: ['settingsDangerSection']
   };
