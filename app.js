@@ -820,9 +820,9 @@ function detectDefaultLanguage() {
     const lang = String(raw || '').toLowerCase();
     if (lang.startsWith('uk')) return 'uk';
     if (lang.startsWith('cs') || lang.startsWith('cz')) return 'cs';
-    if (lang.startsWith('en')) return 'en';
+    if (lang.startsWith('en')) continue;
   }
-  return 'en';
+  return 'uk';
 }
 
 function getLang() {
@@ -1193,7 +1193,7 @@ function classifyApiError(provider, status, message, code, type) {
   const txt = `${message || ''} ${code || ''} ${type || ''}`.toLowerCase();
   if (status === 401 || txt.includes('invalid api key') || txt.includes('api key not valid') || txt.includes('unauthorized')) return 'auth';
   if (status === 403 || txt.includes('permission') || txt.includes('forbidden')) return 'auth';
-  if (status === 402 || txt.includes('billing') || txt.includes('payment') || txt.includes('credit')) return 'billing';
+  if (status === 402 || (status !== 429 && (txt.includes('billing') || txt.includes('payment') || txt.includes('credit')))) return 'billing';
   if (status === 404 || txt.includes('model_not_found') || txt.includes('invalid_model') || txt.includes('deprecated') || txt.includes('no longer available') || txt.includes('not found') || txt.includes('does not exist')) return 'model';
   if (status === 429 && (txt.includes('quota') || txt.includes('exceeded') || p.includes('gemini'))) return 'quota';
   if (status === 429 || txt.includes('rate limit')) return 'rate';
