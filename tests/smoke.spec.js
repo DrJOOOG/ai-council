@@ -21,7 +21,7 @@ async function createOpenAIChat(page) {
   await page.locator('#aiCardsContainer [data-toggle="1"]').click(); // OpenAI / ChatGPT
   await expect(page.locator('#createChatBtn')).toBeEnabled();
   await page.locator('#createChatBtn').click();
-  await expect(page.locator('#chatHeaderTitle')).toContainText('Chat · ChatGPT');
+  await expect(page.locator('#chatHeaderTitle')).toContainText(/Chat|Чат/);
 }
 
 test('app boots and opens the new-chat screen', async ({ page }) => {

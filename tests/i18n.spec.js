@@ -10,6 +10,7 @@ test('language switch updates UI and persists after reload', async ({ page }) =>
   await expect(page.locator('html')).toHaveAttribute('lang', 'uk');
 
   await openSettings(page);
+  await page.locator('[data-settings-jump="settingsLanguageSection"]').click();
   await page.locator('[data-lang-option="cs"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs-CZ');
   await expect(page.locator('#settingsOverlay')).toContainText('Jazyk rozhraní');
@@ -20,6 +21,7 @@ test('language switch updates UI and persists after reload', async ({ page }) =>
   await expect(page.locator('#settingsBtn')).toHaveAttribute('aria-label', 'Nastavení');
 
   await openSettings(page);
+  await page.locator('[data-settings-jump="settingsLanguageSection"]').click();
   await page.locator('[data-lang-option="en"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#settingsOverlay')).toContainText('Interface language');
