@@ -1,13 +1,27 @@
 // ================================================================
-// AI Council v6.7.2-beta — Bugfix 1-19: UI state, Perplexity, OPG chart safety, Wake Lock
+// AI Council v6.9.0-beta — Architecture scaffold + mobile session recovery + UI polish
 // ================================================================
 
-const APP_VERSION = '6.7.2-beta';
+const APP_VERSION = '6.9.0-beta';
 const APP_VERSION_DATE = '2026-04-26';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+
+  {
+    version: '6.9.0-beta',
+    date: '2026-04-26',
+    highlights: [
+      '🧱 Architecture Stabilization scaffold: src/core, src/api, src/storage, src/ui, Vite config, unit-test skeleton',
+      '🔁 Session Recovery v1+: pending request risk tracking, phone-lock/background warning, safer recovery prompt',
+      '🫧 Info buttons now use lightweight in-app popovers instead of browser alert()',
+      '🌙 Dark mode contrast fixes for Settings sheets/cards/buttons',
+      '🟣 Header status dot + logo container polish in light/dark mode',
+      '↩️ Swipe cards: stronger snap-back, no partial-open state after scroll/tap/render',
+      '🧪 Added focused unit-style tests for provider mapping, selectable state, and storage helpers'
+    ]
+  },
   {
     version: '6.7.2-beta',
     date: '2026-04-26',
@@ -1336,7 +1350,59 @@ function goScreen(name) {
 function openOverlay(id) { document.getElementById(id).classList.add('open'); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 
+function closeInfoPopover() {
+  document.getElementById('inlineInfoPopover')?.remove();
+}
+
+function showInfoPopover(anchor, title, text) {
+  closeInfoPopover();
+  const pop = document.createElement('div');
+  pop.id = 'inlineInfoPopover';
+  pop.className = 'info-popover';
+  pop.innerHTML = `
+    <div class="info-popover-title">${escapeHtml(title || '')}</div>
+    <div class="info-popover-text">${escapeHtml(text || '')}</div>
+  `;
+  document.body.appendChild(pop);
+
+  const r = anchor.getBoundingClientRect();
+  const margin = 12;
+  const width = Math.min(330, window.innerWidth - margin * 2);
+  pop.style.width = width + 'px';
+  let left = Math.min(window.innerWidth - width - margin, Math.max(margin, r.right - width));
+  let top = r.top - pop.offsetHeight - 10;
+  if (top < margin) top = r.bottom + 10;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  requestAnimationFrame(() => pop.classList.add('open'));
+
+  const closer = (ev) => {
+    if (!pop.contains(ev.target) && ev.target !== anchor) {
+      closeInfoPopover();
+      document.removeEventListener('pointerdown', closer, true);
+      window.removeEventListener('resize', closeInfoPopover);
+      window.removeEventListener('scroll', closeInfoPopover, true);
+    }
+  };
+  setTimeout(() => document.addEventListener('pointerdown', closer, true), 0);
+  window.addEventListener('resize', closeInfoPopover, { once: true });
+  window.addEventListener('scroll', closeInfoPopover, { once: true, capture: true });
+}
+
 // ==================== CHAT LIST ====================
+function closeAllSwipeItems(scope = document) {
+  scope.querySelectorAll?.('.chat-item-inner[data-swiped="1"], .chat-item-inner[style*="translateX"]').forEach(inner => {
+    setSwipeState(inner, false);
+  });
+}
+
+function setSwipeState(inner, open) {
+  if (!inner) return;
+  inner.style.transform = open ? 'translateX(-140px)' : '';
+  if (open) inner.dataset.swiped = '1';
+  else delete inner.dataset.swiped;
+}
+
 function renderChatList() {
   const el = document.getElementById('chatList');
 
@@ -1401,6 +1467,7 @@ function renderChatList() {
   }
 
   el.innerHTML = html;
+  closeAllSwipeItems(el);
 
   // Attach handlers
   el.querySelectorAll('[data-chat-id]').forEach(item => {
@@ -1416,15 +1483,13 @@ function renderChatList() {
       const inner = item.querySelector('.chat-item-inner');
       // v4.5: If this chat has swipe open, tap closes it
       if (inner && inner.dataset.swiped === '1') {
-        inner.style.transform = '';
-        delete inner.dataset.swiped;
+        setSwipeState(inner, false);
         return;
       }
       // v4.5: If ANY other chat has swipe open, close it and don't open this one
       const openOne = el.querySelector('.chat-item-inner[data-swiped="1"], .chat-item-inner[style*="translateX"]');
       if (openOne) {
-        openOne.style.transform = '';
-        delete openOne.dataset.swiped;
+        setSwipeState(openOne, false);
         return;
       }
       if (state.selectionMode) {
@@ -1461,7 +1526,7 @@ function renderChatList() {
       }
       if (Math.abs(dy) > Math.abs(dx) * 1.2) {
         const inner = item.querySelector('.chat-item-inner');
-        if (inner && inner.dataset.swiped !== '1') inner.style.transform = '';
+        if (inner && inner.dataset.swiped !== '1') setSwipeState(inner, false);
         return;
       }
       // v4.5: Swipe detection — both directions, and works from swiped position
@@ -1485,19 +1550,16 @@ function renderChatList() {
         if (inner) {
           const finalOffset = (item._startOffset || 0) + dx;
           // Snap: if past halfway toward revealing → open; else → close
-          if (finalOffset < -110) {
-            inner.style.transform = 'translateX(-140px)';
-            inner.dataset.swiped = '1';
+          if (finalOffset < -120) {
+            setSwipeState(inner, true);
             // v4.5: Close any other open swipe
             el.querySelectorAll('.chat-item-inner[data-swiped="1"]').forEach(other => {
               if (other !== inner) {
-                other.style.transform = '';
-                delete other.dataset.swiped;
+                setSwipeState(other, false);
               }
             });
           } else {
-            inner.style.transform = '';
-            delete inner.dataset.swiped;
+            setSwipeState(inner, false);
           }
         }
       }
@@ -1506,8 +1568,7 @@ function renderChatList() {
 
   el.addEventListener('scroll', () => {
     el.querySelectorAll('.chat-item-inner[data-swiped="1"], .chat-item-inner[style*="translateX"]').forEach(inner => {
-      inner.style.transform = '';
-      delete inner.dataset.swiped;
+      setSwipeState(inner, false);
     });
   }, { passive: true });
 
@@ -1523,7 +1584,7 @@ function renderChatList() {
         } else {
           // Reset swipe
           const inner = btn.closest('.chat-item')?.querySelector('.chat-item-inner');
-          if (inner) { inner.style.transform = ''; delete inner.dataset.swiped; }
+          if (inner) setSwipeState(inner, false);
         }
       } else if (action === 'archive') {
         archiveChat(chatId);
@@ -1593,7 +1654,6 @@ function toggleChatSelection(chatId) {
     state.selectedChatIds.add(chatId);
   }
   renderChatList();
-  checkPendingRequestOnStartup();
 }
 
 function deleteChat(chatId, rerender = true) {
@@ -1739,7 +1799,7 @@ function renderTemplates() {
       e.stopPropagation();
       const id = btn.dataset.templateInfo;
       const tpl = templates.find(x => x.id === id);
-      alert((templateText(tpl, 'name') || id) + '\n\n' + (templateInfo[id] || templateText(tpl, 'description') || ''));
+      showInfoPopover(btn, templateText(tpl, 'name') || id, templateInfo[id] || templateText(tpl, 'description') || '');
     });
   });
 }
@@ -3738,7 +3798,9 @@ function savePendingRequest(chat, text, attachments, userMsgId) {
       mode: chat.mode || 'single',
       participants: chat.participants || [],
       startedAt: Date.now(),
-      status: 'running'
+      status: 'running',
+      pageHiddenAt: null,
+      visibilityRisk: document.visibilityState === 'hidden'
     };
     localStorage.setItem(STORAGE.pending, JSON.stringify(pending));
   } catch (e) {
@@ -3750,6 +3812,34 @@ function clearPendingRequest() {
   try { localStorage.removeItem(STORAGE.pending); } catch {}
 }
 
+function updatePendingRequestPatch(patch) {
+  try {
+    const pending = JSON.parse(localStorage.getItem(STORAGE.pending) || 'null');
+    if (!pending) return;
+    localStorage.setItem(STORAGE.pending, JSON.stringify({ ...pending, ...patch, updatedAt: Date.now() }));
+  } catch {}
+}
+
+function setupMobileLifecycleRecovery() {
+  if (setupMobileLifecycleRecovery.done) return;
+  setupMobileLifecycleRecovery.done = true;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && state.sendInProgress) {
+      updatePendingRequestPatch({
+        pageHiddenAt: Date.now(),
+        visibilityRisk: true,
+        riskReason: 'page-hidden-or-phone-locked'
+      });
+    }
+    if (document.visibilityState === 'visible' && state.sendInProgress) {
+      flash('AI-запит ще триває. Якщо телефон був заблокований, запит може обірватися — тоді його можна буде повторити.');
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    if (state.sendInProgress) updatePendingRequestPatch({ pageHiddenAt: Date.now(), visibilityRisk: true, riskReason: 'pagehide' });
+  });
+}
+
 function checkPendingRequestOnStartup() {
   let pending = null;
   try { pending = JSON.parse(localStorage.getItem(STORAGE.pending) || 'null'); } catch {}
@@ -3758,7 +3848,7 @@ function checkPendingRequestOnStartup() {
   if (ageHours > 48) { clearPendingRequest(); return; }
   setTimeout(() => {
     const c = state.chats[pending.chatId];
-    const msg = 'Попередній AI-запит міг бути перерваний закриттям PWA/браузера. Відкрити чат і відновити текст у полі вводу?';
+    const msg = pending.visibilityRisk ? 'Попередній AI-запит міг обірватися після блокування телефону або згортання app. Відкрити чат і відновити текст у полі вводу?' : 'Попередній AI-запит не був завершений. Відкрити чат і відновити текст у полі вводу?';
     if (!c || !confirm(msg)) { clearPendingRequest(); return; }
     openChat(pending.chatId);
     const input = document.getElementById('input');
@@ -5356,6 +5446,8 @@ function init() {
 
   // Initial render
   renderChatList();
+  setupMobileLifecycleRecovery();
+  checkPendingRequestOnStartup();
 }
 
 window.closeOverlay = closeOverlay;
