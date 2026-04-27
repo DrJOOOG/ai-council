@@ -16,7 +16,7 @@ async function seedKeys(page) {
 async function createOpenAIChat(page) {
   await seedKeys(page);
   await page.goto('/index.html');
-  await expect(page.locator('#headerVersion')).toContainText('v6.5.1-beta');
+  await expect(page.locator('#headerVersion')).toContainText('v6.9.1-beta');
   await page.locator('#newChatBtn').click();
   await page.locator('#aiCardsContainer [data-toggle="1"]').click(); // OpenAI / ChatGPT
   await expect(page.locator('#createChatBtn')).toBeEnabled();
@@ -28,7 +28,7 @@ test('app boots and opens the new-chat screen', async ({ page }) => {
   await seedKeys(page);
   await page.goto('/index.html');
   await expect(page).toHaveTitle(/AI Council/);
-  await expect(page.locator('#headerVersion')).toContainText('v6.5.1-beta');
+  await expect(page.locator('#headerVersion')).toContainText('v6.9.1-beta');
   await page.locator('#newChatBtn').click();
   await expect(page.locator('#screenNew')).toHaveClass(/active/);
   await expect(page.locator('#createChatBtn')).toBeDisabled();

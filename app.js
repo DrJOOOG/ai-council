@@ -1,13 +1,24 @@
 // ================================================================
-// AI Council v6.9.0-beta — Architecture scaffold + mobile session recovery + UI polish
+// AI Council v6.9.1-beta — Free Scout provider + privacy guard
 // ================================================================
 
-const APP_VERSION = '6.9.0-beta';
-const APP_VERSION_DATE = '2026-04-26';
+const APP_VERSION = '6.9.1-beta';
+const APP_VERSION_DATE = '2026-04-27';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first
 const CHANGELOG = [
+
+  {
+    version: '6.9.1-beta',
+    date: '2026-04-27',
+    highlights: [
+      '🆓 Додано Free Scout через OpenRouter Free Router як 5-й low-risk AI-провайдер',
+      '🛡️ Free Scout Privacy Guard: блокування вкладень, PII/ідентифікаторів і клінічних шаблонів перед відправкою',
+      '💸 OpenRouter Free має $0 у калькуляції вартості та окреме поле API key у Settings',
+      '🌐 CSP/Service Worker оновлено для openrouter.ai API'
+    ]
+  },
 
   {
     version: '6.9.0-beta',
@@ -340,6 +351,7 @@ const LOGOS = {
   openai: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4.5" r="1.8"/><circle cx="18.5" cy="8.3" r="1.8"/><circle cx="18.5" cy="15.7" r="1.8"/><circle cx="12" cy="19.5" r="1.8"/><circle cx="5.5" cy="15.7" r="1.8"/><circle cx="5.5" cy="8.3" r="1.8"/><g stroke="currentColor" stroke-width="0.8" opacity="0.5"><line x1="12" y1="4.5" x2="12" y2="19.5"/><line x1="5.5" y1="8.3" x2="18.5" y2="15.7"/><line x1="5.5" y1="15.7" x2="18.5" y2="8.3"/></g></svg>`,
   gemini: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 C13 7 13.5 10 22 12 C13.5 14 13 17 12 22 C11 17 10.5 14 2 12 C10.5 10 11 7 12 2 Z"/></svg>`,
   perplexity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-width="1.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.4"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>`,
+  openrouter: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h10"/><path d="M10 6l6 6-6 6"/><circle cx="12" cy="12" r="9" opacity="0.35"/><path d="M17.5 7.5 20 5" opacity="0.8"/><path d="M17.5 16.5 20 19" opacity="0.8"/></svg>`,
   council: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
     <!-- Stylized tooth outline (dental context) -->
     <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z" opacity="0.85"/>
@@ -395,6 +407,12 @@ const MODELS = {
     { id: 'sonar-pro',             name: 'Sonar Pro',           short: 'PRO',   inPrice: 3.00, outPrice: 15.00 },
     { id: 'sonar-reasoning-pro',   name: 'Sonar Reasoning Pro', short: 'R-PRO', inPrice: 2.00, outPrice: 8.00 },
     { id: 'sonar-deep-research',   name: 'Sonar Deep Research', short: 'DEEP',  inPrice: 2.00, outPrice: 8.00 }
+  ],
+  openrouter: [
+    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
+    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
+    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
+    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 }
   ]
 };
 
@@ -464,13 +482,19 @@ const AI_CONFIG = {
     keyUrl: 'https://www.perplexity.ai/settings/api',
     billingUrl: 'https://www.perplexity.ai/settings/api'
   },
+  openrouter: {
+    name: 'Free Scout', color: '#8b5cf6', fullName: 'OpenRouter Free Scout', logo: LOGOS.openrouter,
+    keyPlaceholder: 'sk-or-v1-...',
+    keyUrl: 'https://openrouter.ai/settings/keys',
+    billingUrl: 'https://openrouter.ai/settings/credits'
+  },
   // Virtual entry for Council UI (not a real AI, just for multi-AI chat styling)
   council: {
     name: 'РАДА', color: '#d4ff3a', fullName: 'Рада AI', logo: LOGOS.council
   }
 };
 
-const AI_ORDER = ['claude', 'openai', 'gemini', 'perplexity'];
+const AI_ORDER = ['claude', 'openai', 'gemini', 'perplexity', 'openrouter'];
 
 const MODES = {
   parallel:  { name: 'Паралельно', desc: 'Всі відповідають одночасно, результати поруч' },
@@ -1187,6 +1211,7 @@ function apiDocsUrl(provider, status, category) {
   if (p.includes('openai')) return 'https://platform.openai.com/docs/guides/error-codes';
   if (p.includes('claude') || p.includes('anthropic')) return 'https://docs.anthropic.com/en/api/errors';
   if (p.includes('perplexity')) return 'https://docs.perplexity.ai/guides/errors';
+  if (p.includes('openrouter')) return 'https://openrouter.ai/docs/api-reference/errors';
   return '';
 }
 
@@ -1890,7 +1915,9 @@ function renderAICards() {
       ? `<span class="web-badge on" title="Perplexity завжди відповідає з web-джерелами">🌐 завжди</span>`
       : (p.ai === 'claude'
           ? `<button type="button" class="web-badge ${state.newChatDraft.webSearch ? 'on' : ''}" data-web-toggle="claude" title="Claude web-search">🌐 ${state.newChatDraft.webSearch ? 'увімк' : 'вимк'}</button>`
-          : `<span class="web-badge off" title="У цій версії web-search не підключений">🌐 —</span>`);
+          : (p.ai === 'openrouter'
+              ? `<span class="web-badge off" title="Low-risk only: без вкладень, PII і клінічних шаблонів">🛡️ low-risk</span>`
+              : `<span class="web-badge off" title="У цій версії web-search не підключений">🌐 —</span>`));
     return `
       <div class="ai-card ${p.selected ? 'selected' : ''} ${!hasKey ? 'disabled' : ''}"
            style="--ai-color: ${ai.color}; --level-color: ${LEVEL_COLORS[p.level]};"
@@ -3341,7 +3368,59 @@ ${fallback.text}`;
   }
 }
 
-const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity };
+function normalizeOpenRouterMessages(messages, opts = {}) {
+  const msgs = [];
+  if (opts.system) msgs.push({ role: 'system', content: opts.system });
+  for (const m of messages || []) {
+    const role = m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user');
+    let content = '';
+    if (typeof m.content === 'string') content = m.content;
+    else if (Array.isArray(m.content)) {
+      content = m.content
+        .map(p => typeof p?.text === 'string' ? p.text : '')
+        .filter(Boolean)
+        .join('\n');
+    } else {
+      content = String(m.content || '');
+    }
+    msgs.push({ role, content });
+  }
+  return msgs;
+}
+
+async function callOpenRouter(messages, opts = {}) {
+  const key = state.keys.openrouter;
+  if (!key) throw new Error(t('error.noKey', {ai: 'OpenRouter Free Scout'}));
+  const model = opts.model || 'openrouter/free';
+  assertFreeScoutAllowed('openrouter', { messages });
+  const body = {
+    model,
+    messages: normalizeOpenRouterMessages(messages, opts),
+    temperature: 0.2,
+    max_tokens: 2048
+  };
+  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'authorization': `Bearer ${key}`,
+      'HTTP-Referer': location.origin,
+      'X-Title': 'AI Council Free Scout'
+    },
+    body: JSON.stringify(body)
+  });
+  const raw = await resp.text();
+  if (!resp.ok) throw makeApiError('OpenRouter', resp.status, raw, { model });
+  let data; try { data = JSON.parse(raw); } catch { data = {}; }
+  const msg = data.choices?.[0]?.message;
+  let text = '';
+  if (typeof msg?.content === 'string') text = msg.content;
+  else if (Array.isArray(msg?.content)) text = msg.content.map(p => p.text || '').filter(Boolean).join('\n');
+  if (!text) throw new Error('OpenRouter Free Scout повернув порожню відповідь');
+  return { text, model: data.model || model };
+}
+
+const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity, openrouter: callOpenRouter };
 
 // ==================== STATS TRACKING ====================
 // Rough token estimation: 1 token ≈ 4 chars for English/Ukrainian
@@ -3564,7 +3643,7 @@ function buildCouncilHistory(c, currentAI, currentUserText) {
 function buildMessagesForAI(aiName, history, userText, attachments) {
   // Different AIs format attachments differently
   const supportsPdf = aiName === 'claude' || aiName === 'gemini' || aiName === 'openai';
-  const supportsImage = true;
+  const supportsImage = aiName !== 'openrouter';
 
   const userContent = [];
   userContent.push({ text: userText });
@@ -3627,7 +3706,7 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
     for (const h of history) msgs.push({ role: h.role, content: h.content });
     msgs.push({ role: 'user', content: userContent });
   } else {
-    // perplexity — simple text
+    // perplexity/openrouter — simple text only
     for (const h of history) msgs.push({ role: h.role, content: typeof h.content === 'string' ? h.content : String(h.content) });
     const textOnly = userContent.filter(p => p.text).map(p => p.text).join('\n');
     msgs.push({ role: 'user', content: textOnly });
@@ -3684,6 +3763,51 @@ function detectPotentialPII(text) {
   ];
   return patterns.some(re => re.test(s));
 }
+
+function collectMessageText(messages = []) {
+  const out = [];
+  for (const m of messages || []) {
+    const content = m?.content;
+    if (typeof content === 'string') out.push(content);
+    else if (Array.isArray(content)) {
+      for (const p of content) {
+        if (typeof p?.text === 'string') out.push(p.text);
+        else if (typeof p?.content === 'string') out.push(p.content);
+      }
+    }
+  }
+  return out.join('\n');
+}
+
+function freeScoutBlockReason({ text = '', attachments = [], chat = null, messages = [] } = {}) {
+  if (attachments && attachments.length > 0) {
+    return 'Free Scout заблоковано: цей провайдер не отримує вкладення, фото, PDF, Excel/Word або назви файлів. Використай Claude/GPT/Gemini або локальну модель.';
+  }
+  const combined = [
+    text,
+    collectMessageText(messages),
+    chat?.name || '',
+    chat?.templateName || '',
+    chat?.templateSystemAddition || ''
+  ].filter(Boolean).join('\n');
+  if (detectPotentialPII(combined)) {
+    return 'Free Scout заблоковано: текст схожий на персональні або клінічно-ідентифікуючі дані. Анонімізуй запит або використай захищену/локальну модель.';
+  }
+  if (chat?.research) {
+    return 'Free Scout заблоковано для Research mode: він не має гарантованого web-пошуку. Для research використовуй Perplexity або Claude з web-search.';
+  }
+  const clinicalTemplateIds = new Set(['opg-report', 'endo', 'implant', 'perio', 'acute-pain', 'diagnostic']);
+  if (chat?.templateId && clinicalTemplateIds.has(chat.templateId)) {
+    return 'Free Scout заблоковано для клінічних шаблонів. Він призначений для low-risk задач: переклад, UI, стиль, код, загальні тексти без пацієнтських даних.';
+  }
+  return '';
+}
+
+function assertFreeScoutAllowed(ai, payload = {}) {
+  if (ai !== 'openrouter') return;
+  const reason = freeScoutBlockReason(payload);
+  if (reason) throw new Error(reason);
+}
 function confirmCouncilProviderWarningOnce(c) {
   if (!c || !Array.isArray(c.participants) || c.participants.length < 2) return true;
   const key = 'aic_council_provider_warning_seen_v1';
@@ -3713,6 +3837,11 @@ function confirmBeforeSend(text, attachments, c) {
   }
   if (SECURITY.requireConfirmationForPotentialPII && maybePII) {
     warnings.push('🛡️ Текст або назви файлів схожі на персональні/клінічні дані. Перед відправкою потрібно анонімізувати ПІБ, rodné číslo, номер страхівки, дату народження, телефон, email, адресу.');
+  }
+  const usesFreeScout = !!c?.participants?.some(p => p.ai === 'openrouter' && state.keys.openrouter);
+  if (usesFreeScout) {
+    const reason = freeScoutBlockReason({ text, attachments, chat: c });
+    if (reason) { flash(reason, true); return false; }
   }
   if (warnings.length === 0) return true;
   return confirm(warnings.join('\n\n') + '\n\nПідтверджую, що дані анонімізовані, і хочу продовжити.');
@@ -3984,6 +4113,7 @@ async function handleSingleAI(c, text, attachments) {
     .slice(-20)
     .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : '' }));
 
+  assertFreeScoutAllowed(p.ai, { text, attachments, chat: c });
   const msgs = buildMessagesForAI(p.ai, history, text, attachments);
   const memorySystem = buildMemoryPrompt(c, p.ai);
   const opts = {
@@ -4066,6 +4196,7 @@ async function runParallel(c, text, attachments, active, mode) {
     const model = MODELS[p.ai][p.level];
     // v4.5: Each AI gets its own history with prior turns
     const history = buildCouncilHistory(c, p.ai, text);
+    assertFreeScoutAllowed(p.ai, { text, attachments, chat: c });
     const msgs = buildMessagesForAI(p.ai, history, text, attachments);
     // v5.0: Per-AI persona from template
     const memorySystem = buildMemoryPrompt(c, p.ai);
@@ -4120,6 +4251,7 @@ async function runParallel(c, text, attachments, active, mode) {
     const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
 
     try {
+      assertFreeScoutAllowed(synthesizerAI, { text: synthPrompt, attachments: isRadiologyChat(c) ? attachments : [], chat: c });
       const synthMsgs = isRadiologyChat(c) ? buildMessagesForAI(synthesizerAI, [], synthPrompt, attachments) : [{role:'user', content: synthPrompt}];
       const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
       trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
@@ -4205,6 +4337,7 @@ async function runDebate(c, text, attachments, active) {
 
       // v4.5: In R1 pass conversation history; in R2+ the prompt already contains all prior round answers
       const history = r === 1 ? buildCouncilHistory(c, p.ai, text) : [];
+      assertFreeScoutAllowed(p.ai, { text: prompt, attachments: r === 1 ? attachments : [], chat: c });
       const msgs = buildMessagesForAI(p.ai, history, prompt, r === 1 ? attachments : []);
       // v5.0: Per-AI persona
       const memorySystem = buildMemoryPrompt(c, p.ai);
@@ -4299,6 +4432,7 @@ Available ai-id: ${aiIdList}`;
     const synthCfg = getSynthesizerConfig(c, active);
     const synthesizerAI = synthCfg.ai;
     const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
+    assertFreeScoutAllowed(synthesizerAI, { text: synthPrompt, attachments: [], chat: c });
     const synthMsgs = [{role:'user', content: synthPrompt}];
     const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
     trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
@@ -4339,6 +4473,7 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
 
     const iterMsgs = [...context];
     iterMsgs.push({ role: 'user', content: it.prompt });
+    assertFreeScoutAllowed(aiName, { messages: iterMsgs });
 
     const { text: reply, model: usedModel } = await CALLERS[aiName](iterMsgs, opts);
     // v5.1: Track usage for each research iteration (was missing — caused undercount)

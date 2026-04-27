@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.9.0-beta';
+const CACHE = 'ai-council-v6.9.1-beta';
 const ASSETS = [
   './',
   './index.html',
@@ -48,7 +48,8 @@ self.addEventListener('fetch', (e) => {
   if (url.hostname.includes('anthropic.com') ||
       url.hostname.includes('openai.com') ||
       url.hostname.includes('googleapis.com') ||
-      url.hostname.includes('perplexity.ai')) {
+      url.hostname.includes('perplexity.ai') ||
+      url.hostname.includes('openrouter.ai')) {
     return;
   }
   if (url.origin !== self.location.origin) return;
