@@ -2,7 +2,7 @@
 <html lang="">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://api.perplexity.ai https://openrouter.ai; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://api.perplexity.ai; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f7f3f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -56,6 +56,13 @@
   <div class="new-chat-body">
     <div class="section-label" data-i18n="newChat.templates">Швидкий старт — шаблони</div>
     <div class="templates-grid" id="templatesGrid"></div>
+    <button type="button" class="visuals-entry-card" id="openVisualsFromNew">
+      <div class="visuals-entry-icon">🖼️</div>
+      <div class="visuals-entry-text">
+        <div class="visuals-entry-title" data-i18n="visuals.entry.title">Візуалізації для пацієнта</div>
+        <div class="visuals-entry-desc" data-i18n="visuals.entry.desc">Карієс, пульпіт, ендо, імпланти, пародонтологія — показати просто й на весь екран.</div>
+      </div>
+    </button>
 
     <div class="section-label spaced" data-i18n="newChat.name">Назва чату</div>
     <input type="text" class="chat-name-input" id="chatNameInput" placeholder="Напр. Порада по імплантології" data-i18n-placeholder="newChat.namePlaceholder" maxlength="60">
@@ -110,6 +117,36 @@
   </div>
   <div class="create-bar">
     <button class="create-btn" id="createChatBtn" data-i18n="newChat.create" disabled>Створити чат</button>
+  </div>
+</div>
+
+<!-- SCREEN: VISUALS -->
+<div class="screen" id="screenVisuals">
+  <header>
+    <button class="back-btn" id="visualsBackBtn" aria-label="Назад" data-i18n-aria-label="common.back">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="header-title">
+      <div class="main" data-i18n="visuals.title">Візуалізації</div>
+      <div class="sub" data-i18n="visuals.subtitle">ПОЯСНЕННЯ ДЛЯ ПАЦІЄНТА</div>
+    </div>
+  </header>
+  <div class="visuals-body">
+    <div class="visuals-hero">
+      <div class="visuals-hero-icon">🖼️</div>
+      <div>
+        <div class="visuals-hero-title" data-i18n="visuals.hero.title">Бібліотека пацієнтських пояснень</div>
+        <div class="visuals-hero-desc" data-i18n="visuals.hero.desc">Відкрий тему, покажи картинку/анімацію у fullscreen і скопіюй короткий текст для пацієнта.</div>
+      </div>
+    </div>
+    <input type="search" class="visuals-search" id="visualsSearch" placeholder="Пошук: карієс, пульпіт, імплант..." data-i18n-placeholder="visuals.search.placeholder">
+    <div class="visuals-audience-tabs" id="visualsAudienceTabs">
+      <button type="button" class="visuals-tab active" data-visual-audience="patient" data-i18n="visuals.audience.patient">Для пацієнта</button>
+      <button type="button" class="visuals-tab" data-visual-audience="doctor" data-i18n="visuals.audience.doctor">Для лікаря</button>
+      <button type="button" class="visuals-tab" data-visual-audience="all" data-i18n="visuals.audience.all">Усе</button>
+    </div>
+    <div class="visual-category-chips" id="visualCategoryChips"></div>
+    <div class="visuals-grid" id="visualsGrid"></div>
   </div>
 </div>
 
@@ -238,14 +275,15 @@
       </button>
     </div>
     <div class="settings-hub" id="settingsHub">
-      <button class="settings-hub-card" data-settings-jump="settingsLanguageSection">🌐<span>Мова і вигляд</span></button>
-      <button class="settings-hub-card" data-settings-jump="settingsApiSection">🔑<span>API ключі</span></button>
-      <button class="settings-hub-card" data-settings-jump="settingsMemorySection">🧠<span>Памʼять AI</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsLanguageSection">🌐<span data-i18n="settings.hub.language">Мова і вигляд</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsApiSection">🔑<span data-i18n="settings.hub.api">API ключі</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsMemorySection">🧠<span data-i18n="settings.hub.memory">Памʼять AI</span></button>
+      <button class="settings-hub-card" id="openVisualsFromSettings" type="button">🖼️<span data-i18n="visuals.title">Візуалізації</span></button>
       <button class="settings-hub-card" data-settings-jump="settingsObsidianSection">📓<span>Obsidian</span></button>
-      <button class="settings-hub-card" data-settings-jump="settingsBackupSection">💾<span>Backup</span></button>
-      <button class="settings-hub-card" data-settings-jump="settingsStorageSection">📦<span>Storage</span></button>
-      <button class="settings-hub-card" data-settings-jump="settingsChangelogSection">📋<span>Версії</span></button>
-      <button class="settings-hub-card danger" data-settings-jump="settingsDangerSection">🧨<span>Danger zone</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsBackupSection">💾<span data-i18n="settings.hub.backup">Backup</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsStorageSection">📦<span data-i18n="settings.hub.storage">Storage</span></button>
+      <button class="settings-hub-card" data-settings-jump="settingsChangelogSection">📋<span data-i18n="settings.hub.versions">Версії</span></button>
+      <button class="settings-hub-card danger" data-settings-jump="settingsDangerSection">🧨<span data-i18n="settings.hub.danger">Danger zone</span></button>
     </div>
     <div class="settings-section" id="settingsLanguageSection">
       <h3 data-i18n="settings.language.title">🌐 Мова інтерфейсу</h3>
@@ -279,21 +317,21 @@
     <div class="settings-section" id="settingsBackupSection">
       <h3 data-i18n="settings.backup.title">💾 Backup / Restore</h3>
       <div class="info-text" data-i18n="settings.backup.desc">Експорт включає чати, памʼять, кейси, шаблони й налаштування. API-ключі не включаються.</div>
-      <div class="help-text">ⓘ Backup — це JSON-файл для переносу або відновлення даних. Трактуй його як конфіденційний, бо він може містити клінічні нотатки.</div>
+      <div class="help-text" data-i18n="settings.backup.help">ⓘ Backup — це JSON-файл для переносу або відновлення даних. Трактуй його як конфіденційний, бо він може містити клінічні нотатки.</div>
       <button class="settings-btn" id="exportBackupBtn" data-i18n="settings.backup.export">💾 Експорт backup</button>
       <button class="settings-btn" id="importBackupBtn" data-i18n="settings.backup.import">📥 Імпорт backup</button>
       <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none;">
     </div>
 
     <div class="settings-section" id="settingsStorageSection">
-      <h3>📦 Памʼять додатку</h3>
-      <div class="info-text">Показує, скільки місця займають чати та чи браузер може зберігати дані довше.</div>
+      <h3 data-i18n="settings.storage.title">📦 Памʼять додатку</h3>
+      <div class="info-text" data-i18n="settings.storage.desc">Показує, скільки місця займають чати та чи браузер може зберігати дані довше.</div>
       <div class="storage-status-card ok" id="storageStatusBox" aria-live="polite">
         <div class="storage-status-row"><span data-i18n="settings.storage.local">Памʼять чатів</span><strong>—</strong></div>
         <div class="storage-status-row"><span data-i18n="settings.storage.origin">Загальне сховище</span><strong>—</strong></div>
         <div class="storage-status-note ok" data-i18n="settings.storage.ok">OK</div>
       </div>
-      <div class="help-text">ⓘ “Захистити памʼять” просить браузер не очищати локальні дані app автоматично.</div>
+      <div class="help-text" data-i18n="settings.storage.help">ⓘ “Захистити памʼять” просить браузер не очищати локальні дані app автоматично.</div>
       <button class="settings-btn" id="persistStorageBtn" data-i18n="settings.backup.persist">🔒 Захистити памʼять додатку</button>
     </div>
 
@@ -409,6 +447,52 @@
   </div>
 </div>
 
+<!-- OVERLAY: visual detail -->
+<div class="overlay" id="visualDetailOverlay">
+  <div class="sheet visual-detail-sheet">
+    <div class="sheet-header">
+      <h2 id="visualDetailTitle">Візуалізація</h2>
+      <button class="header-btn" data-close="visualDetailOverlay">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="visualDetailContent"></div>
+  </div>
+</div>
+
+<!-- OVERLAY: fullscreen patient visual -->
+<div class="overlay visual-patient-overlay" id="visualPatientOverlay">
+  <div class="visual-patient-shell">
+    <button class="visual-patient-close" id="visualPatientClose" type="button">×</button>
+    <div id="visualPatientContent"></div>
+  </div>
+</div>
+
+
+<!-- Floating TTS player -->
+<div class="tts-player" id="ttsMiniPlayer" hidden aria-live="polite">
+  <div class="tts-player-head">
+    <div>
+      <div class="tts-player-title" data-i18n="tts.title">Озвучування</div>
+      <div class="tts-player-sub" id="ttsPlayerSub" data-i18n="tts.nowReading">AI читає відповідь</div>
+    </div>
+    <button type="button" class="tts-icon-btn" id="ttsCloseBtn" data-i18n-aria-label="tts.close" aria-label="Закрити плеєр">×</button>
+  </div>
+  <div class="tts-player-text" id="ttsPlayerText"></div>
+  <div class="tts-player-controls">
+    <button type="button" class="tts-control-btn" id="ttsRestartBtn" data-i18n="tts.restart">Спочатку</button>
+    <button type="button" class="tts-control-btn primary" id="ttsPauseBtn" data-i18n="tts.pause">Пауза</button>
+    <button type="button" class="tts-control-btn danger" id="ttsStopBtn" data-i18n="tts.stop">Стоп</button>
+    <label class="tts-rate-label"><span data-i18n="tts.rate">Швидкість</span>
+      <select id="ttsRateSelect" class="tts-rate-select">
+        <option value="0.8">0.8×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.2">1.2×</option>
+      </select>
+    </label>
+  </div>
+</div>
+
 <!-- Install banner -->
 <div class="install-banner" id="installBanner">
   <div class="row">
@@ -421,6 +505,7 @@
 </div>
 
 <script src="translations.js"></script>
+<script src="src/config/visuals.config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

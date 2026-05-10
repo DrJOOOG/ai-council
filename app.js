@@ -1,36 +1,58 @@
 // ================================================================
-// AI Council v6.9.1-beta — Free Scout provider + privacy guard
+// AI Council v6.10.1-beta — UI/TTS polish hotfix
 // ================================================================
 
-const APP_VERSION = '6.9.1-beta';
-const APP_VERSION_DATE = '2026-04-27';
+const APP_VERSION = '6.10.1-beta';
+const APP_VERSION_DATE = '2026-05-10';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
-// Changelog — newest first
+// Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
-
+  {
+    version: '6.10.1-beta',
+    date: '2026-05-10',
+    highlights: [
+      { uk: '🌐 Виправлено змішані мови в Settings і журналі версій для UA / CZ / EN.', cs: '🌐 Opravena směs jazyků v Nastavení a historii verzí pro UA / CZ / EN.', en: '🌐 Fixed mixed-language Settings and version history for UA / CS / EN.' },
+      { uk: '🔊 Додано floating TTS-плеєр: пауза, продовжити, стоп, спочатку, швидкість читання.', cs: '🔊 Přidán plovoucí TTS přehrávač: pauza, pokračovat, stop, od začátku, rychlost čtení.', en: '🔊 Added floating TTS player: pause, resume, stop, restart, speech rate.' },
+      { uk: '✨ Додано karaoke-підсвічування активного слова під час озвучування; якщо браузер не дає word boundary, підсвічується початок актуального фрагмента.', cs: '✨ Přidáno karaoke zvýraznění právě čteného slova; když prohlížeč neposkytne word boundary, zvýrazní se začátek aktuálního úseku.', en: '✨ Added karaoke-style active-word highlighting during speech; if word boundaries are unavailable, the active chunk start is highlighted.' },
+      { uk: '📄 “В карту” перейменовано на зрозуміліше “Текст у карту”.', cs: '📄 „Do karty“ přejmenováno na srozumitelnější „Zápis do dokumentace“.', en: '📄 “Chart note” wording clarified across the UI.' },
+      { uk: '🧼 Дрібний polish: читабельніший контраст, акуратніший footer версії, стабільніший snap-back swipe-карток.', cs: '🧼 Drobný polish: čitelnější kontrast, čistší patička verze, stabilnější snap-back swipe karet.', en: '🧼 UI polish: improved contrast, cleaner version footer, more stable swipe-card snap-back.' }
+    ]
+  },
+  {
+    version: '6.10.0-beta',
+    date: '2026-05-10',
+    highlights: [
+      { uk: '🖼️ Додано Patient Visual Library: окремий екран Візуалізації / Vizualizace.', cs: '🖼️ Přidána Patient Visual Library: samostatná obrazovka Vizualizace.', en: '🖼️ Added Patient Visual Library as a dedicated Visualizations screen.' },
+      { uk: '🦷 Додано 30 стартових стоматологічних візуалізацій: карієс, пульпа, ендо, пародонтологія, імпланти, хірургія, протезування, гігієна, OPG.', cs: '🦷 Přidáno 30 úvodních stomatologických vizualizací: kaz, dřeň, endodoncie, parodontologie, implantáty, chirurgie, protetika, hygiena, OPG.', en: '🦷 Added 30 starter dental visualizations: caries, pulp, endo, perio, implants, surgery, prosthetics, hygiene, OPG.' },
+      { uk: '👁️ Додано fullscreen patient mode для показу пацієнту без технічного UI.', cs: '👁️ Přidán fullscreen režim pro pacienta bez technického UI.', en: '👁️ Added fullscreen patient mode without technical UI.' },
+      { uk: '🔎 Додано пошук, фільтр категорій і режими Для пацієнта / Для лікаря / Усе.', cs: '🔎 Přidáno vyhledávání, filtrování kategorií a režimy Pro pacienta / Pro lékaře / Vše.', en: '🔎 Added search, category filter, and Patient / Doctor / All modes.' },
+      { uk: '💬 Біля AI-відповідей додано кнопку Візуалізація з автоматичним підбором релевантних матеріалів.', cs: '💬 U odpovědí AI přidáno tlačítko Vizualizace s automatickým výběrem relevantních materiálů.', en: '💬 Added Visual button next to AI replies with automatic relevant-material suggestions.' },
+      { uk: '🌐 Visual Library підтримує UA / CS / EN тексти через конфіг.', cs: '🌐 Visual Library podporuje texty UA / CS / EN přes konfigurační soubor.', en: '🌐 Visual Library supports UA / CS / EN texts through config.' }
+    ]
+  },
   {
     version: '6.9.1-beta',
     date: '2026-04-27',
     highlights: [
-      '🆓 Додано Free Scout через OpenRouter Free Router як 5-й low-risk AI-провайдер',
-      '🛡️ Free Scout Privacy Guard: блокування вкладень, PII/ідентифікаторів і клінічних шаблонів перед відправкою',
-      '💸 OpenRouter Free має $0 у калькуляції вартості та окреме поле API key у Settings',
-      '🌐 CSP/Service Worker оновлено для openrouter.ai API'
+      { uk: '🧯 OPG doctor correction freeze hotfix: корекції типу “це 36”, “замість 46”, “імплант 36” знову розпізнаються.', cs: '🧯 OPG hotfix korekcí lékaře: fráze typu „je to 36“, „místo 46“, „implantát 36“ se opět rozpoznávají.', en: '🧯 OPG doctor-correction hotfix: phrases like “this is 36”, “instead of 46”, “implant 36” are recognized again.' },
+      { uk: '🧭 Корекції лікаря реально додаються в системний prompt і фінальний OPG-синтез Ради.', cs: '🧭 Korekce lékaře se vkládají do systémového promptu i finálního OPG syntézního výstupu Rady.', en: '🧭 Doctor corrections are injected into the system prompt and final Council OPG synthesis.' },
+      { uk: '⏹️ Додано Stop/Cancel для активних AI-запитів без перезавантаження сторінки.', cs: '⏹️ Přidán Stop/Cancel pro aktivní AI požadavky bez obnovení stránky.', en: '⏹️ Added Stop/Cancel for active AI requests without reloading.' },
+      { uk: '⏱️ Додано timeout для завислих API-викликів із зрозумілим повідомленням.', cs: '⏱️ Přidán timeout pro zaseknutá API volání se srozumitelnou chybou.', en: '⏱️ Added request timeout for stalled API calls with human-readable errors.' },
+      { uk: '🧪 Додано unit-тести для OPG doctor corrections.', cs: '🧪 Přidány unit testy pro OPG korekce lékaře.', en: '🧪 Added unit tests for OPG doctor corrections.' }
     ]
   },
-
   {
     version: '6.9.0-beta',
     date: '2026-04-26',
     highlights: [
-      '🧱 Architecture Stabilization scaffold: src/core, src/api, src/storage, src/ui, Vite config, unit-test skeleton',
-      '🔁 Session Recovery v1+: pending request risk tracking, phone-lock/background warning, safer recovery prompt',
-      '🫧 Info buttons now use lightweight in-app popovers instead of browser alert()',
-      '🌙 Dark mode contrast fixes for Settings sheets/cards/buttons',
-      '🟣 Header status dot + logo container polish in light/dark mode',
-      '↩️ Swipe cards: stronger snap-back, no partial-open state after scroll/tap/render',
-      '🧪 Added focused unit-style tests for provider mapping, selectable state, and storage helpers'
+      { uk: '🧱 Architecture Stabilization scaffold: src/core, src/api, src/storage, src/ui, Vite config, unit-test skeleton.', cs: '🧱 Základ stabilizace architektury: src/core, src/api, src/storage, src/ui, Vite config, unit-test skeleton.', en: '🧱 Architecture stabilization scaffold: src/core, src/api, src/storage, src/ui, Vite config, unit-test skeleton.' },
+      { uk: '🔁 Session Recovery v1+: відстеження pending-запитів, попередження при блокуванні телефона/фоні, безпечніше відновлення.', cs: '🔁 Session Recovery v1+: sledování pending požadavků, varování při uzamčení telefonu/pozadí, bezpečnější obnovení.', en: '🔁 Session Recovery v1+: pending request tracking, phone-lock/background warning, safer recovery prompt.' },
+      { uk: '🫧 Info-кнопки використовують легкі in-app popovers замість browser alert().', cs: '🫧 Info tlačítka používají lehké in-app popovery místo browser alert().', en: '🫧 Info buttons use lightweight in-app popovers instead of browser alert().' },
+      { uk: '🌙 Виправлено контраст dark mode для Settings sheet/card/button.', cs: '🌙 Opraven kontrast dark mode pro Settings sheet/card/button.', en: '🌙 Dark mode contrast fixes for Settings sheets/cards/buttons.' },
+      { uk: '🟣 Header status dot + logo container polish у світлій/темній темі.', cs: '🟣 Vylepšen status dot v headeru a logo container ve světlém/tmavém režimu.', en: '🟣 Header status dot + logo container polish in light/dark mode.' },
+      { uk: '↩️ Swipe cards: сильніший snap-back, без partial-open стану після scroll/tap/render.', cs: '↩️ Swipe karty: silnější snap-back, bez partial-open stavu po scroll/tap/render.', en: '↩️ Swipe cards: stronger snap-back, no partial-open state after scroll/tap/render.' },
+      { uk: '🧪 Додано unit-style тести для provider mapping, selectable state і storage helpers.', cs: '🧪 Přidány unit-style testy pro provider mapping, selectable state a storage helpers.', en: '🧪 Added focused unit-style tests for provider mapping, selectable state, and storage helpers.' }
     ]
   },
   {
@@ -351,7 +373,6 @@ const LOGOS = {
   openai: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4.5" r="1.8"/><circle cx="18.5" cy="8.3" r="1.8"/><circle cx="18.5" cy="15.7" r="1.8"/><circle cx="12" cy="19.5" r="1.8"/><circle cx="5.5" cy="15.7" r="1.8"/><circle cx="5.5" cy="8.3" r="1.8"/><g stroke="currentColor" stroke-width="0.8" opacity="0.5"><line x1="12" y1="4.5" x2="12" y2="19.5"/><line x1="5.5" y1="8.3" x2="18.5" y2="15.7"/><line x1="5.5" y1="15.7" x2="18.5" y2="8.3"/></g></svg>`,
   gemini: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 C13 7 13.5 10 22 12 C13.5 14 13 17 12 22 C11 17 10.5 14 2 12 C10.5 10 11 7 12 2 Z"/></svg>`,
   perplexity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-width="1.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="1.4"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>`,
-  openrouter: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h10"/><path d="M10 6l6 6-6 6"/><circle cx="12" cy="12" r="9" opacity="0.35"/><path d="M17.5 7.5 20 5" opacity="0.8"/><path d="M17.5 16.5 20 19" opacity="0.8"/></svg>`,
   council: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
     <!-- Stylized tooth outline (dental context) -->
     <path d="M8 3.5 C6 3.5 5 5 5 7 C5 9 5.5 10.5 6 12.5 L7 17 C7.3 18.5 8 19 9 19 C9.8 19 10.5 18.5 10.8 17 L11.5 14 C11.7 13 12.3 13 12.5 14 L13.2 17 C13.5 18.5 14.2 19 15 19 C16 19 16.7 18.5 17 17 L18 12.5 C18.5 10.5 19 9 19 7 C19 5 18 3.5 16 3.5 C14.5 3.5 13 4 12 4 C11 4 9.5 3.5 8 3.5 Z" opacity="0.85"/>
@@ -407,12 +428,6 @@ const MODELS = {
     { id: 'sonar-pro',             name: 'Sonar Pro',           short: 'PRO',   inPrice: 3.00, outPrice: 15.00 },
     { id: 'sonar-reasoning-pro',   name: 'Sonar Reasoning Pro', short: 'R-PRO', inPrice: 2.00, outPrice: 8.00 },
     { id: 'sonar-deep-research',   name: 'Sonar Deep Research', short: 'DEEP',  inPrice: 2.00, outPrice: 8.00 }
-  ],
-  openrouter: [
-    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
-    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
-    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 },
-    { id: 'openrouter/free', name: 'Free Scout Router', short: 'FREE', inPrice: 0.00, outPrice: 0.00 }
   ]
 };
 
@@ -482,19 +497,13 @@ const AI_CONFIG = {
     keyUrl: 'https://www.perplexity.ai/settings/api',
     billingUrl: 'https://www.perplexity.ai/settings/api'
   },
-  openrouter: {
-    name: 'Free Scout', color: '#8b5cf6', fullName: 'OpenRouter Free Scout', logo: LOGOS.openrouter,
-    keyPlaceholder: 'sk-or-v1-...',
-    keyUrl: 'https://openrouter.ai/settings/keys',
-    billingUrl: 'https://openrouter.ai/settings/credits'
-  },
   // Virtual entry for Council UI (not a real AI, just for multi-AI chat styling)
   council: {
     name: 'РАДА', color: '#d4ff3a', fullName: 'Рада AI', logo: LOGOS.council
   }
 };
 
-const AI_ORDER = ['claude', 'openai', 'gemini', 'perplexity', 'openrouter'];
+const AI_ORDER = ['claude', 'openai', 'gemini', 'perplexity'];
 
 const MODES = {
   parallel:  { name: 'Паралельно', desc: 'Всі відповідають одночасно, результати поруч' },
@@ -687,6 +696,9 @@ let state = {
   pendingAutoSendMode: null,
   showFullLog: false,
   sendInProgress: false,
+  activeRequestControllers: new Set(),
+  requestCancelRequested: false,
+  visuals: { query: '', category: 'all', audience: 'patient', returnScreen: 'list' },
   settings: { language: null, appearance: 'system' },
   chatSearchQuery: '',
   selectionMode: false,
@@ -1211,7 +1223,6 @@ function apiDocsUrl(provider, status, category) {
   if (p.includes('openai')) return 'https://platform.openai.com/docs/guides/error-codes';
   if (p.includes('claude') || p.includes('anthropic')) return 'https://docs.anthropic.com/en/api/errors';
   if (p.includes('perplexity')) return 'https://docs.perplexity.ai/guides/errors';
-  if (p.includes('openrouter')) return 'https://openrouter.ai/docs/api-reference/errors';
   return '';
 }
 
@@ -1364,12 +1375,14 @@ function applyMessageError(msg, err, fallbackProvider) {
 
 // ==================== SCREEN NAV ====================
 function goScreen(name) {
+  if (state.currentScreen === 'chat' && name !== 'chat') stopTts();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
   state.currentScreen = name;
   if (name === 'list') renderChatList();
   if (name === 'new') initNewChatScreen();
   if (name === 'chat') renderChatScreen();
+  if (name === 'visuals') renderVisualsScreen();
   window.scrollTo(0, 0);
 }
 function openOverlay(id) { document.getElementById(id).classList.add('open'); }
@@ -1423,7 +1436,7 @@ function closeAllSwipeItems(scope = document) {
 
 function setSwipeState(inner, open) {
   if (!inner) return;
-  inner.style.transform = open ? 'translateX(-140px)' : '';
+  inner.style.transform = open ? 'translateX(-128px)' : '';
   if (open) inner.dataset.swiped = '1';
   else delete inner.dataset.swiped;
 }
@@ -1561,7 +1574,7 @@ function renderChatList() {
         if (inner) {
           // startOffset + dx, clamped to [-140, 0]
           const raw = (item._startOffset || 0) + dx;
-          const offset = Math.max(-140, Math.min(0, raw));
+          const offset = Math.max(-128, Math.min(0, raw));
           inner.style.transform = `translateX(${offset}px)`;
         }
       }
@@ -1575,7 +1588,7 @@ function renderChatList() {
         if (inner) {
           const finalOffset = (item._startOffset || 0) + dx;
           // Snap: if past halfway toward revealing → open; else → close
-          if (finalOffset < -120) {
+          if (finalOffset < -72) {
             setSwipeState(inner, true);
             // v4.5: Close any other open swipe
             el.querySelectorAll('.chat-item-inner[data-swiped="1"]').forEach(other => {
@@ -1588,6 +1601,13 @@ function renderChatList() {
           }
         }
       }
+    }, { passive: true });
+
+    item.addEventListener('touchcancel', () => {
+      clearTimeout(longPressTimer);
+      const inner = item.querySelector('.chat-item-inner');
+      if (inner) setSwipeState(inner, false);
+      isSwiping = false;
     }, { passive: true });
   });
 
@@ -1915,9 +1935,7 @@ function renderAICards() {
       ? `<span class="web-badge on" title="Perplexity завжди відповідає з web-джерелами">🌐 завжди</span>`
       : (p.ai === 'claude'
           ? `<button type="button" class="web-badge ${state.newChatDraft.webSearch ? 'on' : ''}" data-web-toggle="claude" title="Claude web-search">🌐 ${state.newChatDraft.webSearch ? 'увімк' : 'вимк'}</button>`
-          : (p.ai === 'openrouter'
-              ? `<span class="web-badge off" title="Low-risk only: без вкладень, PII і клінічних шаблонів">🛡️ low-risk</span>`
-              : `<span class="web-badge off" title="У цій версії web-search не підключений">🌐 —</span>`));
+          : `<span class="web-badge off" title="У цій версії web-search не підключений">🌐 —</span>`);
     return `
       <div class="ai-card ${p.selected ? 'selected' : ''} ${!hasKey ? 'disabled' : ''}"
            style="--ai-color: ${ai.color}; --level-color: ${LEVEL_COLORS[p.level]};"
@@ -2365,6 +2383,212 @@ function renderChatBackground(c) {
   `).join('');
 }
 
+
+// ==================== PATIENT VISUAL LIBRARY ====================
+function visualLibrary() {
+  return (typeof VISUAL_LIBRARY !== 'undefined' && VISUAL_LIBRARY?.items) ? VISUAL_LIBRARY : { categories: {}, items: [] };
+}
+
+function visualText(obj, fallback = '') {
+  if (!obj) return fallback;
+  const lang = getLang();
+  return obj[lang] || obj.uk || obj.cs || obj.en || fallback;
+}
+
+function visualCategoryLabel(catId) {
+  if (catId === 'all') return t('visuals.category.all');
+  const cat = visualLibrary().categories?.[catId];
+  if (!cat) return catId;
+  return `${cat.icon || ''} ${visualText(cat, catId)}`.trim();
+}
+
+function visualItemsFiltered() {
+  const lib = visualLibrary();
+  const q = String(state.visuals?.query || '').trim().toLowerCase();
+  const cat = state.visuals?.category || 'all';
+  const aud = state.visuals?.audience || 'patient';
+  return (lib.items || []).filter(item => {
+    if (cat !== 'all' && item.category !== cat) return false;
+    if (aud !== 'all' && item.audience !== aud && item.audience !== 'all') return false;
+    if (!q) return true;
+    const blob = [
+      item.id, item.category, item.type,
+      visualText(item.title), visualText(item.description), visualText(item.patientText),
+      ...(item.tags || [])
+    ].join(' ').toLowerCase();
+    return blob.includes(q);
+  });
+}
+
+function openVisuals(returnScreen = state.currentScreen || 'list') {
+  state.visuals = state.visuals || { query: '', category: 'all', audience: 'patient', returnScreen: 'list' };
+  state.visuals.returnScreen = returnScreen === 'visuals' ? 'list' : returnScreen;
+  goScreen('visuals');
+}
+
+function renderVisualsScreen() {
+  const lib = visualLibrary();
+  const chips = document.getElementById('visualCategoryChips');
+  const grid = document.getElementById('visualsGrid');
+  const search = document.getElementById('visualsSearch');
+  if (!chips || !grid) return;
+
+  if (search && search.value !== (state.visuals?.query || '')) search.value = state.visuals?.query || '';
+  document.querySelectorAll('#visualsAudienceTabs .visuals-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.visualAudience === (state.visuals?.audience || 'patient'));
+  });
+
+  const categories = Object.keys(lib.categories || {});
+  const currentCat = state.visuals?.category || 'all';
+  chips.innerHTML = [
+    `<button type="button" class="visual-chip ${currentCat === 'all' ? 'active' : ''}" data-visual-category="all">${escapeHtml(t('visuals.category.all'))}</button>`,
+    ...categories.map(cat => `<button type="button" class="visual-chip ${currentCat === cat ? 'active' : ''}" data-visual-category="${escapeHtml(cat)}">${escapeHtml(visualCategoryLabel(cat))}</button>`)
+  ].join('');
+
+  const items = visualItemsFiltered();
+  if (!items.length) {
+    grid.innerHTML = `<div class="visuals-empty">${escapeHtml(t('visuals.empty'))}</div>`;
+    return;
+  }
+  grid.innerHTML = items.map(item => renderVisualCard(item)).join('');
+}
+
+function renderVisualCard(item) {
+  const title = visualText(item.title, item.id);
+  const desc = visualText(item.description, '');
+  const cat = visualCategoryLabel(item.category);
+  const typeLabel = item.type === 'animation' ? t('visuals.type.animation') : t('visuals.type.image');
+  return `
+    <article class="visual-card" data-visual-id="${escapeHtml(item.id)}">
+      <div class="visual-card-thumb">
+        <img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}" loading="lazy">
+        <span class="visual-type-badge">${escapeHtml(typeLabel)}</span>
+      </div>
+      <div class="visual-card-body">
+        <div class="visual-card-kicker">${escapeHtml(cat)}</div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(desc)}</p>
+        <div class="visual-card-actions">
+          <button type="button" class="visual-mini-btn primary" data-visual-open="${escapeHtml(item.id)}">${escapeHtml(t('visuals.show'))}</button>
+          <button type="button" class="visual-mini-btn" data-visual-patient="${escapeHtml(item.id)}">${escapeHtml(t('visuals.fullscreen'))}</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+function findVisual(id) {
+  return (visualLibrary().items || []).find(item => item.id === id) || null;
+}
+
+function openVisualDetail(id) {
+  const item = findVisual(id);
+  if (!item) return;
+  const titleEl = document.getElementById('visualDetailTitle');
+  const body = document.getElementById('visualDetailContent');
+  if (!body) return;
+  const title = visualText(item.title, item.id);
+  if (titleEl) titleEl.textContent = title;
+  body.innerHTML = renderVisualDetail(item);
+  openOverlay('visualDetailOverlay');
+}
+
+function renderVisualDetail(item) {
+  const title = visualText(item.title, item.id);
+  const desc = visualText(item.description, '');
+  const text = visualText(item.patientText, '');
+  const cat = visualCategoryLabel(item.category);
+  const tags = (item.tags || []).slice(0, 8).map(tag => `<span>${escapeHtml(tag)}</span>`).join('');
+  return `
+    <div class="visual-detail">
+      <div class="visual-detail-image"><img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}"></div>
+      <div class="visual-detail-meta">
+        <div class="visual-detail-kicker">${escapeHtml(cat)} · ${escapeHtml(item.type === 'animation' ? t('visuals.type.animation') : t('visuals.type.image'))}</div>
+        <p class="visual-detail-desc">${escapeHtml(desc)}</p>
+        <div class="visual-patient-text">${escapeHtml(text)}</div>
+        <div class="visual-tags">${tags}</div>
+        <div class="visual-detail-actions">
+          <button type="button" class="settings-btn primary" data-visual-patient="${escapeHtml(item.id)}">${escapeHtml(t('visuals.patientMode'))}</button>
+          <button type="button" class="settings-btn" data-visual-copy="${escapeHtml(item.id)}">${escapeHtml(t('visuals.copyText'))}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function openVisualPatientMode(id) {
+  const item = findVisual(id);
+  if (!item) return;
+  const body = document.getElementById('visualPatientContent');
+  if (!body) return;
+  const title = visualText(item.title, item.id);
+  const text = visualText(item.patientText, '');
+  body.innerHTML = `
+    <div class="visual-patient-title">${escapeHtml(title)}</div>
+    <div class="visual-patient-image"><img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}"></div>
+    <div class="visual-patient-copy">${escapeHtml(text)}</div>
+    <div class="visual-patient-footer">AI Council · ${escapeHtml(t('visuals.patientModeShort'))}</div>`;
+  openOverlay('visualPatientOverlay');
+}
+
+function copyVisualText(id) {
+  const item = findVisual(id);
+  if (!item) return;
+  const title = visualText(item.title, item.id);
+  const text = visualText(item.patientText, '');
+  copyMessageText(`${title}\n\n${text}`);
+}
+
+function scoreVisualForText(item, text) {
+  const hay = String(text || '').toLowerCase();
+  if (!hay) return 0;
+  let score = 0;
+  const words = [item.category, ...(item.tags || [])].map(x => String(x || '').toLowerCase());
+  const aliases = {
+    caries: ['карієс','kaz','decay','caries'],
+    pulp: ['пульп','pulp','dřeň','pulpit','пульпіт','болить','pain'],
+    endo: ['ендо','kanál','root canal','endodon','періапік','apical'],
+    perio: ['пародонт','gingiv','dáseň','ясн','bone loss','кістк'],
+    implants: ['імплант','implant','abutment','osseointegration'],
+    surgery: ['видален','extraction','extrakce','surgery','wisdom'],
+    prosthetics: ['коронк','crown','bridge','міст','můstek'],
+    hygiene: ['наліт','plaque','kámen','hygien','clean'],
+    radiology: ['opg','rtg','xray','рентген','snímek']
+  };
+  for (const w of words) if (w && hay.includes(w)) score += 2;
+  for (const w of (aliases[item.category] || [])) if (hay.includes(w)) score += 3;
+  const title = [visualText(item.title), visualText(item.description)].join(' ').toLowerCase();
+  for (const token of hay.split(/\W+/).filter(Boolean)) if (token.length > 4 && title.includes(token)) score += 1;
+  return score;
+}
+
+function suggestedVisualsForMessage(msg) {
+  const items = (visualLibrary().items || []).filter(v => v.audience === 'patient' || v.audience === 'all');
+  return items
+    .map(item => ({ item, score: scoreVisualForText(item, msg?.content || '') }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6)
+    .map(x => x.item);
+}
+
+function openVisualSuggestions(msg) {
+  const suggestions = suggestedVisualsForMessage(msg);
+  if (!suggestions.length) {
+    openVisuals('chat');
+    return;
+  }
+  const titleEl = document.getElementById('visualDetailTitle');
+  const body = document.getElementById('visualDetailContent');
+  if (titleEl) titleEl.textContent = t('visuals.suggestions.title');
+  if (body) {
+    body.innerHTML = `
+      <div class="visual-suggestions-note">${escapeHtml(t('visuals.suggestions.desc'))}</div>
+      <div class="visuals-suggestion-list">${suggestions.map(item => renderVisualCard(item)).join('')}</div>
+      <button type="button" class="settings-btn" data-open-visual-library>${escapeHtml(t('visuals.openLibrary'))}</button>`;
+  }
+  openOverlay('visualDetailOverlay');
+}
+
+
 // ==================== RENDER MESSAGES ====================
 function renderMessages() {
   const wrap = document.getElementById('messages');
@@ -2408,6 +2632,7 @@ function renderMessages() {
       if (action === 'copy') copyMessageText(msg.content);
       else if (action === 'memory') saveFactFromMessage(msg.content);
       else if (action === 'speak') speakMessage(msg);
+      else if (action === 'visuals') openVisualSuggestions(msg);
       else if (action === 'obsidian') exportMessageToObsidian(msg);
       else if (action === 'chart-note') generateMessageDerivative(msg, 'chartNote');
       else if (action === 'handoff') generateMessageDerivative(msg, 'assistantHandoff');
@@ -2569,10 +2794,11 @@ function renderMessage(m) {
   const chartAllowed = canUseChartNoteAction(m);
   const chartButton = chartAllowed
     ? `<button class="msg-action-btn" data-action="chart-note" data-msg-id="${m.id}">${t('action.chartNote')}</button>`
-    : `<button class="msg-action-btn disabled" disabled title="Для OPG чернеток запис у карту доступний тільки після фінального синтезу/перевірки">${t('action.chartNote')} 🔒</button>`;
+    : `<button class="msg-action-btn disabled" disabled title="Для OPG чернеток текст у документацію доступний тільки після фінального синтезу/перевірки">${t('action.chartNote')} 🔒</button>`;
   const actionsHtml = (!isUser && !m.loading && !m.error && m.content)
     ? `<div class="msg-actions">
          <button class="msg-action-btn" data-action="speak" data-msg-id="${m.id}">${t('action.listen')}</button>
+         <button class="msg-action-btn" data-action="visuals" data-msg-id="${m.id}">${t('action.visuals')}</button>
          ${chartButton}
          <button class="msg-action-btn" data-action="handoff" data-msg-id="${m.id}">${t('action.handoff')}</button>
          <button class="msg-action-btn" data-action="evidence" data-msg-id="${m.id}">${t('action.evidence')}</button>
@@ -3149,6 +3375,93 @@ function sanitizeApiError(status, rawText) {
   return `${status}: ${sanitizeSecrets(extractApiMessage(parseApiPayload(rawText), rawText), 220)}`;
 }
 
+// ==================== REQUEST CANCEL / TIMEOUT ====================
+const REQUEST_TIMEOUT_MS = {
+  default: 120_000,
+  synthesis: 150_000,
+  research: 240_000,
+  deepResearch: 360_000
+};
+
+function requestTimeoutFor(opts = {}) {
+  if (opts.timeoutMs) return opts.timeoutMs;
+  if (opts.research) return REQUEST_TIMEOUT_MS.research;
+  if (opts.synthesis) return REQUEST_TIMEOUT_MS.synthesis;
+  return REQUEST_TIMEOUT_MS.default;
+}
+
+function isAbortLikeError(err) {
+  return err?.name === 'AbortError' || err?.name === 'TimeoutError' || /aborted|abort|cancel|timeout/i.test(String(err?.message || err));
+}
+
+function localErrorMessage(key, fallback) {
+  const msg = t(key);
+  return msg === key ? fallback : msg;
+}
+
+async function fetchWithAbort(url, init = {}, opts = {}) {
+  const controller = new AbortController();
+  const timeoutMs = requestTimeoutFor(opts);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    try { controller.abort(new DOMException('AI request timeout', 'TimeoutError')); }
+    catch { controller.abort(); }
+  }, timeoutMs);
+
+  state.activeRequestControllers.add(controller);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (timedOut) {
+      throw new Error(localErrorMessage('error.requestTimeout', `AI-запит перевищив ${Math.round(timeoutMs / 1000)} секунд і був зупинений.`));
+    }
+    if (controller.signal.aborted || isAbortLikeError(err)) {
+      throw new Error(localErrorMessage('error.requestCancelled', 'AI-запит скасовано.'));
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    state.activeRequestControllers.delete(controller);
+  }
+}
+
+function cancelActiveRequests() {
+  if (!state.sendInProgress || !state.activeRequestControllers.size) return false;
+  state.requestCancelRequested = true;
+  for (const controller of [...state.activeRequestControllers]) {
+    try { controller.abort(new DOMException('AI request cancelled by user', 'AbortError')); }
+    catch { try { controller.abort(); } catch {} }
+  }
+  flash(localErrorMessage('flash.requestCancelled', 'AI-запит зупинено.'));
+  return true;
+}
+
+function sendArrowIcon() {
+  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+}
+
+function stopIcon() {
+  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
+}
+
+function setSendButtonBusy(isBusy) {
+  const sendBtn = document.getElementById('sendBtn');
+  if (!sendBtn) return;
+  if (isBusy) {
+    sendBtn.disabled = false;
+    sendBtn.classList.add('cancel-mode');
+    sendBtn.setAttribute('aria-label', localErrorMessage('chat.stop', 'Зупинити'));
+    sendBtn.title = localErrorMessage('chat.stop', 'Зупинити');
+    sendBtn.innerHTML = stopIcon();
+  } else {
+    sendBtn.disabled = false;
+    sendBtn.classList.remove('cancel-mode');
+    sendBtn.setAttribute('aria-label', t('chat.send'));
+    sendBtn.removeAttribute('title');
+    sendBtn.innerHTML = sendArrowIcon();
+  }
+}
 async function callClaude(messages, opts = {}) {
   const key = state.keys.claude;
   if (!key) throw new Error(t('error.noKey', {ai: 'Claude'}));
@@ -3164,7 +3477,7 @@ async function callClaude(messages, opts = {}) {
     body.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: opts.research ? 5 : 2 }];
   }
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetchWithAbort('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -3173,7 +3486,7 @@ async function callClaude(messages, opts = {}) {
       'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify(body)
-  });
+  }, opts);
   if (!resp.ok) throw makeApiError('Claude', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const texts = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
@@ -3231,11 +3544,11 @@ async function callOpenAIChatCompletions(messages, opts, model) {
   } else {
     body.max_tokens = 4096;
   }
-  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+  const resp = await fetchWithAbort('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify(body)
-  });
+  }, opts);
   if (!resp.ok) throw makeApiError('OpenAI', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const msg = data.choices?.[0]?.message;
@@ -3266,11 +3579,11 @@ async function callOpenAI(messages, opts = {}) {
   };
   if (opts.system) body.instructions = opts.system;
 
-  const resp = await fetch('https://api.openai.com/v1/responses', {
+  const resp = await fetchWithAbort('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
     body: JSON.stringify(body)
-  });
+  }, opts);
 
   if (!resp.ok) {
     const raw = await resp.text();
@@ -3308,14 +3621,14 @@ async function callGemini(messages, opts = {}) {
   if (opts.system) body.systemInstruction = { parts: [{ text: opts.system }] };
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  const resp = await fetch(url, {
+  const resp = await fetchWithAbort(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       'x-goog-api-key': key
     },
     body: JSON.stringify(body)
-  });
+  }, opts);
   if (!resp.ok) throw makeApiError('Gemini', resp.status, await resp.text(), { model });
   const data = await resp.json();
   const text = data.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join('\n') || '';
@@ -3339,11 +3652,11 @@ async function callPerplexity(messages, opts = {}) {
   const msgs = opts.system ? [{role:'system', content: opts.system}, ...messages] : messages;
 
   async function send(modelToUse) {
-    const resp = await fetch('https://api.perplexity.ai/chat/completions', {
+    const resp = await fetchWithAbort('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'authorization': `Bearer ${key}` },
       body: JSON.stringify({ model: modelToUse, messages: msgs, temperature: 0.2, max_tokens: 4096 })
-    });
+    }, opts);
     const raw = await resp.text();
     if (!resp.ok) throw makeApiError('Perplexity', resp.status, raw, { model: modelToUse });
     let data; try { data = JSON.parse(raw); } catch { data = {}; }
@@ -3368,59 +3681,7 @@ ${fallback.text}`;
   }
 }
 
-function normalizeOpenRouterMessages(messages, opts = {}) {
-  const msgs = [];
-  if (opts.system) msgs.push({ role: 'system', content: opts.system });
-  for (const m of messages || []) {
-    const role = m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user');
-    let content = '';
-    if (typeof m.content === 'string') content = m.content;
-    else if (Array.isArray(m.content)) {
-      content = m.content
-        .map(p => typeof p?.text === 'string' ? p.text : '')
-        .filter(Boolean)
-        .join('\n');
-    } else {
-      content = String(m.content || '');
-    }
-    msgs.push({ role, content });
-  }
-  return msgs;
-}
-
-async function callOpenRouter(messages, opts = {}) {
-  const key = state.keys.openrouter;
-  if (!key) throw new Error(t('error.noKey', {ai: 'OpenRouter Free Scout'}));
-  const model = opts.model || 'openrouter/free';
-  assertFreeScoutAllowed('openrouter', { messages });
-  const body = {
-    model,
-    messages: normalizeOpenRouterMessages(messages, opts),
-    temperature: 0.2,
-    max_tokens: 2048
-  };
-  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${key}`,
-      'HTTP-Referer': location.origin,
-      'X-Title': 'AI Council Free Scout'
-    },
-    body: JSON.stringify(body)
-  });
-  const raw = await resp.text();
-  if (!resp.ok) throw makeApiError('OpenRouter', resp.status, raw, { model });
-  let data; try { data = JSON.parse(raw); } catch { data = {}; }
-  const msg = data.choices?.[0]?.message;
-  let text = '';
-  if (typeof msg?.content === 'string') text = msg.content;
-  else if (Array.isArray(msg?.content)) text = msg.content.map(p => p.text || '').filter(Boolean).join('\n');
-  if (!text) throw new Error('OpenRouter Free Scout повернув порожню відповідь');
-  return { text, model: data.model || model };
-}
-
-const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity, openrouter: callOpenRouter };
+const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, perplexity: callPerplexity };
 
 // ==================== STATS TRACKING ====================
 // Rough token estimation: 1 token ≈ 4 chars for English/Ukrainian
@@ -3567,8 +3828,13 @@ function getAssignedClinicalRolePrompt(chatContext, currentAI) {
 }
 function extractDoctorCorrections(chatContext) {
   if (!chatContext || !Array.isArray(chatContext.messages)) return '';
-  const correctionRe = /(неs+d{2}|замістьs+d{2}|імплантS*s+d{2}|implantS*s+d{2}|правильноs+d{2}|цеs+d{2}|корекц|виправ|помил|nots+d{2}|insteads+ofs+d{2})/i;
-  const rows = chatContext.messages.filter(m => m.role === 'user' && typeof m.content === 'string' && correctionRe.test(m.content)).slice(-6).map(m => '- ' + m.content.trim().slice(0, 500));
+  // v6.9.1: real whitespace/digit escapes. Catches short clinician corrections
+  // like “це 36”, “замість 46”, “імплант 36”, “not 46”, “instead of 46”, “помилка сторони”.
+  const correctionRe = /(?:(?:не|ні|not)\s*(?:це\s*)?.{0,18}[1-4][1-8]|замість.{0,24}[1-4][1-8]|instead\s+of.{0,24}[1-4][1-8]|(?:імплант|implant|зуб|tooth|правильно|це|this\s+is)\s*(?:№\s*)?[1-4][1-8]|(?:корекц|виправ|помил|помилка).{0,60}(?:[1-4][1-8]|сторон|left|right|ліва|права)|(?:сторона|ліва|права|left|right).{0,40}[1-4][1-8])/i;
+  const rows = chatContext.messages
+    .filter(m => m.role === 'user' && typeof m.content === 'string' && correctionRe.test(m.content))
+    .slice(-8)
+    .map(m => '- ' + m.content.trim().replace(/\s+/g, ' ').slice(0, 700));
   return rows.join('\n');
 }
 
@@ -3596,6 +3862,10 @@ function buildMemoryPrompt(chatContext, currentAI) {
   // v4.5/v6.0.9: Template system addition. For radiology, use current-language safety block dynamically, not stale localStorage text.
   if (chatContext && isRadiologyChat(chatContext)) {
     parts.push(radiologySystemSafetyAddition());
+    const doctorCorrections = extractDoctorCorrections(chatContext);
+    if (doctorCorrections) {
+      parts.push('КОРЕКЦІЇ ЛІКАРЯ / CLINICIAN CORRECTIONS — ABSOLUTE PRIORITY FOR THIS CHAT:\n' + doctorCorrections + '\n\nПравило: ці корекції мають пріоритет над відповідями AI, default-мапою і попередніми припущеннями. Якщо корекція суперечить AI-висновку, познач AI-висновок як помилковий/тільки для перевірки, не як факт у карту.');
+    }
   } else if (chatContext && chatContext.templateSystemAddition) {
     parts.push('СПЕЦІАЛІЗАЦІЯ ЧАТУ:\n' + chatContext.templateSystemAddition);
   }
@@ -3643,7 +3913,7 @@ function buildCouncilHistory(c, currentAI, currentUserText) {
 function buildMessagesForAI(aiName, history, userText, attachments) {
   // Different AIs format attachments differently
   const supportsPdf = aiName === 'claude' || aiName === 'gemini' || aiName === 'openai';
-  const supportsImage = aiName !== 'openrouter';
+  const supportsImage = true;
 
   const userContent = [];
   userContent.push({ text: userText });
@@ -3706,7 +3976,7 @@ function buildMessagesForAI(aiName, history, userText, attachments) {
     for (const h of history) msgs.push({ role: h.role, content: h.content });
     msgs.push({ role: 'user', content: userContent });
   } else {
-    // perplexity/openrouter — simple text only
+    // perplexity — simple text
     for (const h of history) msgs.push({ role: h.role, content: typeof h.content === 'string' ? h.content : String(h.content) });
     const textOnly = userContent.filter(p => p.text).map(p => p.text).join('\n');
     msgs.push({ role: 'user', content: textOnly });
@@ -3763,51 +4033,6 @@ function detectPotentialPII(text) {
   ];
   return patterns.some(re => re.test(s));
 }
-
-function collectMessageText(messages = []) {
-  const out = [];
-  for (const m of messages || []) {
-    const content = m?.content;
-    if (typeof content === 'string') out.push(content);
-    else if (Array.isArray(content)) {
-      for (const p of content) {
-        if (typeof p?.text === 'string') out.push(p.text);
-        else if (typeof p?.content === 'string') out.push(p.content);
-      }
-    }
-  }
-  return out.join('\n');
-}
-
-function freeScoutBlockReason({ text = '', attachments = [], chat = null, messages = [] } = {}) {
-  if (attachments && attachments.length > 0) {
-    return 'Free Scout заблоковано: цей провайдер не отримує вкладення, фото, PDF, Excel/Word або назви файлів. Використай Claude/GPT/Gemini або локальну модель.';
-  }
-  const combined = [
-    text,
-    collectMessageText(messages),
-    chat?.name || '',
-    chat?.templateName || '',
-    chat?.templateSystemAddition || ''
-  ].filter(Boolean).join('\n');
-  if (detectPotentialPII(combined)) {
-    return 'Free Scout заблоковано: текст схожий на персональні або клінічно-ідентифікуючі дані. Анонімізуй запит або використай захищену/локальну модель.';
-  }
-  if (chat?.research) {
-    return 'Free Scout заблоковано для Research mode: він не має гарантованого web-пошуку. Для research використовуй Perplexity або Claude з web-search.';
-  }
-  const clinicalTemplateIds = new Set(['opg-report', 'endo', 'implant', 'perio', 'acute-pain', 'diagnostic']);
-  if (chat?.templateId && clinicalTemplateIds.has(chat.templateId)) {
-    return 'Free Scout заблоковано для клінічних шаблонів. Він призначений для low-risk задач: переклад, UI, стиль, код, загальні тексти без пацієнтських даних.';
-  }
-  return '';
-}
-
-function assertFreeScoutAllowed(ai, payload = {}) {
-  if (ai !== 'openrouter') return;
-  const reason = freeScoutBlockReason(payload);
-  if (reason) throw new Error(reason);
-}
 function confirmCouncilProviderWarningOnce(c) {
   if (!c || !Array.isArray(c.participants) || c.participants.length < 2) return true;
   const key = 'aic_council_provider_warning_seen_v1';
@@ -3837,11 +4062,6 @@ function confirmBeforeSend(text, attachments, c) {
   }
   if (SECURITY.requireConfirmationForPotentialPII && maybePII) {
     warnings.push('🛡️ Текст або назви файлів схожі на персональні/клінічні дані. Перед відправкою потрібно анонімізувати ПІБ, rodné číslo, номер страхівки, дату народження, телефон, email, адресу.');
-  }
-  const usesFreeScout = !!c?.participants?.some(p => p.ai === 'openrouter' && state.keys.openrouter);
-  if (usesFreeScout) {
-    const reason = freeScoutBlockReason({ text, attachments, chat: c });
-    if (reason) { flash(reason, true); return false; }
   }
   if (warnings.length === 0) return true;
   return confirm(warnings.join('\n\n') + '\n\nПідтверджую, що дані анонімізовані, і хочу продовжити.');
@@ -4010,8 +4230,11 @@ async function releaseLongTaskWakeLock(lock) {
 
 // ==================== SEND ====================
 async function handleSend() {
-  // Prevent double-send race condition
-  if (state.sendInProgress) return;
+  // If a request is already running, the send button becomes Stop/Cancel.
+  if (state.sendInProgress) {
+    cancelActiveRequests();
+    return;
+  }
 
   const input = document.getElementById('input');
   const originalText = input.value.trim();
@@ -4019,6 +4242,9 @@ async function handleSend() {
 
   const c = state.chats[state.activeChatId];
   if (!c) return;
+
+  // Stop any active speech before sending a new clinical request.
+  stopTts();
 
   const attachmentsPreview = [...state.pendingAttachments];
   let textForAI = originalText;
@@ -4035,8 +4261,8 @@ async function handleSend() {
   const wakeLock = await requestLongTaskWakeLock(c);
   if (wakeLock) flash('Екран тимчасово утримується активним для довгого AI-запиту.');
   state.sendInProgress = true;
-  const sendBtn = document.getElementById('sendBtn');
-  if (sendBtn) sendBtn.disabled = true;
+  state.requestCancelRequested = false;
+  setSendButtonBusy(true);
 
   const attachments = [...state.pendingAttachments];
   state.pendingAttachments = [];
@@ -4074,7 +4300,8 @@ async function handleSend() {
     await releaseLongTaskWakeLock(wakeLock);
     clearPendingRequest();
     state.sendInProgress = false;
-    if (sendBtn) sendBtn.disabled = false;
+    state.requestCancelRequested = false;
+    setSendButtonBusy(false);
   }
   saveChats();
   renderMessages();
@@ -4113,7 +4340,6 @@ async function handleSingleAI(c, text, attachments) {
     .slice(-20)
     .map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : '' }));
 
-  assertFreeScoutAllowed(p.ai, { text, attachments, chat: c });
   const msgs = buildMessagesForAI(p.ai, history, text, attachments);
   const memorySystem = buildMemoryPrompt(c, p.ai);
   const opts = {
@@ -4196,7 +4422,6 @@ async function runParallel(c, text, attachments, active, mode) {
     const model = MODELS[p.ai][p.level];
     // v4.5: Each AI gets its own history with prior turns
     const history = buildCouncilHistory(c, p.ai, text);
-    assertFreeScoutAllowed(p.ai, { text, attachments, chat: c });
     const msgs = buildMessagesForAI(p.ai, history, text, attachments);
     // v5.0: Per-AI persona from template
     const memorySystem = buildMemoryPrompt(c, p.ai);
@@ -4234,6 +4459,11 @@ async function runParallel(c, text, attachments, active, mode) {
 
   const good = results.filter(r => r.ok);
 
+  if (state.requestCancelRequested) {
+    renderMessages();
+    return;
+  }
+
   // Synthesis/Vote — only if we have at least 2 successful answers
   if ((mode === 'synthesis' || mode === 'vote') && good.length >= 2) {
     const synthId = uid();
@@ -4245,15 +4475,14 @@ async function runParallel(c, text, attachments, active, mode) {
     state.scrollTargetMsgId = synthId;
     renderMessages();
 
-    const synthPrompt = isRadiologyChat(c) && mode === 'synthesis' ? buildRadiologySynthesisPrompt(text, good) : (mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good));
+    const synthPrompt = isRadiologyChat(c) && mode === 'synthesis' ? buildRadiologySynthesisPrompt(text, good, c) : (mode === 'synthesis' ? buildSynthesisPrompt(text, good) : buildVotePrompt(text, good));
     const synthCfg = getSynthesizerConfig(c, active);
     const synthesizerAI = synthCfg.ai;
     const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
 
     try {
-      assertFreeScoutAllowed(synthesizerAI, { text: synthPrompt, attachments: isRadiologyChat(c) ? attachments : [], chat: c });
       const synthMsgs = isRadiologyChat(c) ? buildMessagesForAI(synthesizerAI, [], synthPrompt, attachments) : [{role:'user', content: synthPrompt}];
-      const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+      const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id, synthesis: true });
       trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
       const { cleanedText, meta } = parseSynthMeta(reply);
       const idx = c.messages.findIndex(m => m.id === synthId);
@@ -4275,7 +4504,7 @@ async function runParallel(c, text, attachments, active, mode) {
       if (isRadiologyChat(c)) {
         c.messages.push({
           id: uid(), role: 'assistant', source: 'council-synth', isPrimary: true, time: Date.now(),
-          content: '⚠️ Фінальний синтез Ради не виконано. Відповіді окремих моделей залишаються лише чорновим логом і не є готовим OPG-висновком. Натисни меню → “Повний лог розмови”, щоб побачити хто що сказав. “В карту” використовуй тільки після лікарської перевірки FDI/сторони.'
+          content: '⚠️ Фінальний синтез Ради не виконано. Відповіді окремих моделей залишаються лише чорновим логом і не є готовим OPG-висновком. Натисни меню → “Повний лог розмови”, щоб побачити хто що сказав. “Текст у карту” використовуй тільки після лікарської перевірки FDI/сторони.'
         });
       } else {
         c.messages.forEach(m => {
@@ -4337,7 +4566,6 @@ async function runDebate(c, text, attachments, active) {
 
       // v4.5: In R1 pass conversation history; in R2+ the prompt already contains all prior round answers
       const history = r === 1 ? buildCouncilHistory(c, p.ai, text) : [];
-      assertFreeScoutAllowed(p.ai, { text: prompt, attachments: r === 1 ? attachments : [], chat: c });
       const msgs = buildMessagesForAI(p.ai, history, prompt, r === 1 ? attachments : []);
       // v5.0: Per-AI persona
       const memorySystem = buildMemoryPrompt(c, p.ai);
@@ -4364,6 +4592,11 @@ async function runDebate(c, text, attachments, active) {
       }
       renderMessages();
     }));
+
+    if (state.requestCancelRequested) {
+      renderMessages();
+      return;
+    }
   }
 
   // Final synthesis
@@ -4432,9 +4665,8 @@ Available ai-id: ${aiIdList}`;
     const synthCfg = getSynthesizerConfig(c, active);
     const synthesizerAI = synthCfg.ai;
     const synthModel = synthCfg.model || MODELS[synthesizerAI][0];
-    assertFreeScoutAllowed(synthesizerAI, { text: synthPrompt, attachments: [], chat: c });
     const synthMsgs = [{role:'user', content: synthPrompt}];
-    const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id });
+    const { text: reply, model: usedModel } = await CALLERS[synthesizerAI](synthMsgs, { model: synthModel.id, synthesis: true });
     trackUsage(synthesizerAI, usedModel || synthModel.id, synthMsgs, reply, c.id);
     const { cleanedText, meta } = parseSynthMeta(reply);
     const idx = c.messages.findIndex(m => m.id === synthId);
@@ -4473,7 +4705,6 @@ async function runResearch(aiName, messages, opts, loadingId, c) {
 
     const iterMsgs = [...context];
     iterMsgs.push({ role: 'user', content: it.prompt });
-    assertFreeScoutAllowed(aiName, { messages: iterMsgs });
 
     const { text: reply, model: usedModel } = await CALLERS[aiName](iterMsgs, opts);
     // v5.1: Track usage for each research iteration (was missing — caused undercount)
@@ -4492,16 +4723,18 @@ function councilOutputLanguageRule() {
   return 'МОВА ВІДПОВІДІ: тільки українська. Не додавай переклад іншою мовою. JSON meta block може мати англійські ключі.';
 }
 
-function buildRadiologySynthesisPrompt(question, answers) {
+function buildRadiologySynthesisPrompt(question, answers, chatContext = null) {
+  const clinicianCorrections = extractDoctorCorrections(chatContext);
+  const correctionBlock = clinicianCorrections ? `\n\nCLINICIAN CORRECTIONS / KOREKCE LÉKAŘE / КОРЕКЦІЇ ЛІКАРЯ — ABSOLUTE PRIORITY:\n${clinicianCorrections}\n\nIf these corrections conflict with any AI report, the clinician correction wins. Do not put the contradicted AI finding into the safe chart text.` : '';
   const formatted = answers.map(r => `=== ${AI_CONFIG[r.ai].fullName} ===\n${r.text}`).join('\n\n');
   const aiList = answers.map(r => r.ai).join(', ');
   if (getLang() === 'cs') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n- ORIENTACE/FDI: Pokud uživatel neuvede jinak, použij defaultní OPG mapu: levý horní obrázku = Q1 18→11, pravý horní = Q2 21→28, pravý dolní = Q3 38→31, levý dolní = Q4 41→48. Pokud R/L marker nebo korekce lékaře odporuje defaultu, prioritu má marker/korekce.\n- KOREKCE LÉKAŘE: Pokud uživatel v této konverzaci opravil polohu zubu/implantátu, tato korekce má prioritu před všemi AI zprávami.\n- SAFE CHART TEXT nesmí obsahovat konfliktní zuby, jednostranné nálezy Gemini ani číslování, které není bezpečně ověřené.\n- U implantátu bez jisté orientace piš raději „implantát v laterálním úseku mandibuly, přesná FDI pozice vyžaduje ověření“ než špatné číslo.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}${correctionBlock}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n- ORIENTACE/FDI: Pokud uživatel neuvede jinak, použij defaultní OPG mapu: levý horní obrázku = Q1 18→11, pravý horní = Q2 21→28, pravý dolní = Q3 38→31, levý dolní = Q4 41→48. Pokud R/L marker nebo korekce lékaře odporuje defaultu, prioritu má marker/korekce.\n- KOREKCE LÉKAŘE: Pokud uživatel v této konverzaci opravil polohu zubu/implantátu, tato korekce má prioritu před všemi AI zprávami.\n- SAFE CHART TEXT nesmí obsahovat konfliktní zuby, jednostranné nálezy Gemini ani číslování, které není bezpečně ověřené.\n- U implantátu bez jisté orientace piš raději „implantát v laterálním úseku mandibuly, přesná FDI pozice vyžaduje ověření“ než špatné číslo.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
   }
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n- ORIENTATION/FDI: Unless the user states otherwise, use the default OPG map: image upper-left = Q1 18→11, upper-right = Q2 21→28, lower-right = Q3 38→31, lower-left = Q4 41→48. If an R/L marker or clinician correction contradicts the default, the marker/correction wins.\n- CLINICIAN CORRECTIONS: If the user corrected a tooth/implant position in this conversation, that correction overrides all AI reports.\n- SAFE CHART TEXT must not contain conflicted teeth, single-model Gemini findings, or tooth numbering that is not safely verified.\n- For implants without certain orientation, prefer “implant in the posterior mandible; exact FDI position requires verification” over a wrong tooth number.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}${correctionBlock}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n- ORIENTATION/FDI: Unless the user states otherwise, use the default OPG map: image upper-left = Q1 18→11, upper-right = Q2 21→28, lower-right = Q3 38→31, lower-left = Q4 41→48. If an R/L marker or clinician correction contradicts the default, the marker/correction wins.\n- CLINICIAN CORRECTIONS: If the user corrected a tooth/implant position in this conversation, that correction overrides all AI reports.\n- SAFE CHART TEXT must not contain conflicted teeth, single-model Gemini findings, or tooth numbering that is not safely verified.\n- For implants without certain orientation, prefer “implant in the posterior mandible; exact FDI position requires verification” over a wrong tooth number.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
   }
-  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n- ОРІЄНТАЦІЯ/FDI: якщо користувач не вказав інше, використовуй default-мапу OPG: лівий верх картинки = Q1 18→11, правий верх = Q2 21→28, нижній правий = Q3 38→31, нижній лівий = Q4 41→48. Якщо R/L-маркер або корекція лікаря суперечить default — пріоритет має маркер/корекція.\n- КОРЕКЦІЇ ЛІКАРЯ: якщо користувач у цій розмові виправив позицію зуба/імпланта, ця корекція має пріоритет над усіма AI-відповідями.\n- БЕЗПЕЧНИЙ ТЕКСТ У КАРТУ не має містити конфліктні зуби, знахідки тільки Gemini або нумерацію, яка не верифікована безпечно.\n- Для імпланта без певної орієнтації краще писати “імплант у боковому відділі нижньої щелепи, точна FDI-позиція потребує перевірки”, ніж помилковий номер.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
+  return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}${correctionBlock}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n- ОРІЄНТАЦІЯ/FDI: якщо користувач не вказав інше, використовуй default-мапу OPG: лівий верх картинки = Q1 18→11, правий верх = Q2 21→28, нижній правий = Q3 38→31, нижній лівий = Q4 41→48. Якщо R/L-маркер або корекція лікаря суперечить default — пріоритет має маркер/корекція.\n- КОРЕКЦІЇ ЛІКАРЯ: якщо користувач у цій розмові виправив позицію зуба/імпланта, ця корекція має пріоритет над усіма AI-відповідями.\n- БЕЗПЕЧНИЙ ТЕКСТ У КАРТУ не має містити конфліктні зуби, знахідки тільки Gemini або нумерацію, яка не верифікована безпечно.\n- Для імпланта без певної орієнтації краще писати “імплант у боковому відділі нижньої щелепи, точна FDI-позиція потребує перевірки”, ніж помилковий номер.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
 }
 
 function buildSynthesisPrompt(question, answers) {
@@ -4752,20 +4985,26 @@ function deleteCase(id) {
 }
 
 // ==================== CHANGELOG (v5.0) ====================
+function changelogText(item) {
+  if (typeof item === 'string') return item;
+  const lang = getLang();
+  return item?.[lang] || item?.uk || item?.en || '';
+}
+
 function openChangelog() {
   const el = document.getElementById('changelogContent');
   if (!el) return;
-  el.innerHTML = CHANGELOG.map((entry, idx) => {
+  el.innerHTML = CHANGELOG.map((entry) => {
     const isCurrent = entry.version === APP_VERSION;
     return `
       <div class="changelog-entry ${isCurrent ? 'current' : ''}">
         <div class="changelog-version-row">
           <span class="changelog-version">v${escapeHtml(entry.version)}</span>
-          ${isCurrent ? `<span class="changelog-current-badge">${t('changelog.current')}</span>` : ''}
+          ${isCurrent ? `<span class="changelog-current-badge">${escapeHtml(t('changelog.current'))}</span>` : ''}
           <span class="changelog-date">${escapeHtml(entry.date)}</span>
         </div>
         <ul class="changelog-highlights">
-          ${(entry.highlights || []).map(h => `<li>${escapeHtml(h)}</li>`).join('')}
+          ${(entry.highlights || []).map(h => `<li>${escapeHtml(changelogText(h))}</li>`).join('')}
         </ul>
       </div>
     `;
@@ -4920,6 +5159,13 @@ const TTS_PLAYER = {
   playing: false,
   paused: false,
   msgId: null,
+  rawText: '',
+  cleanText: '',
+  chunkMeta: [],
+  words: [],
+  activeWordIndex: -1,
+  boundarySeen: false,
+  rate: 1,
 
   chunkText(text, maxLen = 260) {
     const clean = stripForSpeech(text);
@@ -4927,6 +5173,15 @@ const TTS_PLAYER = {
     const sentences = clean.match(/[^.!?。！？]+[.!?。！？]+|[^.!?。！？]+$/g) || [clean];
     const chunks = [];
     let buffer = '';
+    let searchPos = 0;
+    const pushChunk = (chunk) => {
+      const trimmed = String(chunk || '').trim();
+      if (!trimmed) return;
+      const found = clean.indexOf(trimmed, searchPos);
+      const start = found >= 0 ? found : searchPos;
+      chunks.push({ text: trimmed, start });
+      searchPos = start + trimmed.length;
+    };
     for (const sentence of sentences) {
       const s = sentence.trim();
       if (!s) continue;
@@ -4934,17 +5189,76 @@ const TTS_PLAYER = {
       if (candidate.length <= maxLen) {
         buffer = candidate;
       } else {
-        if (buffer) chunks.push(buffer);
+        if (buffer) pushChunk(buffer);
         if (s.length <= maxLen) {
           buffer = s;
         } else {
-          for (let i = 0; i < s.length; i += maxLen) chunks.push(s.slice(i, i + maxLen));
+          for (let i = 0; i < s.length; i += maxLen) pushChunk(s.slice(i, i + maxLen));
           buffer = '';
         }
       }
     }
-    if (buffer) chunks.push(buffer);
+    if (buffer) pushChunk(buffer);
+    this.cleanText = clean;
     return chunks;
+  },
+
+  buildWords() {
+    this.words = [];
+    const re = /\S+/g;
+    let m;
+    while ((m = re.exec(this.cleanText)) !== null) {
+      this.words.push({ text: m[0], start: m.index, end: m.index + m[0].length });
+    }
+  },
+
+  findWordIndex(charIndex) {
+    if (!this.words.length) return -1;
+    let lo = 0, hi = this.words.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      const w = this.words[mid];
+      if (charIndex < w.start) hi = mid - 1;
+      else if (charIndex > w.end) lo = mid + 1;
+      else return mid;
+    }
+    return Math.max(0, Math.min(this.words.length - 1, lo));
+  },
+
+  renderPlayer() {
+    const player = document.getElementById('ttsMiniPlayer');
+    const textEl = document.getElementById('ttsPlayerText');
+    const pauseBtn = document.getElementById('ttsPauseBtn');
+    const rateEl = document.getElementById('ttsRateSelect');
+    if (!player || !textEl) return;
+
+    player.hidden = !this.playing;
+    player.classList.toggle('show', !!this.playing);
+    if (!this.playing) {
+      textEl.innerHTML = '';
+      return;
+    }
+    if (pauseBtn) pauseBtn.textContent = this.paused ? t('tts.resume') : t('tts.pause');
+    if (rateEl) rateEl.value = String(this.rate || 1);
+
+    const active = this.activeWordIndex;
+    textEl.innerHTML = this.words.map((w, i) => {
+      const cls = i === active ? ' class="tts-word active"' : ' class="tts-word"';
+      return `<span${cls} data-tts-word="${i}">${escapeHtml(w.text)}</span>`;
+    }).join(' ');
+
+    const activeEl = active >= 0 ? textEl.querySelector(`[data-tts-word="${active}"]`) : null;
+    if (activeEl) {
+      requestAnimationFrame(() => activeEl.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }));
+    }
+  },
+
+  updateActiveFromChar(globalCharIndex) {
+    const idx = this.findWordIndex(globalCharIndex);
+    if (idx !== this.activeWordIndex) {
+      this.activeWordIndex = idx;
+      this.renderPlayer();
+    }
   },
 
   speak(text, msgId = null) {
@@ -4953,13 +5267,21 @@ const TTS_PLAYER = {
       return;
     }
     this.stop(false);
+    this.rawText = text || '';
     this.queue = this.chunkText(text);
+    this.chunkMeta = this.queue;
     if (this.queue.length === 0) return;
+    this.buildWords();
     this.index = 0;
     this.playing = true;
     this.paused = false;
     this.msgId = msgId;
+    this.activeWordIndex = 0;
+    this.boundarySeen = false;
+    const rateEl = document.getElementById('ttsRateSelect');
+    this.rate = Number(rateEl?.value || this.rate || 1) || 1;
     state.tts = { speaking: true, paused: false, msgId, chunkIndex: 0, chunkTotal: this.queue.length };
+    this.renderPlayer();
     this.speakNext();
   },
 
@@ -4969,14 +5291,25 @@ const TTS_PLAYER = {
       this.cleanup();
       return;
     }
-    const utter = new SpeechSynthesisUtterance(this.queue[this.index]);
-    utter.lang = locale();
-    utter.rate = 1.0;
+    const chunk = this.queue[this.index];
+    const utter = new SpeechSynthesisUtterance(chunk.text);
+    utter.lang = pickSpeechLang(this.cleanText || this.rawText);
+    utter.rate = this.rate || 1.0;
     utter.pitch = 1.0;
     utter.volume = 1.0;
     this.current = utter;
     this.retainedUtterances.push(utter); // keep reference so Android/Chrome GC does not kill onend/onerror
     state.tts = { speaking: true, paused: false, msgId: this.msgId, chunkIndex: this.index + 1, chunkTotal: this.queue.length };
+
+    // Fallback highlight if browser does not emit word boundaries.
+    this.updateActiveFromChar(chunk.start || 0);
+
+    utter.onboundary = (event) => {
+      if (!this.playing) return;
+      this.boundarySeen = true;
+      const local = typeof event.charIndex === 'number' ? event.charIndex : 0;
+      this.updateActiveFromChar((chunk.start || 0) + local);
+    };
     utter.onend = () => {
       this.retainedUtterances = this.retainedUtterances.filter(u => u !== utter);
       this.current = null;
@@ -4998,6 +5331,7 @@ const TTS_PLAYER = {
     this.paused = true;
     state.tts = { ...state.tts, paused: true };
     window.speechSynthesis.pause();
+    this.renderPlayer();
   },
 
   resume() {
@@ -5006,6 +5340,22 @@ const TTS_PLAYER = {
     state.tts = { ...state.tts, paused: false };
     window.speechSynthesis.resume();
     if (!window.speechSynthesis.speaking && !this.current) this.speakNext();
+    this.renderPlayer();
+  },
+
+  restart() {
+    if (!this.rawText) return;
+    const text = this.rawText;
+    const msgId = this.msgId;
+    this.stop(true);
+    setTimeout(() => this.speak(text, msgId), 60);
+  },
+
+  setRate(rate) {
+    const next = Number(rate) || 1;
+    this.rate = Math.max(0.6, Math.min(1.5, next));
+    // Apply immediately from the current chunk by restarting the current message.
+    if (this.playing) this.restart();
   },
 
   stop(cancel = true) {
@@ -5016,14 +5366,29 @@ const TTS_PLAYER = {
     this.current = null;
     this.retainedUtterances = [];
     this.msgId = null;
+    this.rawText = '';
+    this.cleanText = '';
+    this.chunkMeta = [];
+    this.words = [];
+    this.activeWordIndex = -1;
+    this.boundarySeen = false;
     if (cancel && window.speechSynthesis) window.speechSynthesis.cancel();
     state.tts = { speaking: false, paused: false, msgId: null, chunkIndex: 0, chunkTotal: 0 };
+    this.renderPlayer();
   },
 
   cleanup() {
     this.stop(false);
   }
 };
+
+function pickSpeechLang(text) {
+  const s = String(text || '');
+  if (/[іїєґІЇЄҐ]/.test(s)) return 'uk-UA';
+  if (/[ěščřžýáíéúůťďňĚŠČŘŽÝÁÍÉÚŮŤĎŇ]/.test(s)) return 'cs-CZ';
+  return locale();
+}
+
 
 function speakMessage(msg) {
   if (!msg || !msg.content) return;
@@ -5421,6 +5786,42 @@ function init() {
     updateCostEstimate();
   });
 
+  // Visual Library screen
+  document.getElementById('openVisualsFromNew')?.addEventListener('click', () => openVisuals('new'));
+  document.getElementById('openVisualsFromSettings')?.addEventListener('click', () => { closeOverlay('settingsOverlay'); openVisuals('list'); });
+  document.getElementById('visualsBackBtn')?.addEventListener('click', () => goScreen(state.visuals?.returnScreen || 'list'));
+  document.getElementById('visualsSearch')?.addEventListener('input', (e) => { state.visuals.query = e.target.value || ''; renderVisualsScreen(); });
+  document.getElementById('visualsAudienceTabs')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-visual-audience]');
+    if (!btn) return;
+    state.visuals.audience = btn.dataset.visualAudience || 'patient';
+    renderVisualsScreen();
+  });
+  document.getElementById('visualCategoryChips')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-visual-category]');
+    if (!btn) return;
+    state.visuals.category = btn.dataset.visualCategory || 'all';
+    renderVisualsScreen();
+  });
+  document.getElementById('visualsGrid')?.addEventListener('click', (e) => {
+    const patientBtn = e.target.closest('[data-visual-patient]');
+    if (patientBtn) { openVisualPatientMode(patientBtn.dataset.visualPatient); return; }
+    const openBtn = e.target.closest('[data-visual-open]');
+    if (openBtn) { openVisualDetail(openBtn.dataset.visualOpen); return; }
+    const card = e.target.closest('[data-visual-id]');
+    if (card) openVisualDetail(card.dataset.visualId);
+  });
+  document.getElementById('visualDetailContent')?.addEventListener('click', (e) => {
+    const patientBtn = e.target.closest('[data-visual-patient]');
+    if (patientBtn) { openVisualPatientMode(patientBtn.dataset.visualPatient); return; }
+    const copyBtn = e.target.closest('[data-visual-copy]');
+    if (copyBtn) { copyVisualText(copyBtn.dataset.visualCopy); return; }
+    const openBtn = e.target.closest('[data-visual-open]');
+    if (openBtn) { openVisualDetail(openBtn.dataset.visualOpen); return; }
+    if (e.target.closest('[data-open-visual-library]')) { closeOverlay('visualDetailOverlay'); openVisuals('chat'); }
+  });
+  document.getElementById('visualPatientClose')?.addEventListener('click', () => closeOverlay('visualPatientOverlay'));
+
   // Chat screen
   document.getElementById('chatBackBtn').addEventListener('click', () => goScreen('list'));
   document.getElementById('chatMenuBtn').addEventListener('click', () => openOverlay('chatMenuOverlay'));
@@ -5472,6 +5873,16 @@ function init() {
       e.target.value = ''; // allow re-selecting same file
     });
   });
+
+  // TTS floating player
+  document.getElementById('ttsPauseBtn')?.addEventListener('click', () => {
+    if (TTS_PLAYER.paused) TTS_PLAYER.resume();
+    else TTS_PLAYER.pause();
+  });
+  document.getElementById('ttsStopBtn')?.addEventListener('click', () => TTS_PLAYER.stop(true));
+  document.getElementById('ttsCloseBtn')?.addEventListener('click', () => TTS_PLAYER.stop(true));
+  document.getElementById('ttsRestartBtn')?.addEventListener('click', () => TTS_PLAYER.restart());
+  document.getElementById('ttsRateSelect')?.addEventListener('change', (e) => TTS_PLAYER.setRate(e.target.value));
 
   // Menu
   document.getElementById('menuToggleLog').addEventListener('click', () => {
