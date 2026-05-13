@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.10.1-beta-splashfix';
+const CACHE = 'ai-council-v6.10.1-beta-softicons';
 const ASSETS = [
   './',
   './index.html',
@@ -8,13 +8,13 @@ const ASSETS = [
   './style.css',
   './manifest.json',
   './icon.svg',
-  './icon-96.png',
-  './icon-192.png',
-  './icon-512.png',
-  './maskable-icon-512.png',
+  './icon-96.png?v=softicons',
+  './icon-192.png?v=softicons',
+  './icon-512.png?v=softicons',
+  './maskable-icon-512.png?v=softicons',
   './splash-logo.png',
   './header-logo.png',
-  './splash-tooth.png?v=33b05a0',
+  './splash-tooth.png?v=softicons',
   './assets/visuals/caries/tooth_anatomy_section.svg',
   './assets/visuals/caries/early_enamel_caries.svg',
   './assets/visuals/caries/dentin_caries.svg',
