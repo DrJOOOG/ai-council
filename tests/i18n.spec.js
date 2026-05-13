@@ -5,11 +5,22 @@ async function openSettings(page) {
   await expect(page.locator('#settingsOverlay')).toHaveClass(/open/);
 }
 
+async function openSettingsSection(page, sectionId) {
+  await page.locator(`[data-settings-jump="${sectionId}"]`).click();
+  await expect(page.locator(`#${sectionId}`)).toBeVisible();
+}
+
 test('language switch updates UI and persists after reload', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('aic3_settings')) {
+      localStorage.setItem('aic3_settings', JSON.stringify({ language: 'uk' }));
+    }
+  });
   await page.goto('/index.html');
   await expect(page.locator('html')).toHaveAttribute('lang', 'uk');
 
   await openSettings(page);
+  await openSettingsSection(page, 'settingsLanguageSection');
   await page.locator('[data-lang-option="cs"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs-CZ');
   await expect(page.locator('#settingsOverlay')).toContainText('Jazyk rozhraní');
@@ -20,6 +31,7 @@ test('language switch updates UI and persists after reload', async ({ page }) =>
   await expect(page.locator('#settingsBtn')).toHaveAttribute('aria-label', 'Nastavení');
 
   await openSettings(page);
+  await openSettingsSection(page, 'settingsLanguageSection');
   await page.locator('[data-lang-option="en"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#settingsOverlay')).toContainText('Interface language');

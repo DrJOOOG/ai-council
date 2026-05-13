@@ -1,0 +1,1093 @@
+export const VISUAL_LIBRARY = {
+  "categories": {
+    "caries": {
+      "icon": "🦷",
+      "uk": "Карієс",
+      "cs": "Kaz",
+      "en": "Caries"
+    },
+    "pulp": {
+      "icon": "🔥",
+      "uk": "Пульпа / пульпіт",
+      "cs": "Dřeň / pulpitida",
+      "en": "Pulp / pulpitis"
+    },
+    "endo": {
+      "icon": "🧬",
+      "uk": "Ендодонтія",
+      "cs": "Endodoncie",
+      "en": "Endodontics"
+    },
+    "perio": {
+      "icon": "🩸",
+      "uk": "Пародонтологія",
+      "cs": "Parodontologie",
+      "en": "Periodontology"
+    },
+    "implants": {
+      "icon": "🔩",
+      "uk": "Імплантологія",
+      "cs": "Implantologie",
+      "en": "Implantology"
+    },
+    "surgery": {
+      "icon": "🦷",
+      "uk": "Хірургія",
+      "cs": "Chirurgie",
+      "en": "Surgery"
+    },
+    "prosthetics": {
+      "icon": "👑",
+      "uk": "Протезування",
+      "cs": "Protetika",
+      "en": "Prosthetics"
+    },
+    "hygiene": {
+      "icon": "🪥",
+      "uk": "Гігієна",
+      "cs": "Hygiena",
+      "en": "Hygiene"
+    },
+    "radiology": {
+      "icon": "📷",
+      "uk": "OPG / RTG",
+      "cs": "OPG / RTG",
+      "en": "OPG / X-ray"
+    }
+  },
+  "items": [
+    {
+      "id": "tooth_anatomy_section",
+      "category": "caries",
+      "audience": "all",
+      "type": "image",
+      "icon": "🦷",
+      "title": {
+        "uk": "Будова зуба в розрізі",
+        "cs": "Stavba zubu v řezu",
+        "en": "Tooth anatomy cross-section"
+      },
+      "description": {
+        "uk": "Емаль, дентин, пульпа, корінь, ясна та кістка.",
+        "cs": "Sklovina, dentin, dřeň, kořen, dáseň a kost.",
+        "en": "Enamel, dentin, pulp, root, gum and bone."
+      },
+      "patientText": {
+        "uk": "Зуб має тверду зовнішню оболонку — емаль. Під нею є дентин, а всередині розташована пульпа з нервами та судинами.",
+        "cs": "Zub má tvrdou vnější vrstvu — sklovinu. Pod ní je dentin a uvnitř je zubní dřeň s nervy a cévami.",
+        "en": "A tooth has a hard outer layer called enamel. Under it is dentin, and inside is the pulp with nerves and blood vessels."
+      },
+      "tags": [
+        "tooth",
+        "anatomy",
+        "enamel",
+        "dentin",
+        "pulp"
+      ],
+      "asset": "assets/visuals/caries/tooth_anatomy_section.svg",
+      "recommendedFor": [
+        "tooth",
+        "anatomy",
+        "enamel",
+        "dentin"
+      ]
+    },
+    {
+      "id": "early_enamel_caries",
+      "category": "caries",
+      "audience": "patient",
+      "type": "image",
+      "icon": "⚪",
+      "title": {
+        "uk": "Початковий карієс в емалі",
+        "cs": "Počáteční kaz ve sklovině",
+        "en": "Early enamel caries"
+      },
+      "description": {
+        "uk": "Поверхневе ураження без проникнення в дентин.",
+        "cs": "Povrchové poškození bez průniku do dentinu.",
+        "en": "Surface lesion without dentin involvement."
+      },
+      "patientText": {
+        "uk": "На ранньому етапі карієс уражає тільки поверхневий шар зуба. Часто його можна лікувати мінімально інвазивно.",
+        "cs": "V rané fázi kaz postihuje jen povrchovou vrstvu zubu. Často lze postupovat minimálně invazivně.",
+        "en": "At an early stage, decay affects only the surface layer of the tooth and can often be treated minimally invasively."
+      },
+      "tags": [
+        "caries",
+        "enamel",
+        "white spot",
+        "prevention"
+      ],
+      "asset": "assets/visuals/caries/early_enamel_caries.svg",
+      "recommendedFor": [
+        "caries",
+        "enamel",
+        "white spot",
+        "prevention"
+      ]
+    },
+    {
+      "id": "dentin_caries",
+      "category": "caries",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🟤",
+      "title": {
+        "uk": "Карієс у дентині",
+        "cs": "Kaz v dentinu",
+        "en": "Dentin caries"
+      },
+      "description": {
+        "uk": "Ураження проходить глибше і наближається до пульпи.",
+        "cs": "Poškození postupuje hlouběji a blíží se ke dřeni.",
+        "en": "The lesion progresses deeper and approaches the pulp."
+      },
+      "patientText": {
+        "uk": "Коли карієс проходить у дентин, ураження розвивається швидше. Зуб може реагувати на холодне, солодке або на їжу.",
+        "cs": "Když kaz pronikne do dentinu, postupuje rychleji. Zub může reagovat na studené, sladké nebo jídlo.",
+        "en": "When decay reaches dentin, it can progress faster. The tooth may react to cold, sweets or food."
+      },
+      "tags": [
+        "caries",
+        "dentin",
+        "sensitivity",
+        "restoration"
+      ],
+      "asset": "assets/visuals/caries/dentin_caries.svg",
+      "recommendedFor": [
+        "caries",
+        "dentin",
+        "sensitivity",
+        "restoration"
+      ]
+    },
+    {
+      "id": "caries_to_pulp_progression",
+      "category": "caries",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "🔥",
+      "title": {
+        "uk": "Як карієс доходить до пульпи",
+        "cs": "Jak kaz proniká ke dřeni",
+        "en": "How decay reaches the pulp"
+      },
+      "description": {
+        "uk": "4 етапи: емаль → дентин → пульпа.",
+        "cs": "4 kroky: sklovina → dentin → dřeň.",
+        "en": "4 steps: enamel → dentin → pulp."
+      },
+      "patientText": {
+        "uk": "Без лікування карієс поступово проходить глибше. Коли бактерії доходять до пульпи, може виникнути сильний біль і потреба в лікуванні каналів.",
+        "cs": "Bez léčby kaz postupně proniká hlouběji. Když bakterie dosáhnou dřeně, může vzniknout silná bolest a potřeba ošetření kořenových kanálků.",
+        "en": "Without treatment, decay gradually moves deeper. When bacteria reach the pulp, severe pain and root canal treatment may become necessary."
+      },
+      "tags": [
+        "caries",
+        "pulp",
+        "pulpitis",
+        "pain",
+        "endo"
+      ],
+      "asset": "assets/visuals/caries/caries_to_pulp_progression.svg",
+      "recommendedFor": [
+        "caries",
+        "pulp",
+        "pulpitis",
+        "pain"
+      ]
+    },
+    {
+      "id": "untreated_caries_consequences",
+      "category": "caries",
+      "audience": "patient",
+      "type": "image",
+      "icon": "⚠️",
+      "title": {
+        "uk": "Що буде, якщо не лікувати карієс",
+        "cs": "Co se stane, když se kaz neléčí",
+        "en": "What happens if decay is untreated"
+      },
+      "description": {
+        "uk": "Карієс → пульпіт → запалення біля кореня.",
+        "cs": "Kaz → zánět dřeně → zánět u kořene.",
+        "en": "Decay → pulpitis → inflammation near the root."
+      },
+      "patientText": {
+        "uk": "Нелікований карієс може перейти у запалення нерва, а потім у запалення біля кореня зуба.",
+        "cs": "Neléčený kaz může přejít do zánětu nervu a později do zánětu u kořene zubu.",
+        "en": "Untreated decay can lead to inflammation of the nerve and later inflammation near the tooth root."
+      },
+      "tags": [
+        "caries",
+        "pulpitis",
+        "abscess",
+        "infection"
+      ],
+      "asset": "assets/visuals/caries/untreated_caries_consequences.svg",
+      "recommendedFor": [
+        "caries",
+        "pulpitis",
+        "abscess",
+        "infection"
+      ]
+    },
+    {
+      "id": "pulpitis_inflamed_pulp",
+      "category": "pulp",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🔥",
+      "title": {
+        "uk": "Запалення пульпи",
+        "cs": "Zánět zubní dřeně",
+        "en": "Inflamed dental pulp"
+      },
+      "description": {
+        "uk": "Пульпа всередині зуба запалена.",
+        "cs": "Dřeň uvnitř zubu je zanícená.",
+        "en": "The pulp inside the tooth is inflamed."
+      },
+      "patientText": {
+        "uk": "Пульпіт — це запалення внутрішньої частини зуба, де проходять нерви та судини. Саме тому зуб може сильно боліти.",
+        "cs": "Pulpitida je zánět vnitřní části zubu, kde jsou nervy a cévy. Proto může zub velmi bolet.",
+        "en": "Pulpitis is inflammation of the inner part of the tooth where nerves and vessels are located. This is why the tooth may hurt strongly."
+      },
+      "tags": [
+        "pulpitis",
+        "pulp",
+        "pain",
+        "nerve"
+      ],
+      "asset": "assets/visuals/pulp/pulpitis_inflamed_pulp.svg",
+      "recommendedFor": [
+        "pulpitis",
+        "pulp",
+        "pain",
+        "nerve"
+      ]
+    },
+    {
+      "id": "caries_vs_pulpitis",
+      "category": "pulp",
+      "audience": "patient",
+      "type": "image",
+      "icon": "↔️",
+      "title": {
+        "uk": "Карієс vs пульпіт",
+        "cs": "Kaz vs. pulpitida",
+        "en": "Caries vs pulpitis"
+      },
+      "description": {
+        "uk": "Порівняння поверхневого ураження та запалення пульпи.",
+        "cs": "Srovnání povrchového kazu a zánětu dřeně.",
+        "en": "Comparison of decay and pulp inflammation."
+      },
+      "patientText": {
+        "uk": "Карієс уражає тверді тканини зуба. Пульпіт виникає тоді, коли запалюється внутрішня частина зуба — пульпа.",
+        "cs": "Kaz poškozuje tvrdé tkáně zubu. Pulpitida vzniká tehdy, když se zanítí vnitřní část zubu — dřeň.",
+        "en": "Decay affects the hard tissues of the tooth. Pulpitis occurs when the inner part of the tooth — the pulp — becomes inflamed."
+      },
+      "tags": [
+        "caries",
+        "pulpitis",
+        "diagnosis"
+      ],
+      "asset": "assets/visuals/pulp/caries_vs_pulpitis.svg",
+      "recommendedFor": [
+        "caries",
+        "pulpitis",
+        "diagnosis"
+      ]
+    },
+    {
+      "id": "why_pulpitis_hurts",
+      "category": "pulp",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "💥",
+      "title": {
+        "uk": "Чому болить зуб при пульпіті",
+        "cs": "Proč zub bolí při pulpitidě",
+        "en": "Why pulpitis hurts"
+      },
+      "description": {
+        "uk": "Запалення і тиск у закритому просторі зуба.",
+        "cs": "Zánět a tlak v uzavřeném prostoru zubu.",
+        "en": "Inflammation and pressure in the closed tooth space."
+      },
+      "patientText": {
+        "uk": "Пульпа знаходиться всередині твердого зуба. Коли вона запалюється, тиск усередині зростає, тому біль може бути дуже сильним.",
+        "cs": "Dřeň je uvnitř tvrdého zubu. Když se zanítí, tlak uvnitř roste a bolest může být velmi silná.",
+        "en": "The pulp is inside the hard tooth. When it becomes inflamed, pressure increases and pain can be very strong."
+      },
+      "tags": [
+        "pulpitis",
+        "pain",
+        "pressure",
+        "nerve"
+      ],
+      "asset": "assets/visuals/pulp/why_pulpitis_hurts.svg",
+      "recommendedFor": [
+        "pulpitis",
+        "pain",
+        "pressure",
+        "nerve"
+      ]
+    },
+    {
+      "id": "tooth_nerve_simple",
+      "category": "pulp",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🧠",
+      "title": {
+        "uk": "Що таке “нерв” у зубі",
+        "cs": "Co je „nerv“ v zubu",
+        "en": "What is the tooth “nerve”"
+      },
+      "description": {
+        "uk": "Пульпа, канали, нерви та судини.",
+        "cs": "Dřeň, kanálky, nervy a cévy.",
+        "en": "Pulp, canals, nerves and vessels."
+      },
+      "patientText": {
+        "uk": "Коли пацієнти кажуть “нерв зуба”, зазвичай мають на увазі пульпу — тканину всередині зуба з нервами та судинами.",
+        "cs": "Když pacienti říkají „nerv zubu“, obvykle myslí dřeň — tkáň uvnitř zubu s nervy a cévami.",
+        "en": "When patients say the tooth “nerve”, they usually mean the pulp — tissue inside the tooth containing nerves and vessels."
+      },
+      "tags": [
+        "pulp",
+        "nerve",
+        "root canal"
+      ],
+      "asset": "assets/visuals/pulp/tooth_nerve_simple.svg",
+      "recommendedFor": [
+        "pulp",
+        "nerve",
+        "root canal"
+      ]
+    },
+    {
+      "id": "infected_root_canal",
+      "category": "endo",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦠",
+      "title": {
+        "uk": "Інфекція в кореневому каналі",
+        "cs": "Infekce v kořenovém kanálku",
+        "en": "Infected root canal"
+      },
+      "description": {
+        "uk": "Бактерії всередині каналу можуть поширюватися до верхівки.",
+        "cs": "Bakterie v kanálku se mohou šířit ke špičce kořene.",
+        "en": "Bacteria inside the canal can spread to the root tip."
+      },
+      "patientText": {
+        "uk": "Коли бактерії потрапляють у кореневий канал, інфекція може поширюватися до верхівки кореня.",
+        "cs": "Když se bakterie dostanou do kořenového kanálku, infekce se může šířit ke špičce kořene.",
+        "en": "When bacteria enter the root canal, infection can spread toward the root tip."
+      },
+      "tags": [
+        "endo",
+        "infection",
+        "root canal",
+        "bacteria"
+      ],
+      "asset": "assets/visuals/endo/infected_root_canal.svg",
+      "recommendedFor": [
+        "endo",
+        "infection",
+        "root canal",
+        "bacteria"
+      ]
+    },
+    {
+      "id": "root_canal_treatment_overview",
+      "category": "endo",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🧬",
+      "title": {
+        "uk": "Що таке лікування каналів",
+        "cs": "Co je ošetření kořenových kanálků",
+        "en": "What is root canal treatment"
+      },
+      "description": {
+        "uk": "Очищення, дезінфекція і герметичне заповнення каналів.",
+        "cs": "Vyčištění, dezinfekce a hermetické zaplnění kanálků.",
+        "en": "Cleaning, disinfection and sealing of canals."
+      },
+      "patientText": {
+        "uk": "Лікування каналів означає очищення внутрішньої частини зуба від інфікованої тканини, дезінфекцію і герметичне заповнення каналів.",
+        "cs": "Ošetření kanálků znamená odstranění infikované tkáně zevnitř zubu, dezinfekci a hermetické zaplnění kanálků.",
+        "en": "Root canal treatment means cleaning infected tissue from inside the tooth, disinfecting it and sealing the canals."
+      },
+      "tags": [
+        "endo",
+        "root canal",
+        "treatment"
+      ],
+      "asset": "assets/visuals/endo/root_canal_treatment_overview.svg",
+      "recommendedFor": [
+        "endo",
+        "root canal",
+        "treatment"
+      ]
+    },
+    {
+      "id": "endo_steps",
+      "category": "endo",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "1️⃣",
+      "title": {
+        "uk": "Етапи ендодонтичного лікування",
+        "cs": "Kroky endodontického ošetření",
+        "en": "Steps of endodontic treatment"
+      },
+      "description": {
+        "uk": "Доступ → очищення → дезінфекція → пломбування → реставрація.",
+        "cs": "Přístup → čištění → dezinfekce → plnění → rekonstrukce.",
+        "en": "Access → cleaning → disinfection → filling → restoration."
+      },
+      "patientText": {
+        "uk": "Лікування каналів складається з кількох етапів: доступ, очищення, дезінфекція, пломбування каналів і відновлення зуба.",
+        "cs": "Ošetření kanálků má několik kroků: přístup, vyčištění, dezinfekci, zaplnění kanálků a rekonstrukci zubu.",
+        "en": "Root canal treatment consists of access, cleaning, disinfection, canal filling and tooth restoration."
+      },
+      "tags": [
+        "endo",
+        "steps",
+        "root canal"
+      ],
+      "asset": "assets/visuals/endo/endo_steps.svg",
+      "recommendedFor": [
+        "endo",
+        "steps",
+        "root canal"
+      ]
+    },
+    {
+      "id": "periapical_lesion",
+      "category": "endo",
+      "audience": "all",
+      "type": "image",
+      "icon": "⭕",
+      "title": {
+        "uk": "Періапікальне запалення",
+        "cs": "Periapikální zánět",
+        "en": "Periapical lesion"
+      },
+      "description": {
+        "uk": "Запалення біля верхівки кореня.",
+        "cs": "Zánět u hrotu kořene.",
+        "en": "Inflammation near the root tip."
+      },
+      "patientText": {
+        "uk": "Інфекція з кореневого каналу може викликати запалення біля верхівки кореня. На рентгені це часто виглядає як темна ділянка.",
+        "cs": "Infekce z kořenového kanálku může vyvolat zánět u hrotu kořene. Na RTG to často vypadá jako tmavá oblast.",
+        "en": "Infection from the root canal may cause inflammation near the root tip. On X-ray it often appears as a dark area."
+      },
+      "tags": [
+        "endo",
+        "periapical",
+        "xray",
+        "lesion"
+      ],
+      "asset": "assets/visuals/endo/periapical_lesion.svg",
+      "recommendedFor": [
+        "endo",
+        "periapical",
+        "xray",
+        "lesion"
+      ]
+    },
+    {
+      "id": "tooth_before_after_endo",
+      "category": "endo",
+      "audience": "patient",
+      "type": "image",
+      "icon": "✅",
+      "title": {
+        "uk": "Зуб до і після ендо",
+        "cs": "Zub před a po endodoncii",
+        "en": "Tooth before and after endo"
+      },
+      "description": {
+        "uk": "Інфікована пульпа → очищені й запломбовані канали.",
+        "cs": "Infikovaná dřeň → vyčištěné a zaplněné kanálky.",
+        "en": "Infected pulp → cleaned and filled canals."
+      },
+      "patientText": {
+        "uk": "Мета лікування каналів — прибрати інфекцію всередині зуба і зберегти зуб, якщо це можливо.",
+        "cs": "Cílem ošetření kanálků je odstranit infekci uvnitř zubu a zachovat zub, pokud je to možné.",
+        "en": "The goal of root canal treatment is to remove infection inside the tooth and preserve it when possible."
+      },
+      "tags": [
+        "endo",
+        "before after",
+        "root canal"
+      ],
+      "asset": "assets/visuals/endo/tooth_before_after_endo.svg",
+      "recommendedFor": [
+        "endo",
+        "before after",
+        "root canal"
+      ]
+    },
+    {
+      "id": "healthy_gums_vs_gingivitis",
+      "category": "perio",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🩸",
+      "title": {
+        "uk": "Здорові ясна vs гінгівіт",
+        "cs": "Zdravé dásně vs. gingivitida",
+        "en": "Healthy gums vs gingivitis"
+      },
+      "description": {
+        "uk": "Порівняння здорових і запалених ясен.",
+        "cs": "Srovnání zdravých a zanícených dásní.",
+        "en": "Comparison of healthy and inflamed gums."
+      },
+      "patientText": {
+        "uk": "Гінгівіт — це запалення ясен. Часто він проявляється кровоточивістю, почервонінням і набряком.",
+        "cs": "Gingivitida je zánět dásní. Často se projevuje krvácením, zarudnutím a otokem.",
+        "en": "Gingivitis is gum inflammation. It often appears as bleeding, redness and swelling."
+      },
+      "tags": [
+        "perio",
+        "gingivitis",
+        "gums",
+        "bleeding"
+      ],
+      "asset": "assets/visuals/perio/healthy_gums_vs_gingivitis.svg",
+      "recommendedFor": [
+        "perio",
+        "gingivitis",
+        "gums",
+        "bleeding"
+      ]
+    },
+    {
+      "id": "gingivitis_vs_periodontitis",
+      "category": "perio",
+      "audience": "patient",
+      "type": "image",
+      "icon": "↔️",
+      "title": {
+        "uk": "Гінгівіт vs пародонтит",
+        "cs": "Gingivitida vs. parodontitida",
+        "en": "Gingivitis vs periodontitis"
+      },
+      "description": {
+        "uk": "При пародонтиті втрачається кісткова опора зубів.",
+        "cs": "U parodontitidy se ztrácí kostní opora zubů.",
+        "en": "Periodontitis involves loss of bone support."
+      },
+      "patientText": {
+        "uk": "Гінгівіт уражає переважно ясна. Пародонтит — глибше захворювання, при якому може втрачатися кісткова опора зубів.",
+        "cs": "Gingivitida postihuje hlavně dáseň. Parodontitida je hlubší onemocnění, při kterém se může ztrácet kostní opora zubů.",
+        "en": "Gingivitis mainly affects the gums. Periodontitis is deeper disease where bone support may be lost."
+      },
+      "tags": [
+        "perio",
+        "gingivitis",
+        "periodontitis",
+        "bone loss"
+      ],
+      "asset": "assets/visuals/perio/gingivitis_vs_periodontitis.svg",
+      "recommendedFor": [
+        "perio",
+        "gingivitis",
+        "periodontitis",
+        "bone loss"
+      ]
+    },
+    {
+      "id": "bone_loss_periodontitis",
+      "category": "perio",
+      "audience": "patient",
+      "type": "image",
+      "icon": "📉",
+      "title": {
+        "uk": "Втрата кістки при пародонтиті",
+        "cs": "Ztráta kosti při parodontitidě",
+        "en": "Bone loss in periodontitis"
+      },
+      "description": {
+        "uk": "Зниження рівня кістки навколо зуба.",
+        "cs": "Snížení úrovně kosti kolem zubu.",
+        "en": "Reduced bone level around the tooth."
+      },
+      "patientText": {
+        "uk": "При пародонтиті поступово втрачається кістка навколо зуба. Через це зуб може почати рухатися.",
+        "cs": "Při parodontitidě se postupně ztrácí kost kolem zubu. Zub se proto může začít hýbat.",
+        "en": "In periodontitis, bone around the tooth is gradually lost. This may make the tooth mobile."
+      },
+      "tags": [
+        "perio",
+        "periodontitis",
+        "bone loss",
+        "mobility"
+      ],
+      "asset": "assets/visuals/perio/bone_loss_periodontitis.svg",
+      "recommendedFor": [
+        "perio",
+        "periodontitis",
+        "bone loss",
+        "mobility"
+      ]
+    },
+    {
+      "id": "plaque_calculus_inflammation",
+      "category": "perio",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "🦷",
+      "title": {
+        "uk": "Наліт і камінь як причина запалення",
+        "cs": "Plak a kámen jako příčina zánětu",
+        "en": "Plaque and calculus cause inflammation"
+      },
+      "description": {
+        "uk": "Наліт → камінь → запалення ясен.",
+        "cs": "Plak → kámen → zánět dásní.",
+        "en": "Plaque → calculus → gum inflammation."
+      },
+      "patientText": {
+        "uk": "Наліт і зубний камінь подразнюють ясна та підтримують запалення. Тому професійна гігієна є важливою частиною лікування.",
+        "cs": "Plak a zubní kámen dráždí dáseň a udržují zánět. Profesionální hygiena je proto důležitou součástí léčby.",
+        "en": "Plaque and calculus irritate the gums and maintain inflammation. Professional hygiene is an important part of treatment."
+      },
+      "tags": [
+        "perio",
+        "plaque",
+        "calculus",
+        "hygiene"
+      ],
+      "asset": "assets/visuals/perio/plaque_calculus_inflammation.svg",
+      "recommendedFor": [
+        "perio",
+        "plaque",
+        "calculus",
+        "hygiene"
+      ]
+    },
+    {
+      "id": "mobile_teeth_periodontitis",
+      "category": "perio",
+      "audience": "patient",
+      "type": "image",
+      "icon": "↕️",
+      "title": {
+        "uk": "Чому зуби хитаються",
+        "cs": "Proč se zuby viklají",
+        "en": "Why teeth become mobile"
+      },
+      "description": {
+        "uk": "Менше кісткової опори — більше рухомості.",
+        "cs": "Méně kostní opory — větší viklavost.",
+        "en": "Less bone support means more mobility."
+      },
+      "patientText": {
+        "uk": "Зуб тримається в кістці. Коли кісткова опора зменшується, зуб може стати рухомим.",
+        "cs": "Zub drží v kosti. Když se kostní opora zmenšuje, zub se může začít viklat.",
+        "en": "A tooth is held by bone. When bone support decreases, the tooth may become mobile."
+      },
+      "tags": [
+        "perio",
+        "mobility",
+        "bone loss"
+      ],
+      "asset": "assets/visuals/perio/mobile_teeth_periodontitis.svg",
+      "recommendedFor": [
+        "perio",
+        "mobility",
+        "bone loss"
+      ]
+    },
+    {
+      "id": "dental_implant_components",
+      "category": "implants",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🔩",
+      "title": {
+        "uk": "Що таке імплант",
+        "cs": "Co je zubní implantát",
+        "en": "What is a dental implant"
+      },
+      "description": {
+        "uk": "Імплант, абатмент і коронка.",
+        "cs": "Implantát, abutment a korunka.",
+        "en": "Implant, abutment and crown."
+      },
+      "patientText": {
+        "uk": "Імплант замінює корінь зуба. На нього фіксується абатмент і коронка, яка виглядає як зуб.",
+        "cs": "Implantát nahrazuje kořen zubu. Na něj se upevní abutment a korunka, která vypadá jako zub.",
+        "en": "An implant replaces the tooth root. An abutment and crown are attached to it."
+      },
+      "tags": [
+        "implant",
+        "abutment",
+        "crown",
+        "prosthetics"
+      ],
+      "asset": "assets/visuals/implants/dental_implant_components.svg",
+      "recommendedFor": [
+        "implant",
+        "abutment",
+        "crown",
+        "prosthetics"
+      ]
+    },
+    {
+      "id": "implant_in_bone_section",
+      "category": "implants",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦴",
+      "title": {
+        "uk": "Імплант у кістці",
+        "cs": "Implantát v kosti",
+        "en": "Implant in bone"
+      },
+      "description": {
+        "uk": "Розріз щелепи з імплантом у кістці.",
+        "cs": "Řez čelistí s implantátem v kosti.",
+        "en": "Jaw section with implant in bone."
+      },
+      "patientText": {
+        "uk": "Імплант встановлюється в кістку. Після загоєння на нього можна виготовити коронку.",
+        "cs": "Implantát se zavádí do kosti. Po zhojení je možné na něj zhotovit korunku.",
+        "en": "The implant is placed in bone. After healing, a crown can be made on it."
+      },
+      "tags": [
+        "implant",
+        "bone",
+        "surgery"
+      ],
+      "asset": "assets/visuals/implants/implant_in_bone_section.svg",
+      "recommendedFor": [
+        "implant",
+        "bone",
+        "surgery"
+      ]
+    },
+    {
+      "id": "implant_treatment_steps",
+      "category": "implants",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "1️⃣",
+      "title": {
+        "uk": "Етапи імплантації",
+        "cs": "Kroky implantace",
+        "en": "Implant treatment steps"
+      },
+      "description": {
+        "uk": "Планування → імплант → загоєння → коронка.",
+        "cs": "Plánování → implantát → hojení → korunka.",
+        "en": "Planning → implant → healing → crown."
+      },
+      "patientText": {
+        "uk": "Імплантація складається з планування, встановлення імпланта, періоду загоєння і виготовлення коронки.",
+        "cs": "Implantace zahrnuje plánování, zavedení implantátu, dobu hojení a zhotovení korunky.",
+        "en": "Implant treatment includes planning, implant placement, healing and crown fabrication."
+      },
+      "tags": [
+        "implant",
+        "steps",
+        "osseointegration",
+        "crown"
+      ],
+      "asset": "assets/visuals/implants/implant_treatment_steps.svg",
+      "recommendedFor": [
+        "implant",
+        "steps",
+        "osseointegration",
+        "crown"
+      ]
+    },
+    {
+      "id": "osseointegration",
+      "category": "implants",
+      "audience": "patient",
+      "type": "animation",
+      "icon": "🔗",
+      "title": {
+        "uk": "Остеоінтеграція",
+        "cs": "Osseointegrace",
+        "en": "Osseointegration"
+      },
+      "description": {
+        "uk": "Кістка стабільно з’єднується з поверхнею імпланта.",
+        "cs": "Kost se stabilně spojí s povrchem implantátu.",
+        "en": "Bone integrates with the implant surface."
+      },
+      "patientText": {
+        "uk": "Остеоінтеграція — це процес, під час якого кістка стабільно з’єднується з поверхнею імпланта.",
+        "cs": "Osseointegrace je proces, při kterém se kost stabilně spojí s povrchem implantátu.",
+        "en": "Osseointegration is the process where bone becomes stably connected to the implant surface."
+      },
+      "tags": [
+        "implant",
+        "osseointegration",
+        "bone",
+        "healing"
+      ],
+      "asset": "assets/visuals/implants/osseointegration.svg",
+      "recommendedFor": [
+        "implant",
+        "osseointegration",
+        "bone",
+        "healing"
+      ]
+    },
+    {
+      "id": "implant_vs_bridge",
+      "category": "implants",
+      "audience": "patient",
+      "type": "image",
+      "icon": "⚖️",
+      "title": {
+        "uk": "Імплант vs міст",
+        "cs": "Implantát vs. můstek",
+        "en": "Implant vs bridge"
+      },
+      "description": {
+        "uk": "Порівняння заміщення одного відсутнього зуба.",
+        "cs": "Srovnání náhrady jednoho chybějícího zubu.",
+        "en": "Comparison of replacing one missing tooth."
+      },
+      "patientText": {
+        "uk": "Імплант замінює відсутній зуб без обточування сусідніх зубів. Міст фіксується на сусідні зуби.",
+        "cs": "Implantát nahrazuje chybějící zub bez obroušení sousedních zubů. Můstek se fixuje na sousední zuby.",
+        "en": "An implant replaces a missing tooth without preparing adjacent teeth. A bridge is fixed to neighboring teeth."
+      },
+      "tags": [
+        "implant",
+        "bridge",
+        "prosthetics",
+        "missing tooth"
+      ],
+      "asset": "assets/visuals/implants/implant_vs_bridge.svg",
+      "recommendedFor": [
+        "implant",
+        "bridge",
+        "prosthetics",
+        "missing tooth"
+      ]
+    },
+    {
+      "id": "wisdom_tooth_extraction",
+      "category": "surgery",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦷",
+      "title": {
+        "uk": "Видалення зуба мудрості",
+        "cs": "Extrakce zubu moudrosti",
+        "en": "Wisdom tooth extraction"
+      },
+      "description": {
+        "uk": "Нахилений третій моляр і ризик для сусіднього зуба.",
+        "cs": "Skloněný třetí molár a riziko pro sousední zub.",
+        "en": "Angled third molar and risk to neighboring tooth."
+      },
+      "patientText": {
+        "uk": "Зуб мудрості іноді не має достатньо місця для прорізування. У таких випадках він може викликати біль, запалення або пошкоджувати сусідній зуб.",
+        "cs": "Zub moudrosti někdy nemá dost místa k prořezání. Může způsobovat bolest, zánět nebo poškozovat sousední zub.",
+        "en": "A wisdom tooth may lack space to erupt. It can cause pain, inflammation or damage the adjacent tooth."
+      },
+      "tags": [
+        "surgery",
+        "wisdom tooth",
+        "extraction"
+      ],
+      "asset": "assets/visuals/surgery/wisdom_tooth_extraction.svg",
+      "recommendedFor": [
+        "surgery",
+        "wisdom tooth",
+        "extraction"
+      ]
+    },
+    {
+      "id": "extraction_socket_healing",
+      "category": "surgery",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🩹",
+      "title": {
+        "uk": "Лунка після видалення",
+        "cs": "Lůžko po extrakci a hojení",
+        "en": "Extraction socket healing"
+      },
+      "description": {
+        "uk": "Згусток і перші етапи загоєння.",
+        "cs": "Krevní sraženina a první fáze hojení.",
+        "en": "Blood clot and early healing steps."
+      },
+      "patientText": {
+        "uk": "Після видалення важливо зберегти кров’яний згусток у лунці. Він є основою нормального загоєння.",
+        "cs": "Po extrakci je důležité zachovat krevní sraženinu v lůžku. Je základem normálního hojení.",
+        "en": "After extraction, preserving the blood clot in the socket is important. It is the basis for normal healing."
+      },
+      "tags": [
+        "surgery",
+        "extraction",
+        "healing",
+        "socket"
+      ],
+      "asset": "assets/visuals/surgery/extraction_socket_healing.svg",
+      "recommendedFor": [
+        "surgery",
+        "extraction",
+        "healing",
+        "socket"
+      ]
+    },
+    {
+      "id": "dental_crown_on_tooth",
+      "category": "prosthetics",
+      "audience": "patient",
+      "type": "image",
+      "icon": "👑",
+      "title": {
+        "uk": "Коронка на зуб",
+        "cs": "Korunka na zub",
+        "en": "Dental crown"
+      },
+      "description": {
+        "uk": "Коронка накриває ослаблений зуб.",
+        "cs": "Korunka překrývá oslabený zub.",
+        "en": "A crown covers a weakened tooth."
+      },
+      "patientText": {
+        "uk": "Коронка захищає ослаблений зуб і відновлює його форму, функцію та естетику.",
+        "cs": "Korunka chrání oslabený zub a obnovuje jeho tvar, funkci a estetiku.",
+        "en": "A crown protects a weakened tooth and restores its shape, function and appearance."
+      },
+      "tags": [
+        "crown",
+        "prosthetics",
+        "restoration"
+      ],
+      "asset": "assets/visuals/prosthetics/dental_crown_on_tooth.svg",
+      "recommendedFor": [
+        "crown",
+        "prosthetics",
+        "restoration"
+      ]
+    },
+    {
+      "id": "dental_bridge",
+      "category": "prosthetics",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🌉",
+      "title": {
+        "uk": "Міст",
+        "cs": "Zubní můstek",
+        "en": "Dental bridge"
+      },
+      "description": {
+        "uk": "Заміщення відсутнього зуба з опорою на сусідні зуби.",
+        "cs": "Náhrada chybějícího zubu s oporou na sousedních zubech.",
+        "en": "Replacement of a missing tooth using adjacent teeth."
+      },
+      "patientText": {
+        "uk": "Міст замінює відсутній зуб, спираючись на сусідні зуби. Для цього опорні зуби зазвичай потрібно обточити.",
+        "cs": "Můstek nahrazuje chybějící zub a opírá se o sousední zuby. Opěrné zuby se obvykle musí obrousit.",
+        "en": "A bridge replaces a missing tooth by using adjacent teeth as supports. These teeth usually need preparation."
+      },
+      "tags": [
+        "bridge",
+        "prosthetics",
+        "missing tooth"
+      ],
+      "asset": "assets/visuals/prosthetics/dental_bridge.svg",
+      "recommendedFor": [
+        "bridge",
+        "prosthetics",
+        "missing tooth"
+      ]
+    },
+    {
+      "id": "plaque_accumulation_zones",
+      "category": "hygiene",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🪥",
+      "title": {
+        "uk": "Де накопичується наліт",
+        "cs": "Kde se hromadí plak",
+        "en": "Where plaque accumulates"
+      },
+      "description": {
+        "uk": "Міжзубні проміжки, лінія ясен і важкодоступні місця.",
+        "cs": "Mezizubní prostory, linie dásní a hůře dostupná místa.",
+        "en": "Interdental spaces, gumline and hard-to-reach areas."
+      },
+      "patientText": {
+        "uk": "Наліт найчастіше накопичується біля ясен і між зубами. Саме ці місця потрібно чистити особливо уважно.",
+        "cs": "Plak se nejčastěji hromadí u dásní a mezi zuby. Tato místa je potřeba čistit zvlášť pečlivě.",
+        "en": "Plaque most often accumulates near the gums and between teeth. These areas need special attention."
+      },
+      "tags": [
+        "hygiene",
+        "plaque",
+        "prevention",
+        "brushing"
+      ],
+      "asset": "assets/visuals/hygiene/plaque_accumulation_zones.svg",
+      "recommendedFor": [
+        "hygiene",
+        "plaque",
+        "prevention",
+        "brushing"
+      ]
+    },
+    {
+      "id": "what_is_opg",
+      "category": "radiology",
+      "audience": "patient",
+      "type": "image",
+      "icon": "📷",
+      "title": {
+        "uk": "Що таке OPG",
+        "cs": "Co je OPG",
+        "en": "What is an OPG"
+      },
+      "description": {
+        "uk": "Оглядовий знімок зубів, щелеп і навколишніх структур.",
+        "cs": "Přehledový snímek zubů, čelistí a okolních struktur.",
+        "en": "Overview image of teeth, jaws and surrounding structures."
+      },
+      "patientText": {
+        "uk": "OPG — це оглядовий рентгенівський знімок, на якому видно зуби, щелепи та частину навколишніх структур. Для точнішої діагностики іноді потрібні додаткові знімки.",
+        "cs": "OPG je přehledový rentgenový snímek, na kterém jsou vidět zuby, čelisti a část okolních struktur. Pro přesnější diagnostiku jsou někdy potřeba doplňkové snímky.",
+        "en": "An OPG is an overview X-ray showing teeth, jaws and some surrounding structures. Additional images may be needed for precise diagnosis."
+      },
+      "tags": [
+        "opg",
+        "radiology",
+        "xray",
+        "panoramic"
+      ],
+      "asset": "assets/visuals/radiology/what_is_opg.svg",
+      "recommendedFor": [
+        "opg",
+        "radiology",
+        "xray",
+        "panoramic"
+      ]
+    }
+  ]
+};
+export default VISUAL_LIBRARY;

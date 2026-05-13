@@ -1081,6 +1081,16 @@ function czechBlockDesc(key, block) {
 
 function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+function maskedApiKeyLabel(key) {
+  const raw = String(key || '');
+  if (!raw) return '';
+  const tail = raw.slice(-4);
+  return `••••••••${tail}`;
+}
+function isMaskedApiKeyValue(value, storedKey) {
+  return !!storedKey && String(value || '') === maskedApiKeyLabel(storedKey);
+}
 function fmtTime(ts) { return ts ? new Date(ts).toLocaleTimeString(locale(), {hour:'2-digit', minute:'2-digit'}) : ''; }
 function fmtDate(ts) {
   if (!ts) return '';
@@ -4029,7 +4039,10 @@ function detectPotentialPII(text) {
     /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
     /(?:\+?420|\+?421|\+?380)?[\s.-]*(?:\d[\s.-]*){9,}/,
     /\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/,
-    /\b(?:pacient|patient|rodné číslo|r\.č\.|pojištěn|pojišťovna|VZP|jméno|příjmení|adresa)\b/i
+    /\b(?:nar\.?|narozen(?:í|a)?|datum\s+narozen[íi]|дата\s+народження|д\.\s*н\.?|born|dob)\b/i,
+    /\b(?:pacient(?:ka)?|patient|пацієнт(?:ка)?|пациент|rodné\s+číslo|r\.č\.|pojištěn(?:ec|í)?|pojišťovna|страхов(?:ка|ий)|insurance|VZP|jméno|příjmení|ім['’]?я|прізвище|surname|address|adresa|адреса)\b/i,
+    /\b[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽІЇЄҐА-Я][a-záčďéěíňóřšťúůýžіїєґа-я'’\-]{2,}\s+[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽІЇЄҐА-Я][a-záčďéěíňóřšťúůýžіїєґа-я'’\-]{2,}(?:\s+[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽІЇЄҐА-Я][a-záčďéěíňóřšťúůýžіїєґа-я'’\-]{2,})?\b/,
+    /[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽІЇЄҐА-Я][\wÁČĎÉĚÍŇÓŘŠŤÚŮÝŽІЇЄҐа-яіїєґ'’\-]{2,}[_\-\s]*(?:19|20)\d{2}[_\-\s]*(?:opg|rtg|cbct|ct|кт|знімок|scan|photo|foto)/i
   ];
   return patterns.some(re => re.test(s));
 }
@@ -4812,7 +4825,10 @@ function openSettings() {
   const wrap = document.getElementById('apiKeysContainer');
   wrap.innerHTML = AI_ORDER.map(ai => {
     const cfg = AI_CONFIG[ai];
-    const active = state.keys[ai] ? 'active' : '';
+    const existingKey = state.keys[ai] || '';
+    const active = existingKey ? 'active' : '';
+    const maskedValue = maskedApiKeyLabel(existingKey);
+    const placeholder = existingKey ? 'Key saved — leave masked value unchanged, clear to remove, paste new key to replace' : cfg.keyPlaceholder;
     return `
       <div class="api-row">
         <div class="api-label">
@@ -4820,7 +4836,7 @@ function openSettings() {
           <span class="status-dot ${active}"></span>
           <span class="name">${cfg.fullName}</span>
         </div>
-        <input type="password" class="api-input" id="key-${ai}" placeholder="${cfg.keyPlaceholder}" value="${state.keys[ai] || ''}">
+        <input type="password" class="api-input" id="key-${ai}" placeholder="${escapeAttr(placeholder)}" value="${escapeAttr(maskedValue)}" autocomplete="new-password" data-has-key="${existingKey ? '1' : '0'}">
         <div class="api-links">
           <a href="${cfg.keyUrl}" target="_blank" rel="noopener" class="api-link" style="--link-color: ${cfg.color};">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
@@ -4879,7 +4895,10 @@ function openSettings() {
 
 function saveSettings() {
   AI_ORDER.forEach(ai => {
-    const v = document.getElementById('key-' + ai).value.trim();
+    const el = document.getElementById('key-' + ai);
+    const v = (el?.value || '').trim();
+    const existing = state.keys[ai] || '';
+    if (isMaskedApiKeyValue(v, existing)) return;
     if (v) state.keys[ai] = v;
     else delete state.keys[ai];
   });

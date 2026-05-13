@@ -1,4 +1,7 @@
 const { test, expect } = require('@playwright/test');
+const { version: APP_VERSION } = require('../package.json');
+
+const EXPECTED_VERSION_LABEL = `v${APP_VERSION}`;
 
 const KEYS = {
   openai: 'sk-test-openai',
@@ -10,25 +13,26 @@ const KEYS = {
 async function seedKeys(page) {
   await page.addInitScript(keys => {
     localStorage.setItem('aic3_keys', JSON.stringify(keys));
+    localStorage.setItem('aic3_settings', JSON.stringify({ language: 'uk' }));
   }, KEYS);
 }
 
 async function createOpenAIChat(page) {
   await seedKeys(page);
   await page.goto('/index.html');
-  await expect(page.locator('#headerVersion')).toContainText('v6.9.1-beta');
+  await expect(page.locator('#headerVersion')).toContainText(EXPECTED_VERSION_LABEL);
   await page.locator('#newChatBtn').click();
   await page.locator('#aiCardsContainer [data-toggle="1"]').click(); // OpenAI / ChatGPT
   await expect(page.locator('#createChatBtn')).toBeEnabled();
   await page.locator('#createChatBtn').click();
-  await expect(page.locator('#chatHeaderTitle')).toContainText('Chat · ChatGPT');
+  await expect(page.locator('#chatHeaderTitle')).toContainText(/(?:Chat|Чат) · ChatGPT/);
 }
 
 test('app boots and opens the new-chat screen', async ({ page }) => {
   await seedKeys(page);
   await page.goto('/index.html');
   await expect(page).toHaveTitle(/AI Council/);
-  await expect(page.locator('#headerVersion')).toContainText('v6.9.1-beta');
+  await expect(page.locator('#headerVersion')).toContainText(EXPECTED_VERSION_LABEL);
   await page.locator('#newChatBtn').click();
   await expect(page.locator('#screenNew')).toHaveClass(/active/);
   await expect(page.locator('#createChatBtn')).toBeDisabled();
@@ -126,7 +130,7 @@ test('API errors show human summary and clickable technical details', async ({ p
   await page.locator('#sendBtn').click();
 
   await expect(page.locator('.error-card')).toContainText('Gemini');
-  await expect(page.locator('.error-card')).toContainText(/квоту|ліміт/i);
+  await expect(page.locator('.error-card')).toContainText(/квоту|ліміт|оплат|кредит/i);
   await page.locator('.error-card').click();
   await expect(page.locator('#apiErrorOverlay')).toHaveClass(/open/);
   await expect(page.locator('#apiErrorOverlay')).toContainText('HTTP статус');

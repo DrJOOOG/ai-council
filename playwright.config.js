@@ -14,10 +14,10 @@ module.exports = defineConfig({
     video: 'retain-on-failure'
   },
   webServer: {
-    command: 'python3 -m http.server 4173',
+    command: 'npx vite --host 127.0.0.1 --port 4173',
     url: 'http://127.0.0.1:4173/index.html',
     reuseExistingServer: !process.env.CI,
-    timeout: 15000
+    timeout: 30000
   },
   projects: [
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } },
