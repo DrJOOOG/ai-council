@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.10.1-beta';
+const CACHE = 'ai-council-v6.10.1-beta-splashfix';
 const ASSETS = [
   './',
   './index.html',
@@ -14,7 +14,7 @@ const ASSETS = [
   './maskable-icon-512.png',
   './splash-logo.png',
   './header-logo.png',
-  './splash-tooth.png',
+  './splash-tooth.png?v=33b05a0',
   './assets/visuals/caries/tooth_anatomy_section.svg',
   './assets/visuals/caries/early_enamel_caries.svg',
   './assets/visuals/caries/dentin_caries.svg',
