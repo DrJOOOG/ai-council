@@ -84,7 +84,7 @@ export const VISUAL_LIBRARY = {
         "dentin",
         "pulp"
       ],
-      "asset": "assets/visuals/realistic/tooth_anatomy_section.jpg",
+      "asset": "assets/visuals/realistic/tooth_anatomy_section_v2.jpg",
       "recommendedFor": [
         "tooth",
         "anatomy",
@@ -773,7 +773,7 @@ export const VISUAL_LIBRARY = {
         "crown",
         "prosthetics"
       ],
-      "asset": "assets/visuals/implants/dental_implant_components.svg",
+      "asset": "assets/visuals/realistic/implant_crown_components.jpg",
       "recommendedFor": [
         "implant",
         "abutment",
@@ -1013,7 +1013,7 @@ export const VISUAL_LIBRARY = {
         "prosthetics",
         "restoration"
       ],
-      "asset": "assets/visuals/prosthetics/dental_crown_on_tooth.svg",
+      "asset": "assets/visuals/realistic/dental_crown_on_tooth.jpg",
       "recommendedFor": [
         "crown",
         "prosthetics",
@@ -1046,7 +1046,7 @@ export const VISUAL_LIBRARY = {
         "prosthetics",
         "missing tooth"
       ],
-      "asset": "assets/visuals/prosthetics/dental_bridge.svg",
+      "asset": "assets/visuals/realistic/dental_bridge.jpg",
       "recommendedFor": [
         "bridge",
         "prosthetics",
@@ -1327,7 +1327,7 @@ export const VISUAL_LIBRARY = {
         "overlay",
         "prosthetics"
       ],
-      "asset": "assets/visuals/prosthetics/inlay_onlay_overlay.svg",
+      "asset": "assets/visuals/realistic/inlay_onlay_overlay.jpg",
       "recommendedFor": [
         "inlay",
         "onlay",
@@ -1473,6 +1473,146 @@ export const VISUAL_LIBRARY = {
         "working length",
         "apex",
         "doctor"
+      ]
+    },
+    {
+      "id": "implant_bone_grafting",
+      "category": "implants",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🔩",
+      "title": {
+        "uk": "Імплант із кістковою пластикою",
+        "cs": "Implantát s kostní augmentací",
+        "en": "Implant with bone grafting"
+      },
+      "description": {
+        "uk": "Імплант встановлюється разом із додаванням кісткового матеріалу.",
+        "cs": "Implantát je zaveden spolu s doplněním kostního materiálu.",
+        "en": "An implant placed with additional bone graft material."
+      },
+      "patientText": {
+        "uk": "Якщо кістки недостатньо, під час або перед імплантацією можна додати кістковий матеріал. Це створює кращу опору для імпланта.",
+        "cs": "Pokud není dostatek kosti, lze při implantaci nebo před ní doplnit kostní materiál. Tím se vytvoří lepší opora pro implantát.",
+        "en": "If there is not enough bone, graft material can be added before or during implant placement to support the implant."
+      },
+      "tags": [
+        "implant",
+        "bone graft",
+        "augmentation",
+        "gbr"
+      ],
+      "asset": "assets/visuals/realistic/implant_bone_grafting.jpg",
+      "recommendedFor": [
+        "implant",
+        "bone graft",
+        "augmentation",
+        "gbr"
+      ]
+    },
+    {
+      "id": "socket_preservation_bone_graft",
+      "category": "surgery",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦷",
+      "title": {
+        "uk": "Збереження лунки після видалення",
+        "cs": "Zachování lůžka po extrakci",
+        "en": "Socket preservation after extraction"
+      },
+      "description": {
+        "uk": "Лунка після видалення заповнюється кістковим матеріалом і закривається мембраною.",
+        "cs": "Lůžko po extrakci se vyplní kostním materiálem a zakryje membránou.",
+        "en": "The extraction socket is filled with graft material and covered with a membrane."
+      },
+      "patientText": {
+        "uk": "Після видалення зуба кістка може зменшуватися. Socket preservation допомагає зберегти об’єм кістки для майбутнього імпланта або кращої естетики.",
+        "cs": "Po extrakci zubu se kost může zmenšovat. Socket preservation pomáhá zachovat objem kosti pro budoucí implantát nebo lepší estetiku.",
+        "en": "After extraction, bone volume may shrink. Socket preservation helps maintain bone for a future implant or better aesthetics."
+      },
+      "tags": [
+        "extraction",
+        "socket preservation",
+        "bone graft",
+        "membrane"
+      ],
+      "asset": "assets/visuals/realistic/socket_preservation_bone_graft.jpg",
+      "recommendedFor": [
+        "extraction",
+        "socket preservation",
+        "bone graft",
+        "membrane"
+      ]
+    },
+    {
+      "id": "dental_filling_section",
+      "category": "caries",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦷",
+      "title": {
+        "uk": "Пломба в зубі в розрізі",
+        "cs": "Výplň v zubu v řezu",
+        "en": "Dental filling cross-section"
+      },
+      "description": {
+        "uk": "Як пломба відновлює зуб після очищення карієсу.",
+        "cs": "Jak výplň obnovuje zub po odstranění kazu.",
+        "en": "How a filling restores a tooth after decay removal."
+      },
+      "patientText": {
+        "uk": "Після очищення карієсу порожнина заповнюється пломбувальним матеріалом. Він повертає форму зуба і захищає його від подальшого руйнування.",
+        "cs": "Po odstranění kazu se kavita vyplní výplňovým materiálem. Ten obnoví tvar zubu a chrání ho před dalším poškozením.",
+        "en": "After decay is removed, the cavity is filled with restorative material to restore shape and protect the tooth."
+      },
+      "tags": [
+        "filling",
+        "caries",
+        "restoration",
+        "composite"
+      ],
+      "asset": "assets/visuals/realistic/dental_filling_section.jpg",
+      "recommendedFor": [
+        "filling",
+        "caries",
+        "restoration",
+        "composite"
+      ]
+    },
+    {
+      "id": "guided_implant_surgery",
+      "category": "implants",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🎯",
+      "title": {
+        "uk": "Навігаційний шаблон для імплантації",
+        "cs": "Navigační šablona pro implantaci",
+        "en": "Guided implant surgery"
+      },
+      "description": {
+        "uk": "Імплант встановлюється через прозорий хірургічний шаблон.",
+        "cs": "Implantát se zavádí přes průhlednou chirurgickou šablonu.",
+        "en": "An implant is placed through a transparent surgical guide."
+      },
+      "patientText": {
+        "uk": "Хірургічний шаблон допомагає встановити імплант у заздалегідь спланованому положенні. Це підвищує точність і передбачуваність процедури.",
+        "cs": "Chirurgická šablona pomáhá zavést implantát do předem naplánované polohy. Zvyšuje přesnost a předvídatelnost zákroku.",
+        "en": "A surgical guide helps place the implant in a pre-planned position, improving precision and predictability."
+      },
+      "tags": [
+        "implant",
+        "guided surgery",
+        "surgical guide",
+        "navigation"
+      ],
+      "asset": "assets/visuals/realistic/guided_implant_surgery.jpg",
+      "recommendedFor": [
+        "implant",
+        "guided surgery",
+        "surgical guide",
+        "navigation"
       ]
     }
   ]
