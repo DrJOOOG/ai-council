@@ -1,13 +1,21 @@
 // ================================================================
-// ProfiDentist.ai v6.10.5-beta — swipe close hotfix
+// ProfiDentist.ai v6.10.6-beta — developer contacts
 // ================================================================
 
-const APP_VERSION = '6.10.5-beta';
+const APP_VERSION = '6.10.6-beta';
 const APP_VERSION_DATE = '2026-05-14';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
+  {
+    version: '6.10.6-beta',
+    date: '2026-05-14',
+    highlights: [
+      { uk: '☎️ Додано блок “Контакти / розробник” у Settings з профілем MDDr. Taras Parkhoma, телефоном, email, адресою клініки та онлайн-записом.', cs: '☎️ Přidán blok „Kontakty / vývojář“ v Nastavení s profilem MDDr. Taras Parkhoma, telefonem, e-mailem, adresou ordinace a online objednáním.', en: '☎️ Added a “Contacts / developer” block in Settings with MDDr. Taras Parkhoma profile, phone, email, clinic address and online booking.' },
+      { uk: '🌐 Додано посилання на ProfiDentist.cz і новий домен ProfiDentist.ai.', cs: '🌐 Přidány odkazy na ProfiDentist.cz a novou doménu ProfiDentist.ai.', en: '🌐 Added links to ProfiDentist.cz and the new ProfiDentist.ai domain.' }
+    ]
+  },
   {
     version: '6.10.5-beta',
     date: '2026-05-14',

@@ -106,6 +106,17 @@ test('attachment menu exposes camera, photos and files options', async ({ page }
   await expect(page.locator('#fileInput')).toHaveAttribute('accept', '*/*');
 });
 
+test('settings exposes developer contact card', async ({ page }) => {
+  await seedKeys(page);
+  await page.goto('/index.html');
+  await page.locator('#settingsBtn').click();
+  await page.locator('[data-settings-jump="settingsContactSection"]').click();
+  await expect(page.locator('#settingsContactSection')).toContainText('MDDr. Taras Parkhoma');
+  await expect(page.locator('#settingsContactSection')).toContainText('+420 608 553 348');
+  await expect(page.locator('#settingsContactSection')).toContainText('profidentist.cz@gmail.com');
+  await expect(page.locator('#settingsContactSection a[href="https://profidentist.ai"]')).toBeVisible();
+});
+
 
 test('chat swipe closed state fully hides action buttons', async ({ page }) => {
   await page.addInitScript(() => {
