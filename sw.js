@@ -1,4 +1,4 @@
-const CACHE = 'ai-council-v6.10.2-beta-cleanicons';
+const CACHE = 'ai-council-v6.10.3-beta-cleanicons';
 const ASSETS = [
   './',
   './index.html',

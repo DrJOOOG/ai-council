@@ -1,13 +1,23 @@
 // ================================================================
-// AI Council v6.10.2-beta — realistic visual library
+// AI Council v6.10.3-beta — in-app camera capture
 // ================================================================
 
-const APP_VERSION = '6.10.2-beta';
+const APP_VERSION = '6.10.3-beta';
 const APP_VERSION_DATE = '2026-05-14';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
+  {
+    version: '6.10.3-beta',
+    date: '2026-05-14',
+    highlights: [
+      { uk: '📷 Додано in-app camera capture: live preview з камери, кнопка “Зробити фото” і автоматичне додавання фото у вкладення.', cs: '📷 Přidán in-app camera capture: živý náhled z kamery, tlačítko „Pořídit foto“ a automatické přidání fotky do příloh.', en: '📷 Added in-app camera capture: live camera preview, “Take photo” button and automatic attachment creation.' },
+      { uk: '🔁 Додано перемикання front/back camera, де це підтримує браузер; на ноуті працює з вебкамерою.', cs: '🔁 Přidáno přepínání přední/zadní kamery tam, kde to prohlížeč podporuje; na notebooku funguje s webkamerou.', en: '🔁 Added front/back camera switching where supported; laptops use the webcam.' },
+      { uk: '🦷 OPG quick mode тепер може відкривати камеру, зробити фото і далі автоматично стартувати структурований OPG-звіт.', cs: '🦷 OPG quick mode nyní může otevřít kameru, pořídit fotku a automaticky spustit strukturovaný OPG popis.', en: '🦷 OPG quick mode can now open the camera, capture a photo and automatically start the structured OPG report.' },
+      { uk: '🛟 Додано fallback: якщо браузер не дає доступ до камери, відкривається старий вибір фото/файлу.', cs: '🛟 Přidán fallback: pokud prohlížeč nepovolí kameru, otevře se původní výběr fotky/souboru.', en: '🛟 Added fallback: if camera access is unavailable, the old photo/file picker opens.' }
+    ]
+  },
   {
     version: '6.10.2-beta',
     date: '2026-05-14',
@@ -3358,6 +3368,93 @@ async function handleFiles(files) {
   }
 }
 
+// ==================== CAMERA CAPTURE ====================
+const CAMERA_CAPTURE = { stream: null, facingMode: 'environment' };
+
+function cameraSupported() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+}
+
+function stopCameraCapture() {
+  if (CAMERA_CAPTURE.stream) {
+    CAMERA_CAPTURE.stream.getTracks().forEach(track => track.stop());
+    CAMERA_CAPTURE.stream = null;
+  }
+  const video = document.getElementById('cameraVideo');
+  if (video) video.srcObject = null;
+}
+
+function closeCameraCapture() {
+  stopCameraCapture();
+  closeOverlay('cameraCaptureOverlay');
+}
+
+async function openCameraCapture(fallbackInput) {
+  if (!cameraSupported()) {
+    fallbackInput?.click();
+    return;
+  }
+
+  const video = document.getElementById('cameraVideo');
+  const errorEl = document.getElementById('cameraError');
+  if (!video) {
+    fallbackInput?.click();
+    return;
+  }
+
+  closeOverlay('attachOptionsOverlay');
+  openOverlay('cameraCaptureOverlay');
+  if (errorEl) { errorEl.hidden = true; errorEl.textContent = ''; }
+
+  try {
+    stopCameraCapture();
+    const constraints = {
+      audio: false,
+      video: {
+        facingMode: { ideal: CAMERA_CAPTURE.facingMode },
+        width: { ideal: 1600 },
+        height: { ideal: 1200 }
+      }
+    };
+    CAMERA_CAPTURE.stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = CAMERA_CAPTURE.stream;
+    await video.play();
+  } catch (e) {
+    console.warn('Camera unavailable:', e);
+    if (errorEl) {
+      errorEl.textContent = t('camera.unavailable');
+      errorEl.hidden = false;
+    }
+    flash(t('camera.unavailable'), true);
+    closeCameraCapture();
+    fallbackInput?.click();
+  }
+}
+
+async function switchCameraCapture() {
+  CAMERA_CAPTURE.facingMode = CAMERA_CAPTURE.facingMode === 'environment' ? 'user' : 'environment';
+  await openCameraCapture(document.getElementById('cameraInput'));
+}
+
+async function captureCameraFrame() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  if (!video || !canvas || !video.videoWidth) return;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+  if (!blob) return;
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const file = new File([blob], `camera-${stamp}.jpg`, { type: 'image/jpeg' });
+  closeCameraCapture();
+  await handleFiles([file]);
+  flash(t('camera.captured'));
+}
+
 
 function updateAttachmentsUI() {
   const wrap = document.getElementById('attachmentsPreview');
@@ -5883,9 +5980,12 @@ function init() {
   });
 
   document.getElementById('attachCameraOption')?.addEventListener('click', () => {
-    closeOverlay('attachOptionsOverlay');
-    cameraInput?.click();
+    openCameraCapture(cameraInput);
   });
+
+  document.getElementById('cameraCloseBtn')?.addEventListener('click', closeCameraCapture);
+  document.getElementById('cameraSwitchBtn')?.addEventListener('click', switchCameraCapture);
+  document.getElementById('cameraCaptureBtn')?.addEventListener('click', captureCameraFrame);
 
   document.getElementById('attachMediaOption')?.addEventListener('click', () => {
     closeOverlay('attachOptionsOverlay');

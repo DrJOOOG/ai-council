@@ -212,6 +212,28 @@
   </div>
 </div>
 
+<!-- OVERLAY: in-app camera capture -->
+<div class="overlay" id="cameraCaptureOverlay">
+  <div class="sheet camera-sheet">
+    <div class="sheet-header">
+      <h2 data-i18n="camera.title">Камера</h2>
+      <button class="header-btn" id="cameraCloseBtn" data-i18n-aria-label="common.close" aria-label="Закрити">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="camera-stage">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <canvas id="cameraCanvas" style="display:none;"></canvas>
+      <div class="camera-error" id="cameraError" hidden></div>
+    </div>
+    <div class="camera-actions">
+      <button type="button" class="settings-btn" id="cameraSwitchBtn" data-i18n="camera.switch">Змінити камеру</button>
+      <button type="button" class="settings-btn primary" id="cameraCaptureBtn" data-i18n="camera.capture">Зробити фото</button>
+    </div>
+    <div class="hint-text" data-i18n="camera.hint">Фото буде додано як вкладення до поточного чату.</div>
+  </div>
+</div>
+
 <!-- OVERLAY: chat menu -->
 <div class="overlay" id="chatMenuOverlay">
   <div class="sheet">
@@ -496,8 +518,8 @@
   </div>
 </div>
 
-<script src="translations.js?v=6.10.2-beta"></script>
-<script src="src/config/visuals.config.js?v=6.10.2-beta"></script>
-<script src="app.js?v=6.10.2-beta"></script>
+<script src="translations.js?v=6.10.3-beta"></script>
+<script src="src/config/visuals.config.js?v=6.10.3-beta"></script>
+<script src="app.js?v=6.10.3-beta"></script>
 </body>
 </html>
