@@ -84,7 +84,7 @@ window.VISUAL_LIBRARY = {
         "dentin",
         "pulp"
       ],
-      "asset": "assets/visuals/caries/tooth_anatomy_section.svg",
+      "asset": "assets/visuals/realistic/tooth_anatomy_section.jpg",
       "recommendedFor": [
         "tooth",
         "anatomy",
@@ -119,12 +119,47 @@ window.VISUAL_LIBRARY = {
         "white spot",
         "prevention"
       ],
-      "asset": "assets/visuals/caries/early_enamel_caries.svg",
+      "asset": "assets/visuals/realistic/early_enamel_caries.jpg",
       "recommendedFor": [
         "caries",
         "enamel",
         "white spot",
         "prevention"
+      ]
+    },
+    {
+      "id": "early_fissure_caries",
+      "category": "caries",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🦷",
+      "title": {
+        "uk": "Початковий фісурний карієс",
+        "cs": "Počáteční fisurální kaz",
+        "en": "Early fissure caries"
+      },
+      "description": {
+        "uk": "Невеликий карієс у борозенках жувальної поверхні.",
+        "cs": "Malý kaz v rýhách žvýkací plošky.",
+        "en": "A small lesion in the grooves of the chewing surface."
+      },
+      "patientText": {
+        "uk": "Фісури на жувальній поверхні легко затримують наліт. На ранньому етапі карієс може виглядати маленьким, але поступово проникати глибше.",
+        "cs": "Fisury na žvýkací ploše snadno zachytávají plak. V počáteční fázi může kaz vypadat malý, ale postupně pronikat hlouběji.",
+        "en": "Grooves on the chewing surface trap plaque easily. Early fissure caries may look small but can gradually progress deeper."
+      },
+      "tags": [
+        "caries",
+        "fissure",
+        "occlusal",
+        "early"
+      ],
+      "asset": "assets/visuals/realistic/early_fissure_caries.jpg",
+      "recommendedFor": [
+        "caries",
+        "fissure",
+        "occlusal",
+        "early"
       ]
     },
     {
@@ -154,7 +189,7 @@ window.VISUAL_LIBRARY = {
         "sensitivity",
         "restoration"
       ],
-      "asset": "assets/visuals/caries/dentin_caries.svg",
+      "asset": "assets/visuals/realistic/dentin_caries.jpg",
       "recommendedFor": [
         "caries",
         "dentin",
@@ -190,7 +225,7 @@ window.VISUAL_LIBRARY = {
         "pain",
         "endo"
       ],
-      "asset": "assets/visuals/caries/caries_to_pulp_progression.svg",
+      "asset": "assets/visuals/realistic/caries_to_pulp_progression.jpg",
       "recommendedFor": [
         "caries",
         "pulp",
@@ -497,7 +532,7 @@ window.VISUAL_LIBRARY = {
         "xray",
         "lesion"
       ],
-      "asset": "assets/visuals/endo/periapical_lesion.svg",
+      "asset": "assets/visuals/realistic/periapical_lesion.jpg",
       "recommendedFor": [
         "endo",
         "periapical",
@@ -565,7 +600,7 @@ window.VISUAL_LIBRARY = {
         "gums",
         "bleeding"
       ],
-      "asset": "assets/visuals/perio/healthy_gums_vs_gingivitis.svg",
+      "asset": "assets/visuals/realistic/healthy_gums_vs_gingivitis.jpg",
       "recommendedFor": [
         "perio",
         "gingivitis",
@@ -670,7 +705,7 @@ window.VISUAL_LIBRARY = {
         "calculus",
         "hygiene"
       ],
-      "asset": "assets/visuals/perio/plaque_calculus_inflammation.svg",
+      "asset": "assets/visuals/realistic/plaque_calculus_inflammation.jpg",
       "recommendedFor": [
         "perio",
         "plaque",
@@ -772,7 +807,7 @@ window.VISUAL_LIBRARY = {
         "bone",
         "surgery"
       ],
-      "asset": "assets/visuals/implants/implant_in_bone_section.svg",
+      "asset": "assets/visuals/realistic/implant_in_bone_section.jpg",
       "recommendedFor": [
         "implant",
         "bone",
@@ -1045,7 +1080,7 @@ window.VISUAL_LIBRARY = {
         "prevention",
         "brushing"
       ],
-      "asset": "assets/visuals/hygiene/plaque_accumulation_zones.svg",
+      "asset": "assets/visuals/realistic/plaque_accumulation_zones.jpg",
       "recommendedFor": [
         "hygiene",
         "plaque",
