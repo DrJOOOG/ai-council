@@ -10,5 +10,5 @@ const swJs = readFileSync(new URL('../../sw.js', import.meta.url), 'utf8');
 test('version is synchronized across package, app, module and service worker', () => {
   assert.equal(APP_VERSION, pkg.version);
   assert.match(appJs, new RegExp(`const APP_VERSION = '${pkg.version.replaceAll('.', '\\.')}';`));
-  assert.match(swJs, new RegExp(`ai-council-v${pkg.version.replaceAll('.', '\\.')}`));
+  assert.match(swJs, new RegExp(`profidentist-ai-v${pkg.version.replaceAll('.', '\\.')}`));
 });

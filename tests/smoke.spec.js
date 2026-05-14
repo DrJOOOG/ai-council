@@ -31,7 +31,7 @@ async function createOpenAIChat(page) {
 test('app boots and opens the new-chat screen', async ({ page }) => {
   await seedKeys(page);
   await page.goto('/index.html');
-  await expect(page).toHaveTitle(/AI Council/);
+  await expect(page).toHaveTitle(/ProfiDentist\.ai/);
   await expect(page.locator('#headerVersion')).toContainText(EXPECTED_VERSION_LABEL);
   await page.locator('#newChatBtn').click();
   await expect(page.locator('#screenNew')).toHaveClass(/active/);

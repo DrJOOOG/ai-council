@@ -1,13 +1,21 @@
 // ================================================================
-// AI Council v6.10.3-beta — in-app camera capture
+// ProfiDentist.ai v6.10.4-beta — product rebrand
 // ================================================================
 
-const APP_VERSION = '6.10.3-beta';
+const APP_VERSION = '6.10.4-beta';
 const APP_VERSION_DATE = '2026-05-14';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
+  {
+    version: '6.10.4-beta',
+    date: '2026-05-14',
+    highlights: [
+      { uk: '🏷️ AI Council перейменовано у ProfiDentist.ai у головному UI, PWA manifest, install prompt, footer і patient visual mode.', cs: '🏷️ AI Council byl přejmenován na ProfiDentist.ai v hlavním UI, PWA manifestu, instalační výzvě, patičce a patient visual mode.', en: '🏷️ AI Council has been renamed to ProfiDentist.ai across the main UI, PWA manifest, install prompt, footer and patient visual mode.' },
+      { uk: '🗂️ Нові Obsidian/backup назви тепер використовують ProfiDentist.ai, але старі AI Council backup-файли залишаються сумісними для імпорту.', cs: '🗂️ Nové názvy Obsidian/backup používají ProfiDentist.ai, ale staré AI Council zálohy zůstávají kompatibilní pro import.', en: '🗂️ New Obsidian/backup names now use ProfiDentist.ai, while legacy AI Council backups remain import-compatible.' }
+    ]
+  },
   {
     version: '6.10.3-beta',
     date: '2026-05-14',
@@ -760,7 +768,7 @@ function load() {
       obsidian: {
         enabled: !!appSettings.obsidian?.enabled,
         vault: appSettings.obsidian?.vault || '',
-        folder: appSettings.obsidian?.folder || 'AI Council'
+        folder: appSettings.obsidian?.folder || 'ProfiDentist.ai'
       },
       tts: {
         enabled: appSettings.tts?.enabled !== false
@@ -2556,7 +2564,7 @@ function openVisualPatientMode(id) {
     <div class="visual-patient-title">${escapeHtml(title)}</div>
     <div class="visual-patient-image"><img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}"></div>
     <div class="visual-patient-copy">${escapeHtml(text)}</div>
-    <div class="visual-patient-footer">AI Council · ${escapeHtml(t('visuals.patientModeShort'))}</div>`;
+    <div class="visual-patient-footer">ProfiDentist.ai · ${escapeHtml(t('visuals.patientModeShort'))}</div>`;
   openOverlay('visualPatientOverlay');
 }
 
@@ -4853,7 +4861,7 @@ function buildRadiologySynthesisPrompt(question, answers, chatContext = null) {
     return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi finální radiologický auditor Rady AI. Máš k dispozici původní RTG/OPG snímek jako přílohu a také odpovědi jednotlivých AI. Tvůj úkol není sloučit všechny nálezy. Tvůj úkol je vytvořit bezpečný, klinicky použitelný popis.\n\nPŮVODNÍ ZADÁNÍ:\n${question}${correctionBlock}\n\nODPOVĚDI AI:\n${formatted}\n\nPOUŽIJ CONSENSUS-FILTER:\n- Do dokumentace jako fakt zařaď jen nález, který přímo vidíš na přiloženém snímku, nebo který konzistentně podporují alespoň 2 nezávislé AI a není mezi nimi zásadní rozpor.\n- Nález zmíněný jen jednou AI dej do „Pouze k ověření – nepřepisovat jako fakt“.\n- Pokud se AI liší v číslování zubu, poloze implantátu, retenci/impakci, endodontickém ošetření, kazu, periapikální lézi, resorpci nebo kalcifikaci — nevybírej vítěze. Označ konflikt a doporuč ověření lékařem / PA / BW / CBCT.\n- Nepiš „periapikální nález v normě“ po jednotlivých zubech.\n- ORIENTACE/FDI: Pokud uživatel neuvede jinak, použij defaultní OPG mapu: levý horní obrázku = Q1 18→11, pravý horní = Q2 21→28, pravý dolní = Q3 38→31, levý dolní = Q4 41→48. Pokud R/L marker nebo korekce lékaře odporuje defaultu, prioritu má marker/korekce.\n- KOREKCE LÉKAŘE: Pokud uživatel v této konverzaci opravil polohu zubu/implantátu, tato korekce má prioritu před všemi AI zprávami.\n- SAFE CHART TEXT nesmí obsahovat konfliktní zuby, jednostranné nálezy Gemini ani číslování, které není bezpečně ověřené.\n- U implantátu bez jisté orientace piš raději „implantát v laterálním úseku mandibuly, přesná FDI pozice vyžaduje ověření“ než špatné číslo.\n\nPOVINNÝ VÝSTUP:\n1. **Kvalita a limitace snímku**\n2. **Zub po zubu — FDI**\n   Každý řádek začni: [18] – ... až [48] – ...\n   Použij priority:\n   🔴 [15] – suspektní nález vyžadující ověření / riziková oblast.\n   🟡 [16] – omezeně hodnotitelné / rozsáhlá výplň nebo konstrukce.\n   ⚪ [14] – popis bez jasné hrubé patologie nebo stav pouze orientačně.\n3. **Bezpečný krátký text do dokumentace** — jen ověřené/bezpečné formulace.\n4. **Pouze k ověření – nepřepisovat jako fakt**\n5. **Doporučené doplnění** — BW / PA / CBCT / klinicky.\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
   }
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of the AI Council. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}${correctionBlock}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n- ORIENTATION/FDI: Unless the user states otherwise, use the default OPG map: image upper-left = Q1 18→11, upper-right = Q2 21→28, lower-right = Q3 38→31, lower-left = Q4 41→48. If an R/L marker or clinician correction contradicts the default, the marker/correction wins.\n- CLINICIAN CORRECTIONS: If the user corrected a tooth/implant position in this conversation, that correction overrides all AI reports.\n- SAFE CHART TEXT must not contain conflicted teeth, single-model Gemini findings, or tooth numbering that is not safely verified.\n- For implants without certain orientation, prefer “implant in the posterior mandible; exact FDI position requires verification” over a wrong tooth number.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the final radiology auditor of ProfiDentist.ai Council mode. You have the original OPG/X-ray attachment and the AI reports. Do not merge all findings. Produce a safe chart-ready report.\n\nORIGINAL TASK:\n${question}${correctionBlock}\n\nAI REPORTS:\n${formatted}\n\nUSE A CONSENSUS FILTER:\n- Put a finding into the chart-ready text only if you directly see it on the attached image, or at least 2 independent AI reports support it consistently with no major conflict.\n- Findings mentioned by only one AI go under “Verify only — do not copy as fact”.\n- If models disagree on tooth number, implant position, impaction, endodontic treatment, caries, periapical lesion, resorption, or calcification, do not choose a side. Mark conflict and recommend verification.\n- Never write “periapical finding normal” tooth by tooth.\n- ORIENTATION/FDI: Unless the user states otherwise, use the default OPG map: image upper-left = Q1 18→11, upper-right = Q2 21→28, lower-right = Q3 38→31, lower-left = Q4 41→48. If an R/L marker or clinician correction contradicts the default, the marker/correction wins.\n- CLINICIAN CORRECTIONS: If the user corrected a tooth/implant position in this conversation, that correction overrides all AI reports.\n- SAFE CHART TEXT must not contain conflicted teeth, single-model Gemini findings, or tooth numbering that is not safely verified.\n- For implants without certain orientation, prefer “implant in the posterior mandible; exact FDI position requires verification” over a wrong tooth number.\n\nMANDATORY OUTPUT:\n1. **Image quality and limitations**\n2. **Tooth-by-tooth FDI list** — [18] – ... through [48] – ...\n   Use markers: 🔴 suspicious/risk/verify, 🟡 limited assessment, ⚪ orientational/no obvious gross pathology.\n3. **Safe short chart note**\n4. **Verify only — do not copy as fact**\n5. **Recommended additional imaging** — BW / PA / CBCT / clinical.\n\nEnd with JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short reason\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
   }
   return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — фінальний радіологічний аудитор Ради AI. Маєш оригінальний OPG/RTG-знімок як вкладення і відповіді моделей. Не обʼєднуй усі знахідки. Створи безпечний опис для карти.\n\nПИТАННЯ:\n${question}${correctionBlock}\n\nВІДПОВІДІ AI:\n${formatted}\n\nCONSENSUS-FILTER:\n- У текст для карти як факт включай лише те, що ти прямо бачиш на знімку, або що стабільно підтвердили мінімум 2 незалежні AI без конфлікту.\n- Знахідку лише однієї AI перенеси в “Тільки перевірити — не переносити як факт”.\n- Якщо є конфлікт у нумерації зуба, позиції імпланта, ретенції/імпакції, ендо, карієсі, періапікальній зміні, резорбції чи кальцифікаті — не вибирай сторону, а познач конфлікт.\n- Не пиши “періапікальна ділянка в нормі” по кожному зубу.\n- ОРІЄНТАЦІЯ/FDI: якщо користувач не вказав інше, використовуй default-мапу OPG: лівий верх картинки = Q1 18→11, правий верх = Q2 21→28, нижній правий = Q3 38→31, нижній лівий = Q4 41→48. Якщо R/L-маркер або корекція лікаря суперечить default — пріоритет має маркер/корекція.\n- КОРЕКЦІЇ ЛІКАРЯ: якщо користувач у цій розмові виправив позицію зуба/імпланта, ця корекція має пріоритет над усіма AI-відповідями.\n- БЕЗПЕЧНИЙ ТЕКСТ У КАРТУ не має містити конфліктні зуби, знахідки тільки Gemini або нумерацію, яка не верифікована безпечно.\n- Для імпланта без певної орієнтації краще писати “імплант у боковому відділі нижньої щелепи, точна FDI-позиція потребує перевірки”, ніж помилковий номер.\n\nОБОВʼЯЗКОВИЙ ВИХІД:\n1. **Якість і обмеження знімка**\n2. **Зуб за зубом — FDI**: [18] – ... до [48] – ...\n   Маркери: 🔴 підозра/ризик/перевірити, 🟡 обмежено оцінюється, ⚪ орієнтовно/без очевидної грубої патології.\n3. **Безпечний короткий текст у карту**\n4. **Тільки перевірити — не переносити як факт**\n5. **Рекомендовані додаткові знімки** — BW / PA / CBCT / клінічно.\n\nВ кінці JSON:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"openai\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
 }
@@ -4865,7 +4873,7 @@ function buildSynthesisPrompt(question, answers) {
     return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nJsi předseda Rady AI. Několik AI modelů odpovědělo na otázku uživatele. Porovnej odpovědi, najdi shodu a rozpory a vytvoř jeden finální závěr.\n\nOTÁZKA:\n${question}\n\nODPOVĚDI:\n${formatted}\n\nStruktura odpovědi:\n1. **Konsenzus** — v čem se modely shodují\n2. **Rozpory** — kde se liší a proč je to důležité\n3. **Doporučení** — finální odpověď Rady\n\nNa úplném konci přidej JSON blok:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"stručné vysvětlení\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nDostupné ai-id: ${aiList}`;
   }
   if (getLang() === 'en') {
-    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the chair of the AI Council. Several AI models answered the user's question. Compare their answers, identify consensus and disagreements, and produce one final answer.\n\nQUESTION:\n${question}\n\nANSWERS:\n${formatted}\n\nStructure:\n1. **Consensus** — what the models agree on\n2. **Disagreements** — where they differ and why it matters\n3. **Recommendation** — final Council answer\n\nEnd with a JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short explanation\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
+    return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nYou are the chair of ProfiDentist.ai Council mode. Several AI models answered the user's question. Compare their answers, identify consensus and disagreements, and produce one final answer.\n\nQUESTION:\n${question}\n\nANSWERS:\n${formatted}\n\nStructure:\n1. **Consensus** — what the models agree on\n2. **Disagreements** — where they differ and why it matters\n3. **Recommendation** — final Council answer\n\nEnd with a JSON meta block:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"short explanation\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nAvailable ai-id: ${aiList}`;
   }
   return `${getLanguageInstruction()}\n${councilOutputLanguageRule()}\n\nТи — голова Ради AI. На питання користувача відповіли кілька AI-моделей. Порівняй відповіді, знайди консенсус і розбіжності, сформулюй один фінальний висновок.\n\nПИТАННЯ:\n${question}\n\nВІДПОВІДІ:\n${formatted}\n\nСтруктура:\n1. **Консенсус** — в чому моделі згодні\n2. **Розбіжності** — де думки розходяться і чому це важливо\n3. **Рекомендація** — фінальна відповідь Ради\n\nВ кінці додай JSON-блок:\n\`\`\`json\n{\n  \"confidence\": \"high|medium|low\",\n  \"confidence_reason\": \"коротке пояснення\",\n  \"contributions\": [\n    {\"ai\": \"claude\", \"unique_insights\": 2, \"supported_by\": [\"gemini\"]}\n  ]\n}\n\`\`\`\nДоступні ai-id: ${aiList}`;
 }
@@ -4994,7 +5002,7 @@ function openSettings() {
   const obsidianFolder = document.getElementById('obsidianFolder');
   if (obsidianEnabled) obsidianEnabled.checked = !!state.settings?.obsidian?.enabled;
   if (obsidianVault) obsidianVault.value = state.settings?.obsidian?.vault || '';
-  if (obsidianFolder) obsidianFolder.value = state.settings?.obsidian?.folder || 'AI Council';
+  if (obsidianFolder) obsidianFolder.value = state.settings?.obsidian?.folder || 'ProfiDentist.ai';
   updateStorageIndicator();
 
   showSettingsHub();
@@ -5023,7 +5031,7 @@ function saveSettings() {
   state.settings.obsidian = {
     enabled: !!obsidianEnabled?.checked,
     vault: (obsidianVault?.value || '').trim(),
-    folder: (obsidianFolder?.value || 'AI Council').trim() || 'AI Council'
+    folder: (obsidianFolder?.value || 'ProfiDentist.ai').trim() || 'ProfiDentist.ai'
   };
   saveSettingsState();
   closeOverlay('settingsOverlay');
@@ -5540,14 +5548,14 @@ function yamlArray(values) {
 }
 
 function safeObsidianFileName(name) {
-  return String(name || 'AI Council note')
+  return String(name || 'ProfiDentist.ai note')
     .replace(/[\\/:*?"<>|#^\[\]]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 80) || 'AI Council note';
+    .slice(0, 80) || 'ProfiDentist.ai note';
 }
 
-function buildFrontmatter({ title, type, language, tags = [], source = 'AI Council' }) {
+function buildFrontmatter({ title, type, language, tags = [], source = 'ProfiDentist.ai' }) {
   return [
     '---',
     `source: ${yamlString(source)}`,
@@ -5564,7 +5572,7 @@ function buildFrontmatter({ title, type, language, tags = [], source = 'AI Counc
 function buildMessageMarkdown(msg, chat) {
   const title = chat?.name || t('chat.noTitle');
   const source = msg.source === 'council-synth' ? t('chat.council') : (msg.role === 'user' ? t('chat.you') : (AI_CONFIG[msg.source]?.name || msg.source || 'AI'));
-  const fm = buildFrontmatter({ title, type: 'message', language: getLang(), tags: ['ai-council', 'message'] });
+  const fm = buildFrontmatter({ title, type: 'message', language: getLang(), tags: ['profidentist-ai', 'message'] });
   return `${fm}\n# ${title}\n\n## ${source}\n\n${msg.content || ''}\n`;
 }
 
@@ -5576,7 +5584,7 @@ function buildChatMarkdown(c) {
     return `${ai} (${m?.name || 'unknown'})`;
   }).join(', ');
   const mode = c.participants?.length > 1 && c.mode ? modeName(c.mode) : 'Single chat';
-  const fm = buildFrontmatter({ title: c.name || t('chat.noTitle'), type: 'chat', language: getLang(), tags: ['ai-council', 'chat'] });
+  const fm = buildFrontmatter({ title: c.name || t('chat.noTitle'), type: 'chat', language: getLang(), tags: ['profidentist-ai', 'chat'] });
   let md = `${fm}\n# ${c.name || t('chat.noTitle')}\n\n`;
   md += `**Participants:** ${participants}\n\n**Mode:** ${mode}\n\n---\n\n`;
   (c.messages || []).forEach(m => {
@@ -5609,7 +5617,7 @@ function openObsidianMarkdown(markdown, title) {
     return;
   }
   if (!confirmObsidianPiiOnce()) return;
-  const folder = String(cfg.folder || 'AI Council').replace(/^\/+|\/+$/g, '') || 'AI Council';
+  const folder = String(cfg.folder || 'ProfiDentist.ai').replace(/^\/+|\/+$/g, '') || 'ProfiDentist.ai';
   const fileName = `${new Date().toISOString().slice(0,10)}-${safeObsidianFileName(title)}.md`;
   const filepath = `${folder}/${fileName}`;
   const params = new URLSearchParams({
@@ -5642,7 +5650,7 @@ function exportBackup() {
     cleanChats[id] = c;
   }
   const backup = {
-    app: 'AI Council',
+    app: 'ProfiDentist.ai',
     version: APP_VERSION,
     exportedAt: new Date().toISOString(),
     note: 'API keys are intentionally not included. Backup may contain personal or medical data if chats/cases contain them. Attachment binary/base64 data is stripped.',
@@ -5659,7 +5667,7 @@ function exportBackup() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ai-council-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `profidentist-ai-backup-${new Date().toISOString().slice(0,10)}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -5671,7 +5679,7 @@ async function importBackupFile(file) {
   if (!file) return;
   const text = await file.text();
   const backup = JSON.parse(text);
-  if (!backup || backup.app !== 'AI Council' || !backup.data) throw new Error('Invalid backup');
+  if (!backup || !['ProfiDentist.ai', 'AI Council'].includes(backup.app) || !backup.data) throw new Error('Invalid backup');
   if (!confirm(t('confirm.restoreBackup'))) return;
   localStorage.setItem(STORAGE.settings, JSON.stringify(backup.data.settings || {}));
   localStorage.setItem(STORAGE.chats, JSON.stringify(backup.data.chats || { chats: {}, order: [], archived: [] }));
@@ -5730,7 +5738,7 @@ function exportChatAsMarkdown(chatId) {
     md += `---\n\n`;
   });
 
-  md += `\n*Експортовано з AI Council · ${new Date().toLocaleString(locale())}*\n`;
+  md += `\n*Експортовано з ProfiDentist.ai · ${new Date().toLocaleString(locale())}*\n`;
 
   // Create download
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
@@ -5873,7 +5881,7 @@ function init() {
 
   // Set version in UI (settings footer + header pill + author line)
   const vFooter = document.getElementById('appVersion');
-  if (vFooter) vFooter.textContent = `AI Council · v${APP_VERSION} · ${APP_VERSION_DATE}`;
+  if (vFooter) vFooter.textContent = `ProfiDentist.ai · v${APP_VERSION} · ${APP_VERSION_DATE}`;
   const vPill = document.getElementById('headerVersion');
   if (vPill) {
     vPill.textContent = `v${APP_VERSION}`;

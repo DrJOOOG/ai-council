@@ -1,5 +1,5 @@
 // ================================================================
-// AI Council v6.0.6-beta — UI localization dictionary
+// ProfiDentist.ai — UI localization dictionary
 // No build step. Loaded before app.js.
 // ================================================================
 
@@ -193,7 +193,7 @@ const TRANSLATIONS = {
     'cases.descriptionPlaceholder': 'Чол. 45р, скарга на ниючий біль...',
     'cases.add': 'Додати випадок',
     'cases.empty': 'Ще немає випадків',
-    'install.prompt': 'Встановити AI Council на екран?',
+    'install.prompt': 'Встановити ProfiDentist.ai на екран?',
     'install.add': 'Додати',
     'mode.parallel.name': 'Паралельно',
     'mode.parallel.desc': 'Всі відповідають одночасно, результати поруч',
@@ -532,7 +532,7 @@ const TRANSLATIONS = {
     'cases.descriptionPlaceholder': 'Muž 45 let, stížnost na tupou bolest...',
     'cases.add': 'Přidat případ',
     'cases.empty': 'Zatím nejsou žádné případy',
-    'install.prompt': 'Nainstalovat AI Council na plochu?',
+    'install.prompt': 'Nainstalovat ProfiDentist.ai na plochu?',
     'install.add': 'Přidat',
     'mode.parallel.name': 'Paralelně',
     'mode.parallel.desc': 'Všichni odpovídají současně, výsledky jsou vedle sebe',
@@ -872,7 +872,7 @@ const TRANSLATIONS = {
     'cases.descriptionPlaceholder': 'Male, 45, complaint of dull pain...',
     'cases.add': 'Add case',
     'cases.empty': 'No cases yet',
-    'install.prompt': 'Install AI Council on your home screen?',
+    'install.prompt': 'Install ProfiDentist.ai on your home screen?',
     'install.add': 'Add',
     'mode.parallel.name': 'Parallel',
     'mode.parallel.desc': 'All AIs answer at the same time, results side by side',

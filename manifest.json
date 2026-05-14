@@ -1,7 +1,7 @@
 {
-  "name": "AI Council",
-  "short_name": "AI Council",
-  "description": "AI Council — clinical AI council for dentistry",
+  "name": "ProfiDentist.ai",
+  "short_name": "ProfiDentist.ai",
+  "description": "ProfiDentist.ai — clinical AI assistant for dentistry",
   "start_url": "./index.html?v=cleanicons",
   "display": "standalone",
   "orientation": "portrait",
