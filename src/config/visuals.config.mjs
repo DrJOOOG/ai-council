@@ -260,7 +260,7 @@ export const VISUAL_LIBRARY = {
         "abscess",
         "infection"
       ],
-      "asset": "assets/visuals/caries/untreated_caries_consequences.svg",
+      "asset": "assets/visuals/realistic/batch-02/01_caries-untreated-progression.png",
       "recommendedFor": [
         "caries",
         "pulpitis",
@@ -295,7 +295,7 @@ export const VISUAL_LIBRARY = {
         "pain",
         "nerve"
       ],
-      "asset": "assets/visuals/pulp/pulpitis_inflamed_pulp.svg",
+      "asset": "assets/visuals/realistic/batch-02/02_inflamed-pulp-pulpitis.png",
       "recommendedFor": [
         "pulpitis",
         "pulp",
@@ -329,7 +329,7 @@ export const VISUAL_LIBRARY = {
         "pulpitis",
         "diagnosis"
       ],
-      "asset": "assets/visuals/pulp/caries_vs_pulpitis.svg",
+      "asset": "assets/visuals/realistic/batch-02/03_caries-vs-pulpitis.png",
       "recommendedFor": [
         "caries",
         "pulpitis",
@@ -363,7 +363,7 @@ export const VISUAL_LIBRARY = {
         "pressure",
         "nerve"
       ],
-      "asset": "assets/visuals/pulp/why_pulpitis_hurts.svg",
+      "asset": "assets/visuals/realistic/batch-02/04_why-tooth-hurts-pulpitis.png",
       "recommendedFor": [
         "pulpitis",
         "pain",
@@ -397,7 +397,7 @@ export const VISUAL_LIBRARY = {
         "nerve",
         "root canal"
       ],
-      "asset": "assets/visuals/pulp/tooth_nerve_simple.svg",
+      "asset": "assets/visuals/realistic/batch-02/05_tooth-nerve-anatomy.png",
       "recommendedFor": [
         "pulp",
         "nerve",
@@ -431,7 +431,7 @@ export const VISUAL_LIBRARY = {
         "root canal",
         "bacteria"
       ],
-      "asset": "assets/visuals/endo/infected_root_canal.svg",
+      "asset": "assets/visuals/realistic/batch-02/06_infected-root-canal.png",
       "recommendedFor": [
         "endo",
         "infection",
@@ -465,7 +465,7 @@ export const VISUAL_LIBRARY = {
         "root canal",
         "treatment"
       ],
-      "asset": "assets/visuals/endo/root_canal_treatment_overview.svg",
+      "asset": "assets/visuals/realistic/batch-02/07_root-canal-treatment-overview.png",
       "recommendedFor": [
         "endo",
         "root canal",
@@ -498,7 +498,7 @@ export const VISUAL_LIBRARY = {
         "steps",
         "root canal"
       ],
-      "asset": "assets/visuals/endo/endo_steps.svg",
+      "asset": "assets/visuals/realistic/batch-02/08_endodontic-treatment-steps.png",
       "recommendedFor": [
         "endo",
         "steps",
@@ -566,7 +566,7 @@ export const VISUAL_LIBRARY = {
         "before after",
         "root canal"
       ],
-      "asset": "assets/visuals/endo/tooth_before_after_endo.svg",
+      "asset": "assets/visuals/realistic/batch-02/09_tooth-before-after-endo.png",
       "recommendedFor": [
         "endo",
         "before after",
@@ -635,7 +635,7 @@ export const VISUAL_LIBRARY = {
         "periodontitis",
         "bone loss"
       ],
-      "asset": "assets/visuals/perio/gingivitis_vs_periodontitis.svg",
+      "asset": "assets/visuals/realistic/batch-02/11_gingivitis-vs-periodontitis.png",
       "recommendedFor": [
         "perio",
         "gingivitis",
@@ -670,7 +670,7 @@ export const VISUAL_LIBRARY = {
         "bone loss",
         "mobility"
       ],
-      "asset": "assets/visuals/perio/bone_loss_periodontitis.svg",
+      "asset": "assets/visuals/realistic/batch-02/12_periodontitis-bone-loss.png",
       "recommendedFor": [
         "perio",
         "periodontitis",
@@ -739,7 +739,7 @@ export const VISUAL_LIBRARY = {
         "mobility",
         "bone loss"
       ],
-      "asset": "assets/visuals/perio/mobile_teeth_periodontitis.svg",
+      "asset": "assets/visuals/realistic/batch-02/13_tooth-mobility-bone-loss.png",
       "recommendedFor": [
         "perio",
         "mobility",
@@ -841,7 +841,7 @@ export const VISUAL_LIBRARY = {
         "osseointegration",
         "crown"
       ],
-      "asset": "assets/visuals/implants/implant_treatment_steps.svg",
+      "asset": "assets/visuals/realistic/batch-02/14_implant-placement-steps.png",
       "recommendedFor": [
         "implant",
         "steps",
@@ -876,7 +876,7 @@ export const VISUAL_LIBRARY = {
         "bone",
         "healing"
       ],
-      "asset": "assets/visuals/implants/osseointegration.svg",
+      "asset": "assets/visuals/realistic/batch-02/15_osseointegration.png",
       "recommendedFor": [
         "implant",
         "osseointegration",
@@ -911,7 +911,7 @@ export const VISUAL_LIBRARY = {
         "prosthetics",
         "missing tooth"
       ],
-      "asset": "assets/visuals/implants/implant_vs_bridge.svg",
+      "asset": "assets/visuals/realistic/batch-02/16_implant-vs-bridge.png",
       "recommendedFor": [
         "implant",
         "bridge",
@@ -945,7 +945,7 @@ export const VISUAL_LIBRARY = {
         "wisdom tooth",
         "extraction"
       ],
-      "asset": "assets/visuals/surgery/wisdom_tooth_extraction.svg",
+      "asset": "assets/visuals/realistic/batch-02/18_impacted-wisdom-tooth.png",
       "recommendedFor": [
         "surgery",
         "wisdom tooth",
@@ -979,7 +979,7 @@ export const VISUAL_LIBRARY = {
         "healing",
         "socket"
       ],
-      "asset": "assets/visuals/surgery/extraction_socket_healing.svg",
+      "asset": "assets/visuals/realistic/batch-02/19_extraction-socket-blood-clot.png",
       "recommendedFor": [
         "surgery",
         "extraction",
@@ -1115,7 +1115,7 @@ export const VISUAL_LIBRARY = {
         "xray",
         "panoramic"
       ],
-      "asset": "assets/visuals/radiology/what_is_opg.svg",
+      "asset": "assets/visuals/realistic/batch-02/24_opg-panoramic-xray.png",
       "recommendedFor": [
         "opg",
         "radiology",
@@ -1150,7 +1150,7 @@ export const VISUAL_LIBRARY = {
         "interdental",
         "prevention"
       ],
-      "asset": "assets/visuals/hygiene/interdental_cleaning.svg",
+      "asset": "assets/visuals/realistic/batch-02/22_interdental-cleaning.png",
       "recommendedFor": [
         "hygiene",
         "floss",
@@ -1185,7 +1185,7 @@ export const VISUAL_LIBRARY = {
         "gumline",
         "prevention"
       ],
-      "asset": "assets/visuals/hygiene/brushing_angle_gumline.svg",
+      "asset": "assets/visuals/realistic/batch-02/23_toothbrush-angle-gumline.png",
       "recommendedFor": [
         "hygiene",
         "brushing",
@@ -1221,7 +1221,7 @@ export const VISUAL_LIBRARY = {
         "caries",
         "doctor"
       ],
-      "asset": "assets/visuals/radiology/bitewing_vs_opg.svg",
+      "asset": "assets/visuals/realistic/batch-02/25_bitewing-vs-opg.png",
       "recommendedFor": [
         "radiology",
         "bitewing",
@@ -1257,7 +1257,7 @@ export const VISUAL_LIBRARY = {
         "endo",
         "doctor"
       ],
-      "asset": "assets/visuals/radiology/periapical_xray_indications.svg",
+      "asset": "assets/visuals/realistic/batch-02/26_periapical-xray-indication.png",
       "recommendedFor": [
         "radiology",
         "periapical",
@@ -1292,7 +1292,7 @@ export const VISUAL_LIBRARY = {
         "prosthetics",
         "aesthetic"
       ],
-      "asset": "assets/visuals/prosthetics/veneer_vs_crown.svg",
+      "asset": "assets/visuals/realistic/batch-02/27_veneer-vs-crown.png",
       "recommendedFor": [
         "veneer",
         "crown",
@@ -1362,7 +1362,7 @@ export const VISUAL_LIBRARY = {
         "dry socket",
         "healing"
       ],
-      "asset": "assets/visuals/surgery/dry_socket_prevention.svg",
+      "asset": "assets/visuals/realistic/batch-02/20_dry-socket-prevention.png",
       "recommendedFor": [
         "surgery",
         "extraction",
@@ -1397,7 +1397,7 @@ export const VISUAL_LIBRARY = {
         "healing",
         "postop"
       ],
-      "asset": "assets/visuals/surgery/suture_care_after_surgery.svg",
+      "asset": "assets/visuals/realistic/batch-02/21_postoperative-sutures-care.png",
       "recommendedFor": [
         "surgery",
         "sutures",
@@ -1432,7 +1432,7 @@ export const VISUAL_LIBRARY = {
         "doctor",
         "maintenance"
       ],
-      "asset": "assets/visuals/implants/peri_implantitis_warning.svg",
+      "asset": "assets/visuals/realistic/batch-02/17_early-periimplantitis.png",
       "recommendedFor": [
         "implant",
         "periimplantitis",
@@ -1467,7 +1467,7 @@ export const VISUAL_LIBRARY = {
         "apex",
         "doctor"
       ],
-      "asset": "assets/visuals/endo/working_length_apex.svg",
+      "asset": "assets/visuals/realistic/batch-02/10_endo-working-length.png",
       "recommendedFor": [
         "endo",
         "working length",
