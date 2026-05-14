@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { VISUAL_LIBRARY } from '../../src/config/visuals.config.mjs';
 
-test('visual library has 30 starter visuals', () => {
-  assert.equal(VISUAL_LIBRARY.items.length, 30);
+test('visual library has at least 40 starter visuals', () => {
+  assert.ok(VISUAL_LIBRARY.items.length >= 40);
 });
 
 test('visual library items have multilingual patient text and assets', () => {
@@ -16,7 +16,12 @@ test('visual library items have multilingual patient text and assets', () => {
 });
 
 test('visual library includes required dental categories', () => {
-  for (const key of ['caries', 'pulp', 'endo', 'perio', 'implants', 'hygiene', 'radiology']) {
+  for (const key of ['caries', 'pulp', 'endo', 'perio', 'implants', 'surgery', 'prosthetics', 'hygiene', 'radiology']) {
     assert.ok(VISUAL_LIBRARY.categories[key], key);
   }
+});
+
+test('visual library includes doctor-facing visuals', () => {
+  const doctorItems = VISUAL_LIBRARY.items.filter(item => item.audience === 'doctor');
+  assert.ok(doctorItems.length >= 4);
 });

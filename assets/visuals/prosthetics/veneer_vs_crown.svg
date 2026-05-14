@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Fazeta vs korunka">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f4eff6"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#2c2034" flood-opacity=".16"/></filter>
+  </defs>
+  <rect width="900" height="620" rx="44" fill="url(#bg)"/>
+  <circle cx="760" cy="105" r="58" fill="#74318f" opacity=".10"/>
+  <circle cx="145" cy="520" r="78" fill="#8b5a2b" opacity=".08"/>
+  <g filter="url(#shadow)">
+    <rect x="160" y="120" width="580" height="330" rx="36" fill="#fff" stroke="#74318f" stroke-width="8" stroke-opacity=".45"/>
+    <path d="M230 385 C280 295 335 330 382 240 C430 150 505 190 552 270 C602 356 650 312 700 385" fill="none" stroke="#74318f" stroke-width="18" stroke-linecap="round" opacity=".75"/>
+    <circle cx="305" cy="325" r="48" fill="#8b5a2b" opacity=".16"/>
+    <circle cx="455" cy="225" r="54" fill="#74318f" opacity=".12"/>
+    <circle cx="610" cy="326" r="48" fill="#8b5a2b" opacity=".14"/>
+    <text x="450" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="92" font-weight="700" fill="#74318f">👑</text>
+  </g>
+  <g>
+    <rect x="72" y="70" width="270" height="58" rx="29" fill="#ffffff" opacity=".86" stroke="#74318f" stroke-opacity=".16"/>
+    <text x="105" y="108" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#74318f">AI Council visuals</text>
+  </g>
+  <text x="450" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="800" fill="#25172d">Fazeta vs korunka</text>
+</svg>

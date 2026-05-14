@@ -1087,6 +1087,358 @@ window.VISUAL_LIBRARY = {
         "xray",
         "panoramic"
       ]
+    },
+    {
+      "id": "interdental_cleaning",
+      "category": "hygiene",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🧵",
+      "title": {
+        "uk": "Міжзубна чистка",
+        "cs": "Mezizubní čištění",
+        "en": "Interdental cleaning"
+      },
+      "description": {
+        "uk": "Йоршики та флос очищають там, куди щітка не дістає.",
+        "cs": "Mezizubní kartáčky a nit čistí místa, kam se běžný kartáček nedostane.",
+        "en": "Interdental brushes and floss clean where a toothbrush cannot reach."
+      },
+      "patientText": {
+        "uk": "Звичайна щітка не очищає повністю проміжки між зубами. Для цього потрібен йоршик або флос відповідного розміру.",
+        "cs": "Běžný kartáček nevyčistí mezizubní prostory úplně. K tomu slouží mezizubní kartáček nebo nit správné velikosti.",
+        "en": "A regular toothbrush does not fully clean between teeth. Use the right size interdental brush or floss."
+      },
+      "tags": [
+        "hygiene",
+        "floss",
+        "interdental",
+        "prevention"
+      ],
+      "asset": "assets/visuals/hygiene/interdental_cleaning.svg",
+      "recommendedFor": [
+        "hygiene",
+        "floss",
+        "interdental",
+        "prevention"
+      ]
+    },
+    {
+      "id": "brushing_angle_gumline",
+      "category": "hygiene",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🪥",
+      "title": {
+        "uk": "Кут щітки біля ясен",
+        "cs": "Úhel kartáčku u dásní",
+        "en": "Brush angle at the gumline"
+      },
+      "description": {
+        "uk": "Щітка під кутом приблизно 45° краще очищає лінію ясен.",
+        "cs": "Kartáček pod úhlem přibližně 45° lépe čistí linii dásní.",
+        "en": "A brush angled about 45° cleans the gumline better."
+      },
+      "patientText": {
+        "uk": "Найважливіше місце — межа зуба і ясен. М’які рухи під кутом допомагають прибрати наліт без травми ясен.",
+        "cs": "Nejdůležitější místo je hranice zubu a dásně. Jemné pohyby pod úhlem pomáhají odstranit plak bez poranění dásní.",
+        "en": "The key area is where tooth meets gum. Gentle angled strokes remove plaque without injuring the gums."
+      },
+      "tags": [
+        "hygiene",
+        "brushing",
+        "gumline",
+        "prevention"
+      ],
+      "asset": "assets/visuals/hygiene/brushing_angle_gumline.svg",
+      "recommendedFor": [
+        "hygiene",
+        "brushing",
+        "gumline",
+        "prevention"
+      ]
+    },
+    {
+      "id": "bitewing_vs_opg",
+      "category": "radiology",
+      "audience": "doctor",
+      "type": "image",
+      "icon": "📷",
+      "title": {
+        "uk": "BW vs OPG: що видно краще",
+        "cs": "BW vs OPG: co je vidět lépe",
+        "en": "Bitewing vs OPG: what each shows best"
+      },
+      "description": {
+        "uk": "Bitewing краще для міжзубного карієсу, OPG — для огляду щелеп.",
+        "cs": "Bitewing je lepší pro mezizubní kazy, OPG pro přehled čelistí.",
+        "en": "Bitewings are better for proximal caries; OPG is an overview."
+      },
+      "patientText": {
+        "uk": "OPG дає загальну картину, але дрібний міжзубний карієс часто краще оцінювати на bitewing-знімках.",
+        "cs": "OPG dává celkový přehled, ale drobné mezizubní kazy se často lépe hodnotí na bitewing snímcích.",
+        "en": "An OPG gives an overview, but small proximal lesions are often assessed better on bitewings."
+      },
+      "tags": [
+        "radiology",
+        "bitewing",
+        "opg",
+        "caries",
+        "doctor"
+      ],
+      "asset": "assets/visuals/radiology/bitewing_vs_opg.svg",
+      "recommendedFor": [
+        "radiology",
+        "bitewing",
+        "opg",
+        "caries",
+        "doctor"
+      ]
+    },
+    {
+      "id": "periapical_xray_indications",
+      "category": "radiology",
+      "audience": "doctor",
+      "type": "image",
+      "icon": "🎯",
+      "title": {
+        "uk": "Коли потрібен PA-знімок",
+        "cs": "Kdy je potřeba PA snímek",
+        "en": "When a PA X-ray is needed"
+      },
+      "description": {
+        "uk": "Прицільний знімок для верхівки кореня, ендо та локальної діагностики.",
+        "cs": "Cílený snímek pro apex, endodoncii a lokální diagnostiku.",
+        "en": "Targeted image for apex, endodontics and local diagnosis."
+      },
+      "patientText": {
+        "uk": "Якщо потрібна точна оцінка верхівки кореня, ендодонтичного лікування або локального дефекту, OPG часто недостатньо — потрібен прицільний PA.",
+        "cs": "Pro přesné hodnocení apexu, endodontického ošetření nebo lokálního defektu OPG často nestačí — je potřeba cílený PA snímek.",
+        "en": "For precise apex, endodontic, or local defect assessment, an OPG is often insufficient — a PA film is needed."
+      },
+      "tags": [
+        "radiology",
+        "periapical",
+        "endo",
+        "doctor"
+      ],
+      "asset": "assets/visuals/radiology/periapical_xray_indications.svg",
+      "recommendedFor": [
+        "radiology",
+        "periapical",
+        "endo",
+        "doctor"
+      ]
+    },
+    {
+      "id": "veneer_vs_crown",
+      "category": "prosthetics",
+      "audience": "patient",
+      "type": "image",
+      "icon": "👑",
+      "title": {
+        "uk": "Вінір vs коронка",
+        "cs": "Fazeta vs korunka",
+        "en": "Veneer vs crown"
+      },
+      "description": {
+        "uk": "Вінір покриває переважно передню поверхню, коронка — весь зуб.",
+        "cs": "Fazeta kryje hlavně přední plochu, korunka celý zub.",
+        "en": "A veneer covers mainly the front; a crown covers the whole tooth."
+      },
+      "patientText": {
+        "uk": "Вінір є тонкою накладкою для естетики. Коронка потрібна, коли зуб сильно зруйнований або потребує повного покриття.",
+        "cs": "Fazeta je tenká estetická náhrada. Korunka je vhodná, když je zub výrazně poškozený nebo potřebuje celkové krytí.",
+        "en": "A veneer is a thin aesthetic facing. A crown is used when a tooth is heavily damaged or needs full coverage."
+      },
+      "tags": [
+        "veneer",
+        "crown",
+        "prosthetics",
+        "aesthetic"
+      ],
+      "asset": "assets/visuals/prosthetics/veneer_vs_crown.svg",
+      "recommendedFor": [
+        "veneer",
+        "crown",
+        "prosthetics",
+        "aesthetic"
+      ]
+    },
+    {
+      "id": "inlay_onlay_overlay",
+      "category": "prosthetics",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🧩",
+      "title": {
+        "uk": "Inlay / Onlay / Overlay",
+        "cs": "Inlay / Onlay / Overlay",
+        "en": "Inlay / Onlay / Overlay"
+      },
+      "description": {
+        "uk": "Лабораторні вкладки відновлюють зуб точніше, ніж велика пломба.",
+        "cs": "Laboratorní výplně obnovují zub přesněji než velká plomba.",
+        "en": "Lab-made restorations rebuild teeth more precisely than large fillings."
+      },
+      "patientText": {
+        "uk": "Коли дефект великий, вкладка або overlay може краще відновити форму і міцність зуба, ніж звичайна велика пломба.",
+        "cs": "U větších defektů může inlay, onlay nebo overlay lépe obnovit tvar a pevnost zubu než běžná velká výplň.",
+        "en": "For larger defects, an inlay/onlay/overlay can restore tooth shape and strength better than a large filling."
+      },
+      "tags": [
+        "inlay",
+        "onlay",
+        "overlay",
+        "prosthetics"
+      ],
+      "asset": "assets/visuals/prosthetics/inlay_onlay_overlay.svg",
+      "recommendedFor": [
+        "inlay",
+        "onlay",
+        "overlay",
+        "prosthetics"
+      ]
+    },
+    {
+      "id": "dry_socket_prevention",
+      "category": "surgery",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🩹",
+      "title": {
+        "uk": "Як уникнути dry socket",
+        "cs": "Jak předejít dry socket",
+        "en": "How to reduce dry socket risk"
+      },
+      "description": {
+        "uk": "Після видалення важливо зберегти кров’яний згусток у лунці.",
+        "cs": "Po extrakci je důležité zachovat krevní sraženinu v lůžku.",
+        "en": "After extraction, preserving the blood clot is important."
+      },
+      "patientText": {
+        "uk": "Не полощіть активно, не куріть і не пийте через трубочку в перші дні. Це допомагає зберегти згусток і зменшити ризик болю.",
+        "cs": "První dny intenzivně nevyplachujte, nekuřte a nepijte brčkem. Pomáhá to zachovat sraženinu a snížit riziko bolesti.",
+        "en": "Avoid vigorous rinsing, smoking, and straws for the first days. This helps keep the clot and lowers pain risk."
+      },
+      "tags": [
+        "surgery",
+        "extraction",
+        "dry socket",
+        "healing"
+      ],
+      "asset": "assets/visuals/surgery/dry_socket_prevention.svg",
+      "recommendedFor": [
+        "surgery",
+        "extraction",
+        "dry socket",
+        "healing"
+      ]
+    },
+    {
+      "id": "suture_care_after_surgery",
+      "category": "surgery",
+      "audience": "patient",
+      "type": "image",
+      "icon": "🪡",
+      "title": {
+        "uk": "Догляд за швами після операції",
+        "cs": "Péče o stehy po zákroku",
+        "en": "Suture care after surgery"
+      },
+      "description": {
+        "uk": "Шви захищають рану, але потребують обережної гігієни.",
+        "cs": "Stehy chrání ránu, ale vyžadují opatrnou hygienu.",
+        "en": "Sutures protect the wound but need careful hygiene."
+      },
+      "patientText": {
+        "uk": "Не тягніть шви язиком або пальцями. Чистіть навколо обережно м’якою щіткою та дотримуйтесь рекомендацій лікаря.",
+        "cs": "Netahejte za stehy jazykem ani prsty. Okolí čistěte opatrně měkkým kartáčkem a dodržujte pokyny lékaře.",
+        "en": "Do not pull sutures with tongue or fingers. Clean gently around them and follow your dentist’s instructions."
+      },
+      "tags": [
+        "surgery",
+        "sutures",
+        "healing",
+        "postop"
+      ],
+      "asset": "assets/visuals/surgery/suture_care_after_surgery.svg",
+      "recommendedFor": [
+        "surgery",
+        "sutures",
+        "healing",
+        "postop"
+      ]
+    },
+    {
+      "id": "peri_implantitis_warning",
+      "category": "implants",
+      "audience": "doctor",
+      "type": "image",
+      "icon": "⚠️",
+      "title": {
+        "uk": "Періімплантит: ранні ознаки",
+        "cs": "Periimplantitida: časné známky",
+        "en": "Peri-implantitis: early signs"
+      },
+      "description": {
+        "uk": "Кровоточивість, поглиблення кишені та кісткова втрата навколо імпланта.",
+        "cs": "Krvácení, prohloubení chobotu a kostní ztráta kolem implantátu.",
+        "en": "Bleeding, deeper pocketing and bone loss around an implant."
+      },
+      "patientText": {
+        "uk": "Почервоніння, кровоточивість або прогресивна втрата кістки навколо імпланта потребують контролю і лікування, щоб зберегти імплант.",
+        "cs": "Zarudnutí, krvácení nebo progresivní úbytek kosti kolem implantátu vyžadují kontrolu a léčbu pro zachování implantátu.",
+        "en": "Redness, bleeding or progressive bone loss around an implant needs assessment and treatment to preserve it."
+      },
+      "tags": [
+        "implant",
+        "periimplantitis",
+        "doctor",
+        "maintenance"
+      ],
+      "asset": "assets/visuals/implants/peri_implantitis_warning.svg",
+      "recommendedFor": [
+        "implant",
+        "periimplantitis",
+        "doctor",
+        "maintenance"
+      ]
+    },
+    {
+      "id": "working_length_apex",
+      "category": "endo",
+      "audience": "doctor",
+      "type": "image",
+      "icon": "📏",
+      "title": {
+        "uk": "Робоча довжина в ендо",
+        "cs": "Pracovní délka v endodoncii",
+        "en": "Endodontic working length"
+      },
+      "description": {
+        "uk": "Контроль довжини допомагає обробити канал до апікальної межі.",
+        "cs": "Kontrola délky pomáhá opracovat kanálek po apikální hranici.",
+        "en": "Length control helps instrument the canal to the apical limit."
+      },
+      "patientText": {
+        "uk": "Правильна робоча довжина знижує ризик недообробки каналу або виведення матеріалу за верхівку.",
+        "cs": "Správná pracovní délka snižuje riziko nedostatečného opracování nebo přeplnění za apex.",
+        "en": "Correct working length reduces under-instrumentation and overextension beyond the apex."
+      },
+      "tags": [
+        "endo",
+        "working length",
+        "apex",
+        "doctor"
+      ],
+      "asset": "assets/visuals/endo/working_length_apex.svg",
+      "recommendedFor": [
+        "endo",
+        "working length",
+        "apex",
+        "doctor"
+      ]
     }
   ]
 };
