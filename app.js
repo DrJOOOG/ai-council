@@ -1,13 +1,24 @@
 // ================================================================
-// AI Council v6.10.1-beta — UI/TTS polish hotfix
+// AI Council v6.10.2-beta — realistic visual library
 // ================================================================
 
-const APP_VERSION = '6.10.1-beta';
-const APP_VERSION_DATE = '2026-05-10';
+const APP_VERSION = '6.10.2-beta';
+const APP_VERSION_DATE = '2026-05-14';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
+  {
+    version: '6.10.2-beta',
+    date: '2026-05-14',
+    highlights: [
+      { uk: '🖼️ Visual Library повністю переведено на реалістичні стоматологічні зображення: 45 тем і 0 SVG-заглушок в активній бібліотеці.', cs: '🖼️ Visual Library je kompletně převedena na realistické dentální ilustrace: 45 témat a 0 aktivních SVG zástupných obrázků.', en: '🖼️ Visual Library now uses realistic dental illustrations throughout: 45 topics and 0 active SVG placeholders.' },
+      { uk: '🦷 Додано й підключено reference-набори JPG/PNG для карієсу, пульпіту, ендо, пародонтології, імплантів, хірургії, протезування, гігієни та рентгенології.', cs: '🦷 Přidány a napojeny referenční sady JPG/PNG pro kaz, pulpitidu, endodoncii, parodontologii, implantáty, chirurgii, protetiku, hygienu a radiologii.', en: '🦷 Added and wired JPG/PNG reference sets for caries, pulpitis, endo, perio, implants, surgery, prosthetics, hygiene and radiology.' },
+      { uk: '➕ Бібліотеку розширено новими темами: фісурний карієс, пломба в розрізі, socket preservation, кісткова пластика, guided implant surgery.', cs: '➕ Knihovna rozšířena o nová témata: fisurální kaz, výplň v řezu, socket preservation, kostní augmentace, navigovaná implantace.', en: '➕ Expanded the library with new topics: fissure caries, filling cross-section, socket preservation, bone grafting, guided implant surgery.' },
+      { uk: '🌐 Виправлено локалізацію Visual Library: “Fullscreen” замінено на “На весь екран”, українські підписи й стабільніше відображення мініатюр.', cs: '🌐 Opravena lokalizace Visual Library: „Fullscreen“ nahrazeno lokálním textem, ukrajinské popisky a stabilnější zobrazení náhledů.', en: '🌐 Polished Visual Library localization: “Fullscreen” replaced with local wording, Ukrainian labels and more stable thumbnails.' },
+      { uk: '🛠️ Виправлено Vite build/deploy: збірка більше не намагається копіювати .git у dist і стабільно проходить локально та в GitHub Actions.', cs: '🛠️ Opraven Vite build/deploy: sestavení už nekopíruje .git do dist a stabilně prochází lokálně i v GitHub Actions.', en: '🛠️ Fixed Vite build/deploy: builds no longer try to copy .git into dist and pass locally and in GitHub Actions.' }
+    ]
+  },
   {
     version: '6.10.1-beta',
     date: '2026-05-10',
