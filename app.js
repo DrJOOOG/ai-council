@@ -1,13 +1,21 @@
 // ================================================================
-// ProfiDentist.ai v6.10.4-beta — product rebrand
+// ProfiDentist.ai v6.10.5-beta — swipe close hotfix
 // ================================================================
 
-const APP_VERSION = '6.10.4-beta';
+const APP_VERSION = '6.10.5-beta';
 const APP_VERSION_DATE = '2026-05-14';
 const APP_AUTHOR = 'Dr. Parkhoma';
 
 // Changelog — newest first. New entries are localized; older entries may remain as legacy text.
 const CHANGELOG = [
+  {
+    version: '6.10.5-beta',
+    date: '2026-05-14',
+    highlights: [
+      { uk: '↩️ Виправлено stuck swipe у списку чатів: action-кнопки більше не залишаються видимими, якщо картка закрита або свайп скасований.', cs: '↩️ Opraven stuck swipe v seznamu chatů: akční tlačítka už nezůstávají viditelná, když je karta zavřená nebo swipe zrušen.', en: '↩️ Fixed stuck swipe in the chat list: action buttons no longer remain visible when a card is closed or the swipe is cancelled.' },
+      { uk: '🧼 Додано жорстке snap-close: закритий стан примусово ставить translateX(0) і ховає swipe actions після tap/scroll/render.', cs: '🧼 Přidán tvrdý snap-close: zavřený stav vynutí translateX(0) a skryje swipe actions po tap/scroll/render.', en: '🧼 Added hard snap-close: closed state forces translateX(0) and hides swipe actions after tap/scroll/render.' }
+    ]
+  },
   {
     version: '6.10.4-beta',
     date: '2026-05-14',
@@ -1475,7 +1483,11 @@ function closeAllSwipeItems(scope = document) {
 
 function setSwipeState(inner, open) {
   if (!inner) return;
-  inner.style.transform = open ? 'translateX(-128px)' : '';
+  const item = inner.closest('.chat-item');
+  inner.style.transform = open ? 'translate3d(-128px, 0, 0)' : 'translate3d(0, 0, 0)';
+  inner.classList.toggle('is-swiped', !!open);
+  item?.classList.toggle('is-swiped', !!open);
+  item?.classList.remove('is-swiping');
   if (open) inner.dataset.swiped = '1';
   else delete inner.dataset.swiped;
 }
@@ -1582,9 +1594,10 @@ function renderChatList() {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
       isSwiping = false;
+      item.classList.remove('is-swiping');
       const inner = item.querySelector('.chat-item-inner');
       // Capture current transform state so we can swipe from swiped position
-      item._startOffset = inner && inner.dataset.swiped === '1' ? -140 : 0;
+      item._startOffset = inner && inner.dataset.swiped === '1' ? -128 : 0;
       longPressTimer = setTimeout(() => {
         if (!state.selectionMode && item._startOffset === 0) {
           state.selectionMode = true;
@@ -1611,10 +1624,11 @@ function renderChatList() {
         isSwiping = true;
         const inner = item.querySelector('.chat-item-inner');
         if (inner) {
-          // startOffset + dx, clamped to [-140, 0]
+          // startOffset + dx, clamped to [-128, 0]
           const raw = (item._startOffset || 0) + dx;
           const offset = Math.max(-128, Math.min(0, raw));
-          inner.style.transform = `translateX(${offset}px)`;
+          item.classList.toggle('is-swiping', offset < -4);
+          inner.style.transform = `translate3d(${offset}px, 0, 0)`;
         }
       }
     }, { passive: true });
@@ -1625,27 +1639,29 @@ function renderChatList() {
         const dx = (e.changedTouches[0]?.clientX || 0) - touchStartX;
         const inner = item.querySelector('.chat-item-inner');
         if (inner) {
-          const finalOffset = (item._startOffset || 0) + dx;
-          // Snap: if past halfway toward revealing → open; else → close
-          if (finalOffset < -72) {
+          const finalOffset = Math.max(-128, Math.min(0, (item._startOffset || 0) + dx));
+          const movedLeft = dx < -18;
+          const movedRight = dx > 18;
+          // Snap deterministically: small/partial drags close; only a deliberate left drag opens.
+          if (finalOffset < -80 && movedLeft && !movedRight) {
             setSwipeState(inner, true);
-            // v4.5: Close any other open swipe
+            // Close any other open swipe
             el.querySelectorAll('.chat-item-inner[data-swiped="1"]').forEach(other => {
-              if (other !== inner) {
-                setSwipeState(other, false);
-              }
+              if (other !== inner) setSwipeState(other, false);
             });
           } else {
             setSwipeState(inner, false);
           }
         }
       }
+      item.classList.remove('is-swiping');
     }, { passive: true });
 
     item.addEventListener('touchcancel', () => {
       clearTimeout(longPressTimer);
       const inner = item.querySelector('.chat-item-inner');
       if (inner) setSwipeState(inner, false);
+      item.classList.remove('is-swiping');
       isSwiping = false;
     }, { passive: true });
   });

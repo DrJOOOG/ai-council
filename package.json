@@ -1,6 +1,6 @@
 {
   "name": "profidentist-ai",
-  "version": "6.10.4-beta",
+  "version": "6.10.5-beta",
   "private": true,
   "scripts": {
     "test": "npm run test:syntax && npm run test:unit && npm run test:e2e",

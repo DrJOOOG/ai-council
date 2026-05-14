@@ -106,6 +106,45 @@ test('attachment menu exposes camera, photos and files options', async ({ page }
   await expect(page.locator('#fileInput')).toHaveAttribute('accept', '*/*');
 });
 
+
+test('chat swipe closed state fully hides action buttons', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('aic3_settings', JSON.stringify({ language: 'uk' }));
+    localStorage.setItem('aic3_chats', JSON.stringify({
+      order: ['chat-1'],
+      archived: [],
+      chats: {
+        'chat-1': {
+          id: 'chat-1',
+          name: 'Swipe regression',
+          mode: 'parallel',
+          participants: [{ ai: 'openai', level: 1 }],
+          messages: [{ id: 'm1', role: 'user', content: 'test', createdAt: Date.now() }],
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        }
+      }
+    }));
+  });
+  await page.goto('/index.html');
+  const item = page.locator('.chat-item').first();
+  const inner = item.locator('.chat-item-inner');
+  const actions = item.locator('.swipe-actions-wrap');
+  await expect(item).toBeVisible();
+
+  await page.evaluate(() => {
+    const row = document.querySelector('.chat-item');
+    const card = document.querySelector('.chat-item-inner');
+    row.classList.add('is-swiping');
+    card.style.transform = 'translate3d(-36px, 0, 0)';
+    window.setSwipeState(card, false);
+  });
+
+  await expect(inner).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  await expect(actions).toHaveCSS('opacity', '0');
+  await expect(item).not.toHaveClass(/is-swiped|is-swiping/);
+});
+
 test('API errors show human summary and clickable technical details', async ({ page }) => {
   await page.route('https://generativelanguage.googleapis.com/**', async route => {
     await route.fulfill({

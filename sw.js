@@ -1,4 +1,4 @@
-const CACHE = 'profidentist-ai-v6.10.4-beta-cleanicons';
+const CACHE = 'profidentist-ai-v6.10.5-beta-cleanicons';
 const ASSETS = [
   './',
   './index.html',

@@ -1769,7 +1769,17 @@ body.theme-dark .info-popover-text { color: var(--text-dim); }
 
 /* Swipe cards: no partial-open visual after scroll/tap/re-render */
 .chat-item { touch-action: pan-y; }
-.chat-item-inner { transform: translateX(0); transition: transform .20s cubic-bezier(.2,.8,.2,1) !important; }
+.chat-item-inner { transform: translate3d(0,0,0); transition: transform .20s cubic-bezier(.2,.8,.2,1) !important; }
+.chat-item:not(.is-swiped):not(.is-swiping) .swipe-actions-wrap {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(16px);
+}
+.chat-item.is-swiped .swipe-actions-wrap,
+.chat-item.is-swiping .swipe-actions-wrap {
+  opacity: 1;
+  transform: translateX(0);
+}
 
 /* ==================== v6.9.1-beta: request cancel state ==================== */
 .send-btn.cancel-mode {
@@ -1879,6 +1889,7 @@ body.theme-dark .header-title .sub { color: rgba(232,232,240,.62); }
   border-radius: 18px;
   overflow: hidden;
   margin: 2px 0;
+  transition: opacity .14s ease, transform .20s cubic-bezier(.2,.8,.2,1);
 }
 .swipe-action { font-size: 16px; }
 .swipe-delete { background: linear-gradient(135deg, #c83b52, #8f1e34) !important; }
