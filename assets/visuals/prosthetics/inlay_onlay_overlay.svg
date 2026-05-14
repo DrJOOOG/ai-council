@@ -18,5 +18,5 @@
     <rect x="72" y="70" width="270" height="58" rx="29" fill="#ffffff" opacity=".86" stroke="#74318f" stroke-opacity=".16"/>
     <text x="105" y="108" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#74318f">AI Council visuals</text>
   </g>
-  <text x="450" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="800" fill="#25172d">Inlay / Onlay / Overlay</text>
+  <text x="450" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#25172d">Inlay / Onlay / Overlay</text>
 </svg>
