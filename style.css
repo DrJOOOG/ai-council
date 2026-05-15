@@ -1871,6 +1871,64 @@ body.theme-dark .info-popover-text { color: var(--text-dim); }
 .visual-draw-canvas { position:absolute; inset:0; width:100%; height:100%; z-index: 2; touch-action: none; cursor: crosshair; }
 .visual-patient-copy { width: min(100%, 860px); margin-top: 18px; text-align: center; font-size: clamp(18px, 4vw, 30px); line-height: 1.45; font-weight: 680; }
 .visual-patient-footer { margin-top: 18px; font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .14em; color: rgba(37,23,45,.45); }
+@media (min-width: 900px) and (orientation: landscape) {
+  .visual-patient-shell {
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    gap: 14px 22px;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--safe-top) + 28px) 72px calc(var(--safe-bot) + 28px) 28px;
+  }
+  .visual-patient-title {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    text-align: left;
+    margin: 0;
+    font-size: clamp(24px, 2.8vw, 38px);
+  }
+  .visual-draw-toolbar {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 0;
+  }
+  .visual-patient-image {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    width: 100%;
+    max-width: calc(100vw - 430px);
+    max-height: calc(100dvh - 56px);
+    align-self: center;
+    justify-self: center;
+  }
+  .visual-patient-image img {
+    width: 100%;
+    height: calc(100dvh - 60px);
+    max-height: calc(100dvh - 60px);
+    object-fit: contain;
+  }
+  .visual-patient-copy {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    font-size: clamp(16px, 1.45vw, 22px);
+    line-height: 1.45;
+  }
+  .visual-patient-footer {
+    grid-column: 1;
+    grid-row: 4;
+    justify-self: start;
+    margin-top: 0;
+  }
+}
 body.theme-dark .visuals-entry-card,
 body.theme-dark .visuals-hero,
 body.theme-dark .visuals-search,
