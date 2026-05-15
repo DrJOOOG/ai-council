@@ -1228,7 +1228,7 @@ header {
 }
 .msg-actions {
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 7px;
 }
 .msg-action-btn,
 .tldr-btn {
