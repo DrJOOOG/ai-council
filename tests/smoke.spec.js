@@ -115,7 +115,7 @@ test('settings exposes developer contact card', async ({ page }) => {
   await expect(page.locator('#settingsContactSection')).toContainText('+420 608 553 348');
   await expect(page.locator('#settingsContactSection')).toContainText('profidentist.cz@gmail.com');
   await expect(page.locator('#settingsContactSection a[href="https://profidentist.ai"]')).toBeVisible();
-  await expect(page.locator('#settingsContactSection a[href="https://profidentist.xdent.cz/"]')).toContainText('Онлайн запис');
+  await expect(page.locator('#settingsContactSection a[href="https://profidentist.xdent.cz/"]')).toHaveCount(0);
 });
 
 

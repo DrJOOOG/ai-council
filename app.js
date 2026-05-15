@@ -12,7 +12,7 @@ const CHANGELOG = [
     version: '6.10.6-beta',
     date: '2026-05-14',
     highlights: [
-      { uk: '☎️ Додано блок “Контакти / розробник” у Settings з профілем Taras Parkhoma, телефоном, email, адресою клініки та онлайн-записом.', cs: '☎️ Přidán blok „Kontakty / vývojář“ v Nastavení s profilem Taras Parkhoma, telefonem, e-mailem, adresou ordinace a online objednáním.', en: '☎️ Added a “Contacts / developer” block in Settings with Taras Parkhoma profile, phone, email, clinic address and online booking.' },
+      { uk: '☎️ Додано блок “Контакти / розробник” у Settings з профілем Taras Parkhoma, телефоном, email та адресою клініки.', cs: '☎️ Přidán blok „Kontakty / vývojář“ v Nastavení s profilem Taras Parkhoma, telefonem, e-mailem a adresou ordinace.', en: '☎️ Added a “Contacts / developer” block in Settings with Taras Parkhoma profile, phone, email and clinic address.' },
       { uk: '🌐 Додано посилання на ProfiDentist.cz і новий домен ProfiDentist.ai.', cs: '🌐 Přidány odkazy na ProfiDentist.cz a novou doménu ProfiDentist.ai.', en: '🌐 Added links to ProfiDentist.cz and the new ProfiDentist.ai domain.' }
     ]
   },
