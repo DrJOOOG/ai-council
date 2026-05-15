@@ -54,3 +54,15 @@ test('raw translation keys are not visible in the main UI', async ({ page }) => 
   const body = await page.locator('body').innerText();
   expect(body).not.toMatch(/\b(?:settings|newChat|chat|menu|flash|template)\.[a-zA-Z0-9_.-]+\b/);
 });
+
+test('czech changelog does not show ukrainian legacy entries', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('aic3_settings', JSON.stringify({ language: 'cs' }));
+  });
+  await page.goto('/index.html');
+  await page.locator('#headerVersion').click();
+  await expect(page.locator('#changelogOverlay')).toHaveClass(/open/);
+  await expect(page.locator('#changelogOverlay')).toContainText('Historie verzí');
+  const text = await page.locator('#changelogOverlay').innerText();
+  expect(text).not.toMatch(/[А-Яа-яІіЇїЄєҐґ]/);
+});

@@ -5268,9 +5268,53 @@ function deleteCase(id) {
 
 // ==================== CHANGELOG (v5.0) ====================
 function changelogText(item) {
-  if (typeof item === 'string') return item;
   const lang = getLang();
+  if (typeof item === 'string') return localizedLegacyChangelog(item, lang);
   return item?.[lang] || item?.uk || item?.en || '';
+}
+
+function localizedLegacyChangelog(text, lang = getLang()) {
+  if (lang === 'uk') return text;
+  const icon = String(text || '').trim().match(/^\p{Extended_Pictographic}+(?:\uFE0F)?/u)?.[0] || '•';
+  const lower = String(text || '').toLowerCase();
+  const cs = {
+    opg: `${icon} OPG / rentgen: bezpečnější workflow, korekce a strukturovanější výstupy.`,
+    settings: `${icon} Nastavení: lepší organizace, čitelnost a ovládání.`,
+    api: `${icon} API a chyby: stabilnější zpracování a srozumitelnější hlášení.`,
+    ai: `${icon} AI modely: lepší routing, stabilita a práce s odpověďmi.`,
+    files: `${icon} Soubory a přílohy: bezpečnější nahrávání, čtení a zpracování.`,
+    security: `${icon} Bezpečnost: silnější ochrana dat, PII a uploadů.`,
+    ui: `${icon} Rozhraní: čistší vzhled, lepší ovládání a polish.`,
+    storage: `${icon} Ukládání / backup: stabilnější lokální data a exporty.`,
+    tts: `${icon} Hlasové čtení: stabilnější TTS a ovládání přehrávání.`,
+    tests: `${icon} Testy a deployment: přidány kontroly a stabilnější build.`,
+    default: `${icon} Starší technická změna v aplikaci.`
+  };
+  const en = {
+    opg: `${icon} OPG / X-ray: safer workflow, corrections and more structured outputs.`,
+    settings: `${icon} Settings: better organization, readability and controls.`,
+    api: `${icon} API and errors: more stable handling and clearer messages.`,
+    ai: `${icon} AI models: improved routing, stability and response handling.`,
+    files: `${icon} Files and attachments: safer upload, reading and processing.`,
+    security: `${icon} Security: stronger protection for data, PII and uploads.`,
+    ui: `${icon} Interface: cleaner visuals, better controls and polish.`,
+    storage: `${icon} Storage / backup: more stable local data and exports.`,
+    tts: `${icon} Voice reading: more stable TTS and playback controls.`,
+    tests: `${icon} Tests and deployment: added checks and more stable builds.`,
+    default: `${icon} Older technical app change.`
+  };
+  const dict = lang === 'cs' ? cs : en;
+  if (lower.includes('opg') || lower.includes('рентген') || lower.includes('fdi')) return dict.opg;
+  if (lower.includes('settings') || lower.includes('налашту') || lower.includes('dangerous zone')) return dict.settings;
+  if (lower.includes('api') || lower.includes('http') || lower.includes('responses')) return dict.api;
+  if (lower.includes('ai') || lower.includes('gpt') || lower.includes('gemini') || lower.includes('perplexity') || lower.includes('debate') || lower.includes('рада')) return dict.ai;
+  if (lower.includes('file') || lower.includes('upload') || lower.includes('pdf') || lower.includes('docx') || lower.includes('xlsx') || lower.includes('вклад')) return dict.files;
+  if (lower.includes('pii') || lower.includes('security') || lower.includes('safe') || lower.includes('захист') || lower.includes('безпек')) return dict.security;
+  if (lower.includes('backup') || lower.includes('obsidian') || lower.includes('localstorage') || lower.includes('service worker') || lower.includes('pwa')) return dict.storage;
+  if (lower.includes('tts') || lower.includes('speech') || lower.includes('голос')) return dict.tts;
+  if (lower.includes('test') || lower.includes('playwright') || lower.includes('github actions') || lower.includes('build')) return dict.tests;
+  if (lower.includes('ui') || lower.includes('logo') || lower.includes('header') || lower.includes('swipe') || lower.includes('tl;dr') || lower.includes('інтерфейс')) return dict.ui;
+  return dict.default;
 }
 
 function openChangelog() {
