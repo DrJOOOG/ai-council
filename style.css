@@ -889,7 +889,7 @@ body.theme-dark .contact-links a { background: rgba(255,255,255,.05); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   background: var(--bg-2);
   border: 1px solid var(--border);
   color: var(--text-dim);
@@ -904,7 +904,7 @@ body.theme-dark .contact-links a { background: rgba(255,255,255,.05); }
 }
 .language-flag {
   font-family: Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif;
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1;
   letter-spacing: 0;
   filter: saturate(1.08);
@@ -1228,7 +1228,7 @@ header {
 }
 .msg-actions {
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
 }
 .msg-action-btn,
 .tldr-btn {
