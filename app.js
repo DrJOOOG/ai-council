@@ -12,6 +12,7 @@ const CHANGELOG = [
     version: '6.10.6-beta',
     date: '2026-05-14',
     highlights: [
+      { uk: '✏️ У режимі показу візуалізації пацієнту додано малювання поверх зображення: кольори, undo і очищення.', cs: '✏️ V režimu ukázky vizualizace pacientovi přidáno kreslení přes obrázek: barvy, zpět a smazání.', en: '✏️ Added drawing over patient visualizations: colors, undo and clear.' },
       { uk: '☎️ Додано блок “Контакти / розробник” у Settings з профілем Taras Parkhoma, телефоном, email та адресою клініки.', cs: '☎️ Přidán blok „Kontakty / vývojář“ v Nastavení s profilem Taras Parkhoma, telefonem, e-mailem a adresou ordinace.', en: '☎️ Added a “Contacts / developer” block in Settings with Taras Parkhoma profile, phone, email and clinic address.' },
       { uk: '🌐 Додано посилання на ProfiDentist.cz і новий домен ProfiDentist.ai.', cs: '🌐 Přidány odkazy na ProfiDentist.cz a novou doménu ProfiDentist.ai.', en: '🌐 Added links to ProfiDentist.cz and the new ProfiDentist.ai domain.' }
     ]
@@ -2586,10 +2587,132 @@ function openVisualPatientMode(id) {
   const text = visualText(item.patientText, '');
   body.innerHTML = `
     <div class="visual-patient-title">${escapeHtml(title)}</div>
-    <div class="visual-patient-image"><img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}"></div>
+    <div class="visual-draw-toolbar" aria-label="${escapeHtml(t('visuals.draw.toolbar'))}">
+      <button type="button" class="visual-draw-btn active" data-visual-draw-toggle>${escapeHtml(t('visuals.draw.pen'))}</button>
+      <button type="button" class="visual-draw-color active" data-visual-draw-color="#e53935" style="--draw-color:#e53935" aria-label="${escapeHtml(t('visuals.draw.red'))}"></button>
+      <button type="button" class="visual-draw-color" data-visual-draw-color="#74318f" style="--draw-color:#74318f" aria-label="${escapeHtml(t('visuals.draw.violet'))}"></button>
+      <button type="button" class="visual-draw-color" data-visual-draw-color="#111827" style="--draw-color:#111827" aria-label="${escapeHtml(t('visuals.draw.black'))}"></button>
+      <button type="button" class="visual-draw-btn" data-visual-draw-undo>${escapeHtml(t('visuals.draw.undo'))}</button>
+      <button type="button" class="visual-draw-btn" data-visual-draw-clear>${escapeHtml(t('visuals.draw.clear'))}</button>
+    </div>
+    <div class="visual-patient-image visual-draw-stage"><img src="${escapeHtml(item.asset || '')}" alt="${escapeHtml(title)}"><canvas class="visual-draw-canvas" id="visualDrawCanvas"></canvas></div>
     <div class="visual-patient-copy">${escapeHtml(text)}</div>
     <div class="visual-patient-footer">ProfiDentist.ai · ${escapeHtml(t('visuals.patientModeShort'))}</div>`;
   openOverlay('visualPatientOverlay');
+  setupVisualDrawingCanvas();
+}
+
+let visualDrawState = { enabled: true, color: '#e53935', drawing: false, points: [], strokes: [] };
+
+function setupVisualDrawingCanvas() {
+  visualDrawState = { enabled: true, color: '#e53935', drawing: false, points: [], strokes: [] };
+  const canvas = document.getElementById('visualDrawCanvas');
+  const stage = canvas?.closest('.visual-draw-stage');
+  const img = stage?.querySelector('img');
+  if (!canvas || !stage || !img) return;
+
+  const resize = () => {
+    const rect = stage.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+    redrawVisualStrokes();
+  };
+  if (img.complete) resize();
+  else img.addEventListener('load', resize, { once: true });
+  window.requestAnimationFrame(resize);
+
+  canvas.addEventListener('pointerdown', startVisualStroke);
+  canvas.addEventListener('pointermove', moveVisualStroke);
+  canvas.addEventListener('pointerup', endVisualStroke);
+  canvas.addEventListener('pointercancel', endVisualStroke);
+}
+
+function visualCanvasPoint(e) {
+  const canvas = document.getElementById('visualDrawCanvas');
+  const rect = canvas?.getBoundingClientRect();
+  if (!rect) return null;
+  return { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
+}
+
+function drawVisualStroke(ctx, stroke, width, height) {
+  const pts = stroke.points || [];
+  if (!pts.length) return;
+  ctx.strokeStyle = stroke.color || '#e53935';
+  ctx.lineWidth = Math.max(3, Math.min(width, height) * 0.012);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x * width, pts[0].y * height);
+  for (const p of pts.slice(1)) ctx.lineTo(p.x * width, p.y * height);
+  ctx.stroke();
+}
+
+function redrawVisualStrokes() {
+  const canvas = document.getElementById('visualDrawCanvas');
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const stroke of visualDrawState.strokes) drawVisualStroke(ctx, stroke, canvas.width, canvas.height);
+  if (visualDrawState.points.length) drawVisualStroke(ctx, { color: visualDrawState.color, points: visualDrawState.points }, canvas.width, canvas.height);
+}
+
+function startVisualStroke(e) {
+  if (!visualDrawState.enabled) return;
+  const point = visualCanvasPoint(e);
+  if (!point) return;
+  e.preventDefault();
+  e.currentTarget.setPointerCapture?.(e.pointerId);
+  visualDrawState.drawing = true;
+  visualDrawState.points = [point];
+  redrawVisualStrokes();
+}
+
+function moveVisualStroke(e) {
+  if (!visualDrawState.enabled || !visualDrawState.drawing) return;
+  const point = visualCanvasPoint(e);
+  if (!point) return;
+  e.preventDefault();
+  visualDrawState.points.push(point);
+  redrawVisualStrokes();
+}
+
+function endVisualStroke(e) {
+  if (!visualDrawState.drawing) return;
+  e.preventDefault();
+  if (visualDrawState.points.length) {
+    visualDrawState.strokes.push({ color: visualDrawState.color, points: visualDrawState.points.slice() });
+  }
+  visualDrawState.drawing = false;
+  visualDrawState.points = [];
+  redrawVisualStrokes();
+}
+
+function handleVisualDrawingAction(e) {
+  const toggleBtn = e.target.closest('[data-visual-draw-toggle]');
+  if (toggleBtn) {
+    visualDrawState.enabled = !visualDrawState.enabled;
+    toggleBtn.classList.toggle('active', visualDrawState.enabled);
+    return;
+  }
+  const colorBtn = e.target.closest('[data-visual-draw-color]');
+  if (colorBtn) {
+    visualDrawState.color = colorBtn.dataset.visualDrawColor || '#e53935';
+    document.querySelectorAll('[data-visual-draw-color]').forEach(btn => btn.classList.toggle('active', btn === colorBtn));
+    return;
+  }
+  if (e.target.closest('[data-visual-draw-undo]')) {
+    visualDrawState.strokes.pop();
+    redrawVisualStrokes();
+    return;
+  }
+  if (e.target.closest('[data-visual-draw-clear]')) {
+    visualDrawState.strokes = [];
+    visualDrawState.points = [];
+    redrawVisualStrokes();
+  }
 }
 
 function copyVisualText(id) {
@@ -5980,6 +6103,7 @@ function init() {
     if (e.target.closest('[data-open-visual-library]')) { closeOverlay('visualDetailOverlay'); openVisuals('chat'); }
   });
   document.getElementById('visualPatientClose')?.addEventListener('click', () => closeOverlay('visualPatientOverlay'));
+  document.getElementById('visualPatientContent')?.addEventListener('click', handleVisualDrawingAction);
 
   // Chat screen
   document.getElementById('chatBackBtn').addEventListener('click', () => goScreen('list'));

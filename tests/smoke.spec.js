@@ -118,6 +118,23 @@ test('settings exposes developer contact card', async ({ page }) => {
   await expect(page.locator('#settingsContactSection a[href="https://profidentist.xdent.cz/"]')).toHaveCount(0);
 });
 
+test('visual patient mode exposes drawing tools', async ({ page }) => {
+  await seedKeys(page);
+  await page.goto('/index.html');
+  await page.locator('#newChatBtn').click();
+  await page.locator('#openVisualsFromNew').click();
+  await expect(page.locator('#visualsGrid [data-visual-patient]').first()).toBeVisible();
+  await page.locator('#visualsGrid [data-visual-patient]').first().click();
+  await expect(page.locator('#visualPatientOverlay')).toHaveClass(/open/);
+  await expect(page.locator('#visualDrawCanvas')).toBeVisible();
+  await expect(page.locator('[data-visual-draw-toggle]')).toContainText('Малювати');
+  await expect(page.locator('[data-visual-draw-color="#e53935"]')).toHaveClass(/active/);
+  await page.locator('[data-visual-draw-color="#74318f"]').click();
+  await expect(page.locator('[data-visual-draw-color="#74318f"]')).toHaveClass(/active/);
+  await page.locator('[data-visual-draw-undo]').click();
+  await page.locator('[data-visual-draw-clear]').click();
+});
+
 
 test('chat swipe closed state fully hides action buttons', async ({ page }) => {
   await page.addInitScript(() => {
