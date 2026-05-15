@@ -111,10 +111,11 @@ test('settings exposes developer contact card', async ({ page }) => {
   await page.goto('/index.html');
   await page.locator('#settingsBtn').click();
   await page.locator('[data-settings-jump="settingsContactSection"]').click();
-  await expect(page.locator('#settingsContactSection')).toContainText('MDDr. Taras Parkhoma');
+  await expect(page.locator('#settingsContactSection')).toContainText('Taras Parkhoma');
   await expect(page.locator('#settingsContactSection')).toContainText('+420 608 553 348');
   await expect(page.locator('#settingsContactSection')).toContainText('profidentist.cz@gmail.com');
   await expect(page.locator('#settingsContactSection a[href="https://profidentist.ai"]')).toBeVisible();
+  await expect(page.locator('#settingsContactSection a[href="https://profidentist.xdent.cz/"]')).toContainText('Онлайн запис');
 });
 
 
